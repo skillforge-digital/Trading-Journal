@@ -6,42 +6,31 @@
   <title>Skillforge Trading Journal</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
-  
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap');
-    body { font-family: 'Plus Jakarta Sans', sans-serif; background: #0f172a; color: #e2e8f0; }
-    .glass { background: rgba(2,6,23,0.7); backdrop-filter: blur(12px); border: 1px solid rgba(148,163,184,0.15); }
-    .profit-text { color: #34d399; }
-    .loss-text { color: #f87171; }
-    .section { display: none; }
-    .section.active { display: block; }
-    .custom-scrollbar { scrollbar-width: thin; scrollbar-color: #334155 transparent; }
-    .custom-scrollbar::-webkit-scrollbar { width: 8px; }
-    .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 9999px; }
+    body{font-family:'Plus Jakarta Sans',sans-serif;background:#0f172a;color:#e2e8f0}
+    .glass{background:rgba(2,6,23,.7);backdrop-filter:blur(12px);border:1px solid rgba(148,163,184,.15)}
+    .profit-text{color:#34d399}
+    .loss-text{color:#f87171}
+    .section{display:none}
+    .section.active{display:block}
+    .custom-scrollbar{scrollbar-width:thin;scrollbar-color:#334155 transparent}
+    .custom-scrollbar::-webkit-scrollbar{width:8px}
+    .custom-scrollbar::-webkit-scrollbar-thumb{background:#334155;border-radius:9999px}
   </style>
 </head>
 <body class="pb-20">
   <div id="authContainer" class="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-slate-950/95 backdrop-blur-xl hidden" role="dialog" aria-modal="true">
     <div class="glass w-full max-w-lg rounded-3xl overflow-hidden shadow-2xl flex flex-col relative border border-slate-700 max-h-[90vh] overflow-y-auto">
       <div class="p-8 pb-0 text-center">
-        <div class="flex items-center justify-center mb-5">
-          <img src="https://i.postimg.cc/fRYD4HSw/Whats-App-Image-2026-01-16-at-1-20-06-PM.jpg" alt="Skillforge Digital" class="w-20 h-20 object-contain rounded-xl shadow-2xl ring-1 ring-white/10">
-        </div>
+        <div class="flex items-center justify-center mb-5"><img src="https://i.postimg.cc/fRYD4HSw/Whats-App-Image-2026-01-16-at-1-20-06-PM.jpg" alt="Skillforge Digital" class="w-20 h-20 object-contain rounded-xl shadow-2xl ring-1 ring-white/10"></div>
         <h1 class="text-2xl md:text-3xl font-black tracking-tight mb-1">SKILLFORGE <span class="text-blue-500">DIGITAL</span> &amp; CO. LTD</h1>
         <p class="text-blue-400 text-xs font-bold uppercase tracking-[0.2em]">Official Company</p>
       </div>
       <div id="landing-options" class="p-8 space-y-4">
         <div class="grid grid-cols-2 gap-4">
-          <button id="btn-show-login" type="button" class="group p-6 bg-slate-900/50 border border-slate-800 rounded-2xl hover:bg-blue-600 hover:border-blue-500 transition-all text-left">
-            <div class="bg-slate-800 group-hover:bg-white/20 w-10 h-10 rounded-lg flex items-center justify-center mb-3 transition-colors"><i data-lucide="user" class="text-slate-400 group-hover:text-white w-5 h-5"></i></div>
-            <h3 class="font-bold text-white text-sm">Student Login</h3>
-            <p class="text-[10px] text-slate-500 group-hover:text-blue-200 mt-1">Access your journal</p>
-          </button>
-          <button id="btn-show-register" type="button" class="group p-6 bg-slate-900/50 border border-slate-800 rounded-2xl hover:bg-blue-600 hover:border-blue-500 transition-all text-left">
-            <div class="bg-slate-800 group-hover:bg-white/20 w-10 h-10 rounded-lg flex items-center justify-center mb-3 transition-colors"><i data-lucide="user-plus" class="text-slate-400 group-hover:text-white w-5 h-5"></i></div>
-            <h3 class="font-bold text-white text-sm">New Student</h3>
-            <p class="text-[10px] text-slate-500 group-hover:text-blue-200 mt-1">Create account</p>
-          </button>
+          <button id="btn-show-login" type="button" class="group p-6 bg-slate-900/50 border border-slate-800 rounded-2xl hover:bg-blue-600 hover:border-blue-500 transition-all text-left"><div class="bg-slate-800 group-hover:bg-white/20 w-10 h-10 rounded-lg flex items-center justify-center mb-3 transition-colors"><i data-lucide="user" class="text-slate-400 group-hover:text-white w-5 h-5"></i></div><h3 class="font-bold text-white text-sm">Student Login</h3><p class="text-[10px] text-slate-500 group-hover:text-blue-200 mt-1">Access your journal</p></button>
+          <button id="btn-show-register" type="button" class="group p-6 bg-slate-900/50 border border-slate-800 rounded-2xl hover:bg-blue-600 hover:border-blue-500 transition-all text-left"><div class="bg-slate-800 group-hover:bg-white/20 w-10 h-10 rounded-lg flex items-center justify-center mb-3 transition-colors"><i data-lucide="user-plus" class="text-slate-400 group-hover:text-white w-5 h-5"></i></div><h3 class="font-bold text-white text-sm">New Student</h3><p class="text-[10px] text-slate-500 group-hover:text-blue-200 mt-1">Create account</p></button>
         </div>
         <div class="relative py-4"><div class="absolute inset-0 flex items-center"><div class="w-full border-t border-slate-800"></div></div><div class="relative flex justify-center"><span class="bg-slate-900 px-2 text-[10px] text-slate-500 uppercase font-bold">Authorized Personnel</span></div></div>
         <button id="btn-show-admin" type="button" class="w-full p-4 rounded-xl border border-slate-800 hover:bg-slate-800 transition-all flex items-center justify-center gap-2 group"><i data-lucide="shield-check" class="text-slate-500 group-hover:text-red-500 w-4 h-4"></i><span class="text-xs font-bold text-slate-400 group-hover:text-white uppercase tracking-wider">Mentor Access</span></button>
@@ -63,10 +52,7 @@
   </div>
   <header class="glass sticky top-0 z-50">
     <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-      <div class="flex items-center gap-3">
-        <img src="https://i.postimg.cc/fRYD4HSw/Whats-App-Image-2026-01-16-at-1-20-06-PM.jpg" alt="Skillforge Digital" class="w-10 h-10 rounded-xl object-contain shadow-2xl ring-1 ring-white/10">
-        <div class="text-xl font-extrabold tracking-tight text-white">SKILLFORGE <span class="text-blue-500">DIGITAL</span> &amp; CO. LTD</div>
-      </div>
+      <div class="flex items-center gap-3"><img src="https://i.postimg.cc/fRYD4HSw/Whats-App-Image-2026-01-16-at-1-20-06-PM.jpg" alt="Skillforge Digital" class="w-10 h-10 rounded-xl object-contain shadow-2xl ring-1 ring-white/10"><div class="text-xl font-extrabold tracking-tight text-white">SKILLFORGE <span class="text-blue-500">DIGITAL</span> &amp; CO. LTD</div></div>
       <nav class="flex items-center gap-2">
         <button data-tab="journal" class="px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-widest bg-slate-800 text-slate-300 hover:bg-slate-700">Journal</button>
         <button data-tab="leaderboard" class="px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-widest bg-slate-800 text-slate-300 hover:bg-slate-700">Leaderboard</button>
@@ -74,671 +60,387 @@
       </nav>
     </div>
   </header>
-
   <main class="max-w-7xl mx-auto px-4 mt-8 space-y-8">
     <section id="journal" class="section active space-y-6">
       <div class="glass p-6 rounded-2xl space-y-4">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-2">
-            <i data-lucide="activity" class="text-blue-500 w-5 h-5"></i>
-            <h3 class="text-sm font-bold text-white uppercase tracking-wider">Live Market</h3>
-          </div>
-          <div class="flex items-center gap-2">
-            <select id="liveSymbolSelect" class="bg-slate-950 border border-slate-800 rounded-xl p-2 text-white text-xs outline-none min-w-40"></select>
-            <span id="liveChartStatus" class="text-[10px] font-bold uppercase text-slate-500">Disconnected</span>
-          </div>
-        </div>
+        <div class="flex items-center justify-between"><div class="flex items-center gap-2"><i data-lucide="activity" class="text-blue-500 w-5 h-5"></i><h3 class="text-sm font-bold text-white uppercase tracking-wider">Live Market</h3></div><div class="flex items-center gap-2"><select id="liveSymbolSelect" class="bg-slate-950 border border-slate-800 rounded-xl p-2 text-white text-xs outline-none min-w-40"></select><span id="liveChartStatus" class="text-[10px] font-bold uppercase text-slate-500">Disconnected</span></div></div>
         <canvas id="liveChartCanvas" height="160" class="w-full rounded-xl bg-slate-950 border border-slate-800"></canvas>
       </div>
       <div class="grid md:grid-cols-2 gap-6">
         <div class="glass p-6 rounded-2xl space-y-4">
-          <div class="flex items-center gap-2">
-            <i data-lucide="user" class="text-slate-400 w-5 h-5"></i>
-            <h3 class="text-sm font-bold text-white uppercase tracking-wider">User</h3>
-          </div>
-          <div class="flex items-center justify-between">
-            <p id="currentUserEmail" class="text-xs text-slate-300 font-bold truncate"></p>
-            <button id="signOutBtn" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-white text-[10px] font-bold uppercase tracking-wider">Sign Out</button>
-          </div>
+          <div class="flex items-center gap-2"><i data-lucide="user" class="text-slate-400 w-5 h-5"></i><h3 class="text-sm font-bold text-white uppercase tracking-wider">User</h3></div>
+          <div class="flex items-center justify-between"><p id="currentUserEmail" class="text-xs text-slate-300 font-bold truncate"></p><button id="signOutBtn" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-white text-[10px] font-bold uppercase tracking-wider">Sign Out</button></div>
           <p id="currentUserId" class="text-[10px] text-slate-500 font-mono"></p>
         </div>
-
-        
-
         <div class="glass p-6 rounded-2xl space-y-4">
-          <div class="flex items-center gap-2">
-            <i data-lucide="file-plus" class="text-slate-400 w-5 h-5"></i>
-            <h3 class="text-sm font-bold text-white uppercase tracking-wider">Log Trade</h3>
-          </div>
+          <div class="flex items-center gap-2"><i data-lucide="file-plus" class="text-slate-400 w-5 h-5"></i><h3 class="text-sm font-bold text-white uppercase tracking-wider">Log Trade</h3></div>
           <div class="grid grid-cols-2 gap-3">
             <input id="tradeInstrument" type="text" placeholder="Instrument" class="bg-slate-950 border border-slate-800 rounded-xl p-3 text-white text-sm outline-none">
-            <select id="tradeType" class="bg-slate-950 border border-slate-800 rounded-xl p-3 text-white text-sm outline-none">
-              <option value="buy">Buy</option>
-              <option value="sell">Sell</option>
-            </select>
+            <select id="tradeType" class="bg-slate-950 border border-slate-800 rounded-xl p-3 text-white text-sm outline-none"><option value="buy">Buy</option><option value="sell">Sell</option></select>
             <input id="tradeLots" type="number" step="0.01" placeholder="Lots" class="bg-slate-950 border border-slate-800 rounded-xl p-3 text-white text-sm outline-none">
             <input id="tradePnl" type="number" step="0.01" placeholder="PnL" class="bg-slate-950 border border-slate-800 rounded-xl p-3 text-white text-sm outline-none">
-            <select id="tradeStatus" class="bg-slate-950 border border-slate-800 rounded-xl p-3 text-white text-sm outline-none">
-              <option value="open">Open</option>
-              <option value="closed">Closed</option>
-            </select>
+            <select id="tradeStatus" class="bg-slate-950 border border-slate-800 rounded-xl p-3 text-white text-sm outline-none"><option value="open">Open</option><option value="closed">Closed</option></select>
             <button id="addTrade" class="py-2.5 rounded-xl bg-green-600 hover:bg-green-500 text-white text-[11px] font-black uppercase tracking-widest">Add</button>
           </div>
         </div>
       </div>
-
       <div class="glass rounded-2xl overflow-hidden">
-        <div class="p-4 border-b border-slate-800 bg-slate-900/50 flex justify-between items-center">
-          <h3 class="text-sm font-bold text-white uppercase">My Trades</h3>
-          <div class="flex items-center gap-3">
-            <button id="refreshMyTrades" class="text-slate-400 hover:text-white"><i data-lucide="refresh-cw" class="w-4 h-4"></i></button>
-          </div>
-        </div>
-        <div class="overflow-x-auto">
-          <table class="w-full text-left border-collapse">
-            <thead class="bg-slate-900/80 text-[10px] uppercase text-slate-400 font-bold border-b border-slate-800">
-              <tr>
-                <th class="p-5">Time</th>
-                <th class="p-5">Asset</th>
-                <th class="p-5">Type</th>
-                <th class="p-5">Lots</th>
-                <th class="p-5">PnL</th>
-                <th class="p-5">Status</th>
-              </tr>
-            </thead>
-            <tbody id="myTradeTable" class="divide-y divide-slate-800/50">
-              <tr><td colspan="6" class="p-8 text-center text-slate-500 text-sm font-bold uppercase tracking-wider opacity-50">No trades yet.</td></tr>
-            </tbody>
-          </table>
-        </div>
-        <div class="p-6 flex justify-end">
-          <div class="text-right">
-            <p class="text-[10px] font-bold text-slate-500 uppercase">Total Profit</p>
-            <h3 id="myTotalPnl" class="text-2xl font-black font-mono text-white">$0.00</h3>
-          </div>
-        </div>
+        <div class="p-4 border-b border-slate-800 bg-slate-900/50 flex justify-between items-center"><h3 class="text-sm font-bold text-white uppercase">My Trades</h3><div class="flex items-center gap-3"><button id="refreshMyTrades" class="text-slate-400 hover:text-white"><i data-lucide="refresh-cw" class="w-4 h-4"></i></button></div></div>
+        <div class="overflow-x-auto"><table class="w-full text-left border-collapse"><thead class="bg-slate-900/80 text-[10px] uppercase text-slate-400 font-bold border-b border-slate-800"><tr><th class="p-5">Time</th><th class="p-5">Asset</th><th class="p-5">Type</th><th class="p-5">Lots</th><th class="p-5">PnL</th><th class="p-5">Status</th></tr></thead><tbody id="myTradeTable" class="divide-y divide-slate-800/50"><tr><td colspan="6" class="p-8 text-center text-slate-500 text-sm font-bold uppercase tracking-wider opacity-50">No trades yet.</td></tr></tbody></table></div>
+        <div class="p-6 flex justify-end"><div class="text-right"><p class="text-[10px] font-bold text-slate-500 uppercase">Total Profit</p><h3 id="myTotalPnl" class="text-2xl font-black font-mono text-white">$0.00</h3></div></div>
       </div>
     </section>
-
     <section id="leaderboard" class="section space-y-6">
       <div class="glass rounded-2xl overflow-hidden">
-        <div class="p-4 border-b border-slate-800 bg-slate-900/50 flex justify-between items-center">
-          <h3 class="text-sm font-bold text-white uppercase">Leaderboard</h3>
-          <div class="flex items-center gap-3">
-            <button id="refreshLeaderboard" class="text-slate-400 hover:text-white"><i data-lucide="refresh-cw" class="w-4 h-4"></i></button>
-            <button id="publishLeaderboard" class="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-[10px] font-bold uppercase tracking-wider">Publish</button>
-            <button id="resetLeaderboard" class="px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-500 text-white text-[10px] font-bold uppercase tracking-wider">Reset</button>
-          </div>
-        </div>
-        <div class="overflow-x-auto">
-          <table class="w-full text-left border-collapse">
-            <thead class="bg-slate-900/80 text-[10px] uppercase text-slate-400 font-bold border-b border-slate-800">
-              <tr>
-                <th class="p-5">Rank</th>
-                <th class="p-5">Student</th>
-                <th class="p-5">Total PnL</th>
-              </tr>
-            </thead>
-            <tbody id="leaderboardTable" class="divide-y divide-slate-800/50">
-              <tr><td colspan="3" class="p-8 text-center text-slate-500 text-sm font-bold uppercase tracking-wider opacity-50">No leaderboard yet.</td></tr>
-            </tbody>
-          </table>
-        </div>
+        <div class="p-4 border-b border-slate-800 bg-slate-900/50 flex justify-between items-center"><h3 class="text-sm font-bold text-white uppercase">Leaderboard</h3><div class="flex items-center gap-3"><button id="refreshLeaderboard" class="text-slate-400 hover:text-white"><i data-lucide="refresh-cw" class="w-4 h-4"></i></button><button id="publishLeaderboard" class="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-[10px] font-bold uppercase tracking-wider">Publish</button><button id="resetLeaderboard" class="px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-500 text-white text-[10px] font-bold uppercase tracking-wider">Reset</button></div></div>
+        <div class="overflow-x-auto"><table class="w-full text-left border-collapse"><thead class="bg-slate-900/80 text-[10px] uppercase text-slate-400 font-bold border-b border-slate-800"><tr><th class="p-5">Rank</th><th class="p-5">Student</th><th class="p-5">Total PnL</th></tr></thead><tbody id="leaderboardTable" class="divide-y divide-slate-800/50"><tr><td colspan="3" class="p-8 text-center text-slate-500 text-sm font-bold uppercase tracking-wider opacity-50">No leaderboard yet.</td></tr></tbody></table></div>
       </div>
     </section>
-
     <section id="admin" class="section grid grid-cols-1 md:grid-cols-4 gap-6">
-      <aside class="glass rounded-2xl overflow-hidden h-[70vh] flex flex-col">
-        <div class="p-4 border-b border-slate-800 bg-slate-900/50">
-          <h3 class="text-sm font-bold text-white uppercase">Students</h3>
-        </div>
-        <div id="studentList" class="flex-1 overflow-y-auto p-2 space-y-2 custom-scrollbar">
-          <p class="text-center text-slate-500 text-xs mt-4">Loading students...</p>
-        </div>
-      </aside>
+      <aside class="glass rounded-2xl overflow-hidden h-[70vh] flex flex-col"><div class="p-4 border-b border-slate-800 bg-slate-900/50"><h3 class="text-sm font-bold text-white uppercase">Students</h3></div><div id="studentList" class="flex-1 overflow-y-auto p-2 space-y-2 custom-scrollbar"><p class="text-center text-slate-500 text-xs mt-4">Loading students...</p></div></aside>
       <section class="md:col-span-3 space-y-6">
-        <div id="studentHeader" class="glass p-6 rounded-2xl border-l-4 border-blue-500 hidden">
-          <div class="flex justify-between items-start">
-            <div>
-              <h2 id="studentEmail" class="text-2xl font-bold text-white">Select a Student</h2>
-              <p class="text-slate-500 text-xs uppercase tracking-widest mt-1">Student ID: <span id="studentId">---</span></p>
-            </div>
-            <div class="text-right">
-              <p class="text-[10px] font-bold text-slate-500 uppercase">Total Profit</p>
-              <h3 id="adminTotalPnl" class="text-2xl font-black font-mono text-white">$0.00</h3>
-            </div>
-          </div>
-        </div>
-        <div class="glass rounded-2xl overflow-hidden min-h-[300px]">
-          <div class="p-4 border-b border-slate-800 bg-slate-900/50 flex justify-between items-center">
-            <h3 class="text-sm font-bold text-white uppercase">Trade Log</h3>
-            <div class="flex items-center gap-3">
-              <button id="refreshTradesBtn" class="text-slate-400 hover:text-white"><i data-lucide="refresh-cw" class="w-4 h-4"></i></button>
-              <button id="publishLeaderboard2" class="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-[10px] font-bold uppercase tracking-wider">Publish Leaderboard</button>
-            </div>
-          </div>
-          <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
-              <thead class="bg-slate-900/80 text-[10px] uppercase text-slate-400 font-bold border-b border-slate-800">
-                <tr>
-                  <th class="p-5">Time</th>
-                  <th class="p-5">Asset</th>
-                  <th class="p-5">Type</th>
-                  <th class="p-5">Lots</th>
-                  <th class="p-5">PnL</th>
-                  <th class="p-5">Status</th>
-                </tr>
-              </thead>
-              <tbody id="adminTradeTable" class="divide-y divide-slate-800/50">
-                <tr>
-                  <td colspan="6" class="p-8 text-center text-slate-500 text-sm font-bold uppercase tracking-wider opacity-50">Select a student to view trades.</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-        <div id="feedbackSection" class="glass p-6 rounded-2xl hidden border border-slate-700">
-          <div class="flex items-center gap-2 mb-4">
-            <i data-lucide="message-square" class="text-blue-500 w-5 h-5"></i>
-            <h3 class="text-sm font-bold text-white uppercase tracking-wider">Mentor Feedback & Notes</h3>
-          </div>
-          <div id="commentsList" class="space-y-3 mb-6 max-h-60 overflow-y-auto pr-2 custom-scrollbar"></div>
-          <form id="commentForm" class="flex gap-3">
-            <input type="text" id="commentInput" placeholder="Write a constructive comment..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl p-4 text-white focus:border-blue-500 outline-none text-sm transition-colors">
-            <button type="submit" class="px-8 rounded-xl bg-blue-600 text-white font-bold text-xs uppercase tracking-wider">Send</button>
-          </form>
-        </div>
+        <div id="studentHeader" class="glass p-6 rounded-2xl border-l-4 border-blue-500 hidden"><div class="flex justify-between items-start"><div><h2 id="studentEmail" class="text-2xl font-bold text-white">Select a Student</h2><p class="text-slate-500 text-xs uppercase tracking-widest mt-1">Student ID: <span id="studentId">---</span></p></div><div class="text-right"><p class="text-[10px] font-bold text-slate-500 uppercase">Total Profit</p><h3 id="adminTotalPnl" class="text-2xl font-black font-mono text-white">$0.00</h3></div></div></div>
+        <div class="glass rounded-2xl overflow-hidden min-h-[300px]"><div class="p-4 border-b border-slate-800 bg-slate-900/50 flex justify-between items-center"><h3 class="text-sm font-bold text-white uppercase">Trade Log</h3><div class="flex items-center gap-3"><button id="refreshTradesBtn" class="text-slate-400 hover:text-white"><i data-lucide="refresh-cw" class="w-4 h-4"></i></button><button id="publishLeaderboard2" class="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-[10px] font-bold uppercase tracking-wider">Publish Leaderboard</button></div></div><div class="overflow-x-auto"><table class="w-full text-left border-collapse"><thead class="bg-slate-900/80 text-[10px] uppercase text-slate-400 font-bold border-b border-slate-800"><tr><th class="p-5">Time</th><th class="p-5">Asset</th><th class="p-5">Type</th><th class="p-5">Lots</th><th class="p-5">PnL</th><th class="p-5">Status</th></tr></thead><tbody id="adminTradeTable" class="divide-y divide-slate-800/50"><tr><td colspan="6" class="p-8 text-center text-slate-500 text-sm font-bold uppercase tracking-wider opacity-50">Select a student to view trades.</td></tr></tbody></table></div></div>
+        <div id="feedbackSection" class="glass p-6 rounded-2xl hidden border border-slate-700"><div class="flex items-center gap-2 mb-4"><i data-lucide="message-square" class="text-blue-500 w-5 h-5"></i><h3 class="text-sm font-bold text-white uppercase tracking-wider">Mentor Feedback &amp; Notes</h3></div><div id="commentsList" class="space-y-3 mb-6 max-h-60 overflow-y-auto pr-2 custom-scrollbar"></div><form id="commentForm" class="flex gap-3"><input type="text" id="commentInput" placeholder="Write a constructive comment..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl p-4 text-white focus:border-blue-500 outline-none text-sm transition-colors"><button type="submit" class="px-8 rounded-xl bg-blue-600 text-white font-bold text-xs uppercase tracking-wider">Send</button></form></div>
       </section>
     </section>
   </main>
-
   <div id="notification-container" class="fixed top-4 right-4 z-[300] flex flex-col items-end w-full max-w-sm pointer-events-none"></div>
-
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-analytics.js";
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
     import { getFirestore, collection, doc, setDoc, addDoc, getDocs, getDoc, query, orderBy, onSnapshot, serverTimestamp, Timestamp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyA28jc1OxMfc33m7rk8fCrfgmnw_uLzc50",
-      authDomain: "trading-journal-914c4.firebaseapp.com",
-      projectId: "trading-journal-914c4",
-      storageBucket: "trading-journal-914c4.firebasestorage.app",
-      messagingSenderId: "504948935584",
-      appId: "1:504948935584:web:dbf3c74177c0794c9fb2c5",
-      measurementId: "G-8V9K3WBRXN"
-    };
+    const firebaseConfig = { apiKey:"AIzaSyA28jc1OxMfc33m7rk8fCrfgmnw_uLzc50", authDomain:"trading-journal-914c4.firebaseapp.com", projectId:"trading-journal-914c4", storageBucket:"trading-journal-914c4.firebasestorage.app", messagingSenderId:"504948935584", appId:"1:504948935584:web:dbf3c74177c0794c9fb2c5", measurementId:"G-8V9K3WBRXN" };
+    const DERIV_APP_ID = 123621;
+    const ADMIN_PASSCODE = '#journal_admin_2026#';
     const app = initializeApp(firebaseConfig);
     getAnalytics(app);
     const db = getFirestore(app);
+    const auth = getAuth(app);
 
     let currentUserDocId = null;
     let selectedStudentId = null;
     let ws = null;
-    let mktWs = null;
-    let livePrices = [];
-    const DERIV_APP_ID = 123621;
     let authorized = false;
-    const auth = getAuth(app);
     let authMode = null;
     let isAdminVerified = false;
-    const ADMIN_PASSCODE = '#journal_admin_2026#';
+    let mktWs = null;
+    let livePrices = [];
 
-    function notify(message, type = 'info') {
-      const notif = document.createElement('div');
-      notif.className = `p-4 rounded-xl shadow-2xl mb-3 text-sm font-bold text-white transform transition-all translate-x-full ${type === 'error' ? 'bg-red-600' : type === 'success' ? 'bg-green-600' : 'bg-blue-600'}`;
-      notif.innerHTML = `<div class="flex items-center gap-3"><i data-lucide="${type === 'error' ? 'alert-circle' : 'check-circle'}" class="w-5 h-5"></i><span>${message}</span></div>`;
+    function notify(message, type = 'info'){
+      const notif=document.createElement('div');
+      notif.className=`p-4 rounded-xl shadow-2xl mb-3 text-sm font-bold text-white transform transition-all translate-x-full ${type==='error'?'bg-red-600':type==='success'?'bg-green-600':'bg-blue-600'}`;
+      notif.innerHTML=`<div class="flex items-center gap-3"><i data-lucide="${type==='error'?'alert-circle':'check-circle'}" class="w-5 h-5"></i><span>${message}</span></div>`;
       document.getElementById('notification-container').appendChild(notif);
-      if (window.lucide && window.lucide.createIcons) window.lucide.createIcons();
-      requestAnimationFrame(() => notif.classList.remove('translate-x-full'));
-      setTimeout(() => { notif.classList.add('translate-x-full','opacity-0'); setTimeout(() => notif.remove(), 300); }, 4000);
+      if(window.lucide&&window.lucide.createIcons)window.lucide.createIcons();
+      requestAnimationFrame(()=>notif.classList.remove('translate-x-full'));
+      setTimeout(()=>{notif.classList.add('translate-x-full','opacity-0');setTimeout(()=>notif.remove(),300)},4000);
     }
 
-    function setTab(id) {
-      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-      const el = document.getElementById(id);
-      if (el) el.classList.add('active');
+    function setTab(id){
+      document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+      const el=document.getElementById(id);
+      if(el)el.classList.add('active');
       window.scrollTo(0,0);
     }
 
-    document.addEventListener('DOMContentLoaded', () => {
-      if (window.lucide && window.lucide.createIcons) window.lucide.createIcons();
-      document.querySelectorAll('nav [data-tab]').forEach(btn => btn.addEventListener('click', () => setTab(btn.getAttribute('data-tab'))));
-      document.getElementById('btn-show-login').addEventListener('click', () => showAuthForm('login'));
-      document.getElementById('btn-show-register').addEventListener('click', () => showAuthForm('register'));
-      document.getElementById('btn-show-admin').addEventListener('click', () => showAuthForm('admin'));
-      document.getElementById('btn-back-auth').addEventListener('click', backToLanding);
-      document.getElementById('authForm').addEventListener('submit', handleAuthSubmit);
-      document.getElementById('adminForm').addEventListener('submit', verifyAdminPasscode);
-      document.getElementById('forgotPasswordLink').addEventListener('click', handlePasswordReset);
-      document.getElementById('signOutBtn').addEventListener('click', () => signOut(auth).then(() => { isAdminVerified = false; document.getElementById('authContainer').classList.remove('hidden'); updateAdminNavVisibility(); notify('Signed out','success'); }));
+    document.addEventListener('DOMContentLoaded',()=>{
+      if(window.lucide&&window.lucide.createIcons)window.lucide.createIcons();
+      document.querySelectorAll('nav [data-tab]').forEach(btn=>btn.addEventListener('click',()=>setTab(btn.getAttribute('data-tab'))));
+      document.getElementById('btn-show-login').addEventListener('click',()=>showAuthForm('login'));
+      document.getElementById('btn-show-register').addEventListener('click',()=>showAuthForm('register'));
+      document.getElementById('btn-show-admin').addEventListener('click',()=>showAuthForm('admin'));
+      document.getElementById('btn-back-auth').addEventListener('click',backToLanding);
+      document.getElementById('authForm').addEventListener('submit',handleAuthSubmit);
+      document.getElementById('adminForm').addEventListener('submit',verifyAdminPasscode);
+      document.getElementById('forgotPasswordLink').addEventListener('click',handlePasswordReset);
+      document.getElementById('signOutBtn').addEventListener('click',()=>signOut(auth).then(()=>{isAdminVerified=false;document.getElementById('authContainer').classList.remove('hidden');updateAdminNavVisibility();notify('Signed out','success')}));
       document.getElementById('authContainer').classList.remove('hidden');
       updateAdminNavVisibility();
-      onAuthStateChanged(auth, async (user) => {
-        if (user) {
-          currentUserDocId = user.uid;
-          await setDoc(doc(db, 'users', user.uid), { email: user.email || '' }, { merge: true });
-          document.getElementById('currentUserEmail').innerText = user.email || '';
-          document.getElementById('currentUserId').innerText = user.uid;
-          isAdminVerified = false;
+      onAuthStateChanged(auth,async(user)=>{
+        if(user){
+          currentUserDocId=user.uid;
+          await setDoc(doc(db,'users',user.uid),{email:user.email||''},{merge:true});
+          document.getElementById('currentUserEmail').innerText=user.email||'';
+          document.getElementById('currentUserId').innerText=user.uid;
           document.getElementById('authContainer').classList.add('hidden');
           updateAdminNavVisibility();
           loadMyTrades();
-          if (isAdminVerified) loadStudents();
         }
       });
-      document.getElementById('addTrade').addEventListener('click', addTrade);
-      document.getElementById('refreshMyTrades').addEventListener('click', loadMyTrades);
-      document.getElementById('refreshLeaderboard').addEventListener('click', loadLeaderboard);
-      document.getElementById('publishLeaderboard').addEventListener('click', publishLeaderboard);
-      document.getElementById('publishLeaderboard2').addEventListener('click', publishLeaderboard);
-      document.getElementById('resetLeaderboard').addEventListener('click', resetLeaderboard);
-      
-      loadLeaderboard();
+      document.getElementById('addTrade').addEventListener('click',addTrade);
+      document.getElementById('refreshMyTrades').addEventListener('click',loadMyTrades);
+      document.getElementById('refreshLeaderboard').addEventListener('click',loadLeaderboard);
+      document.getElementById('publishLeaderboard').addEventListener('click',publishLeaderboard);
+      document.getElementById('publishLeaderboard2').addEventListener('click',publishLeaderboard);
+      document.getElementById('resetLeaderboard').addEventListener('click',resetLeaderboard);
       initActiveSymbols();
+      loadLeaderboard();
     });
 
-    function showAuthForm(mode) {
-      authMode = mode;
+    function showAuthForm(mode){
+      authMode=mode;
       document.getElementById('landing-options').classList.add('hidden');
       document.getElementById('auth-forms').classList.remove('hidden');
-      document.getElementById('authForm').classList.toggle('hidden', mode === 'admin');
-      document.getElementById('adminForm').classList.toggle('hidden', mode !== 'admin');
-      document.getElementById('auth-title').innerText = mode === 'login' ? 'Student Login' : mode === 'register' ? 'New Student' : 'Mentor Access';
-      const forgotBtn = document.getElementById('forgotPasswordLink');
-      if (forgotBtn) forgotBtn.classList.toggle('hidden', mode !== 'login');
+      document.getElementById('authForm').classList.toggle('hidden',mode==='admin');
+      document.getElementById('adminForm').classList.toggle('hidden',mode!=='admin');
+      document.getElementById('auth-title').innerText=mode==='login'?'Student Login':mode==='register'?'New Student':'Mentor Access';
+      const forgotBtn=document.getElementById('forgotPasswordLink');
+      if(forgotBtn)forgotBtn.classList.toggle('hidden',mode!=='login');
     }
 
-    function backToLanding() {
+    function backToLanding(){
       document.getElementById('landing-options').classList.remove('hidden');
       document.getElementById('auth-forms').classList.add('hidden');
     }
 
-    function initActiveSymbols() {
-      try { if (mktWs) mktWs.close(); } catch {}
-      mktWs = new WebSocket(`wss://ws.binaryws.com/websockets/v3?app_id=${DERIV_APP_ID}`);
-      mktWs.onopen = () => {
-        mktWs.send(JSON.stringify({ active_symbols: 'brief', product_type: 'basic' }));
-      };
-      mktWs.onmessage = (evt) => {
-        const data = JSON.parse(evt.data);
-        if (data.active_symbols) {
-          const select = document.getElementById('liveSymbolSelect');
-          const symbols = data.active_symbols.filter(s => s.is_trading === 1);
-          select.innerHTML = symbols.map(s => `<option value="${s.symbol}">${s.display_name}</option>`).join('');
-          if (symbols.length) subscribeSymbol(symbols[0].symbol);
-          select.onchange = () => subscribeSymbol(select.value);
-        } else if (data.tick) {
-          const price = Number(data.tick.quote);
-          if (!isNaN(price)) {
-            livePrices.push(price);
-            if (livePrices.length > 300) livePrices.shift();
-            drawSparkline();
-          }
-        } else if (data.error) {
-          document.getElementById('liveChartStatus').innerText = 'Error';
-        }
-      };
-      mktWs.onerror = () => { document.getElementById('liveChartStatus').innerText = 'Error'; };
-      mktWs.onclose = () => { document.getElementById('liveChartStatus').innerText = 'Disconnected'; };
-    }
-
-    function subscribeSymbol(symbol) {
-      if (!mktWs || mktWs.readyState !== 1) return;
-      livePrices = [];
-      document.getElementById('liveChartStatus').innerText = 'Connecting';
-      mktWs.send(JSON.stringify({ forget_all: 'ticks' }));
-      mktWs.send(JSON.stringify({ ticks: symbol, subscribe: 1 }));
-      document.getElementById('liveChartStatus').innerText = 'Live';
-    }
-
-    function drawSparkline() {
-      const canvas = document.getElementById('liveChartCanvas');
-      if (!canvas) return;
-      const ctx = canvas.getContext('2d');
-      const w = canvas.width = canvas.clientWidth;
-      const h = canvas.height;
-      ctx.clearRect(0,0,w,h);
-      if (livePrices.length < 2) return;
-      const min = Math.min(...livePrices);
-      const max = Math.max(...livePrices);
-      const range = Math.max(1e-8, max - min);
-      ctx.strokeStyle = '#3b82f6';
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      livePrices.forEach((p, i) => {
-        const x = (i / (livePrices.length - 1)) * (w - 10) + 5;
-        const y = h - ((p - min) / range) * (h - 10) - 5;
-        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-      });
-      ctx.stroke();
-    }
-
-    async function handleAuthSubmit(e) {
+    async function handleAuthSubmit(e){
       e.preventDefault();
-      const email = document.getElementById('email').value.trim();
-      const password = document.getElementById('password').value.trim();
-      try {
-        if (authMode === 'login') {
-          const res = await signInWithEmailAndPassword(auth, email, password);
-          currentUserDocId = res.user.uid;
-        } else if (authMode === 'register') {
-          const res = await createUserWithEmailAndPassword(auth, email, password);
-          currentUserDocId = res.user.uid;
-          await setDoc(doc(db, 'users', res.user.uid), { email, role: 'user' }, { merge: true });
-        } else if (authMode === 'admin') {
-          const res = await signInWithEmailAndPassword(auth, email, password);
-          currentUserDocId = res.user.uid;
-          const uSnap = await getDoc(doc(db, 'users', res.user.uid));
-          const isAdmin = uSnap.exists() && uSnap.data().role === 'admin';
-          if (!isAdmin) { notify('Not authorized for mentor access','error'); return; }
-          isAdminVerified = true;
-          updateAdminNavVisibility();
-          setTab('admin');
-          loadStudents();
+      const email=document.getElementById('email').value.trim();
+      const password=document.getElementById('password').value.trim();
+      try{
+        if(authMode==='login'){
+          const res=await signInWithEmailAndPassword(auth,email,password);
+          currentUserDocId=res.user.uid;
+        }else if(authMode==='register'){
+          const res=await createUserWithEmailAndPassword(auth,email,password);
+          currentUserDocId=res.user.uid;
+          await setDoc(doc(db,'users',res.user.uid),{email},{merge:true});
         }
         document.getElementById('authContainer').classList.add('hidden');
-        document.getElementById('currentUserEmail').innerText = email;
-        document.getElementById('currentUserId').innerText = currentUserDocId;
+        document.getElementById('currentUserEmail').innerText=email;
+        document.getElementById('currentUserId').innerText=currentUserDocId;
         updateAdminNavVisibility();
         loadMyTrades();
-      } catch (err) {
-        notify(err.message, 'error');
+      }catch(err){
+        notify(err.message,'error');
       }
     }
-    
-    async function verifyAdminPasscode(e) {
+
+    async function verifyAdminPasscode(e){
       e.preventDefault();
-      const pass = document.getElementById('adminPasscode').value.trim();
-      if (pass === ADMIN_PASSCODE) {
-        isAdminVerified = true;
+      const pass=document.getElementById('adminPasscode').value.trim();
+      if(pass===ADMIN_PASSCODE){
+        isAdminVerified=true;
         updateAdminNavVisibility();
         document.getElementById('authContainer').classList.add('hidden');
         setTab('admin');
         loadStudents();
         notify('Mentor access granted','success');
-      } else {
+      }else{
         notify('Invalid mentor passcode','error');
       }
     }
 
-    async function handlePasswordReset() {
-      try {
-        const email = document.getElementById('email').value.trim();
-        if (!email) { notify('Enter your email to reset password','error'); return; }
-        await sendPasswordResetEmail(auth, email);
+    function updateAdminNavVisibility(){
+      const adminBtn=document.querySelector('nav [data-tab="admin"]');
+      if(adminBtn)adminBtn.classList.toggle('hidden',!isAdminVerified);
+      ['publishLeaderboard','resetLeaderboard','publishLeaderboard2'].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.toggle('hidden',!isAdminVerified)});
+    }
+
+    async function handlePasswordReset(){
+      try{
+        const email=document.getElementById('email').value.trim();
+        if(!email){notify('Enter your email to reset password','error');return}
+        await sendPasswordResetEmail(auth,email);
         notify('Password reset email sent','success');
-      } catch (err) {
-        notify(err.message, 'error');
+      }catch(err){
+        notify(err.message,'error');
       }
     }
 
-    function updateAdminNavVisibility() {
-      const adminBtn = document.querySelector('nav [data-tab="admin"]');
-      if (adminBtn) adminBtn.classList.toggle('hidden', !isAdminVerified);
-      const ids = ['publishLeaderboard','resetLeaderboard','publishLeaderboard2'];
-      ids.forEach(id => { const el = document.getElementById(id); if (el) el.classList.toggle('hidden', !isAdminVerified); });
+    function addTrade(){
+      if(!currentUserDocId){notify('Login first','error');return}
+      const instrument=document.getElementById('tradeInstrument').value.trim();
+      const type=document.getElementById('tradeType').value;
+      const lots=parseFloat(document.getElementById('tradeLots').value||'0');
+      const pnl=parseFloat(document.getElementById('tradePnl').value||'0');
+      const status=document.getElementById('tradeStatus').value;
+      if(!instrument)return;
+      addDoc(collection(db,'users',currentUserDocId,'trades'),{instrument,type,lots,pnl,status,openTime:serverTimestamp()}).then(()=>{document.getElementById('tradeInstrument').value='';document.getElementById('tradeLots').value='';document.getElementById('tradePnl').value='';loadMyTrades();notify('Trade added','success')}).catch(e=>notify(e.message,'error'));
     }
 
-    function addTrade() {
-      if (!currentUserDocId) { notify('Login first', 'error'); return; }
-      const instrument = document.getElementById('tradeInstrument').value.trim();
-      const type = document.getElementById('tradeType').value;
-      const lots = parseFloat(document.getElementById('tradeLots').value || '0');
-      const pnl = parseFloat(document.getElementById('tradePnl').value || '0');
-      const status = document.getElementById('tradeStatus').value;
-      if (!instrument) return;
-      addDoc(collection(db, 'users', currentUserDocId, 'trades'), {
-        instrument, type, lots, pnl, status, openTime: serverTimestamp()
-      }).then(() => {
-        document.getElementById('tradeInstrument').value = '';
-        document.getElementById('tradeLots').value = '';
-        document.getElementById('tradePnl').value = '';
-        loadMyTrades();
-        notify('Trade added', 'success');
-      }).catch(e => notify(e.message, 'error'));
-    }
-
-    function loadMyTrades() {
-      if (!currentUserDocId) return;
-      getDocs(query(collection(db, 'users', currentUserDocId, 'trades'), orderBy('openTime','desc'))).then(snap => {
-        const trades = snap.docs.map(d => d.data());
-        const totalPnl = trades.reduce((a,t) => a + (t.status === 'closed' ? (t.pnl || 0) : 0), 0);
-        const tbody = document.getElementById('myTradeTable');
-        if (trades.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="6" class="p-8 text-center text-slate-500 text-sm">No trades yet.</td></tr>';
-        } else {
-          tbody.innerHTML = trades.map(t => `
-            <tr class="hover:bg-slate-800/30 border-b border-slate-800/50">
-              <td class="p-4 text-xs text-slate-400">${t.openTime && t.openTime.seconds ? new Date(t.openTime.seconds*1000).toLocaleString() : '-'}</td>
-              <td class="p-4 text-xs font-bold text-white">${t.instrument}</td>
-              <td class="p-4"><span class="px-2 py-0.5 rounded text-[9px] font-black uppercase ${t.type === 'buy' ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}">${t.type}</span></td>
-              <td class="p-4 text-xs font-mono text-slate-400">${t.lots || 0}</td>
-              <td class="p-4 text-xs font-mono font-bold ${t.pnl >= 0 ? 'profit-text' : 'loss-text'}">$${(t.pnl||0).toFixed(2)}</td>
-              <td class="p-4 text-[10px] uppercase font-bold text-slate-500">${t.status}</td>
-            </tr>
-          `).join('');
-        }
-        document.getElementById('myTotalPnl').innerText = `$${totalPnl.toFixed(2)}`;
-        document.getElementById('myTotalPnl').className = `text-2xl font-black font-mono ${totalPnl >= 0 ? 'profit-text' : 'loss-text'}`;
+    function loadMyTrades(){
+      if(!currentUserDocId)return;
+      getDocs(query(collection(db,'users',currentUserDocId,'trades'),orderBy('openTime','desc'))).then(snap=>{
+        const trades=snap.docs.map(d=>d.data());
+        const totalPnl=trades.reduce((a,t)=>a+(t.status==='closed'?(t.pnl||0):0),0);
+        const tbody=document.getElementById('myTradeTable');
+        if(trades.length===0){tbody.innerHTML='<tr><td colspan="6" class="p-8 text-center text-slate-500 text-sm">No trades yet.</td></tr>'}else{tbody.innerHTML=trades.map(t=>`<tr class="hover:bg-slate-800/30 border-b border-slate-800/50"><td class="p-4 text-xs text-slate-400">${t.openTime&&t.openTime.seconds?new Date(t.openTime.seconds*1000).toLocaleString():'-'}</td><td class="p-4 text-xs font-bold text-white">${t.instrument}</td><td class="p-4"><span class="px-2 py-0.5 rounded text-[9px] font-black uppercase ${t.type==='buy'?'bg-green-500/20 text-green-400':'bg-red-500/20 text-red-400'}">${t.type}</span></td><td class="p-4 text-xs font-mono text-slate-400">${t.lots||0}</td><td class="p-4 text-xs font-mono font-bold ${t.pnl>=0?'profit-text':'loss-text'}">$${(t.pnl||0).toFixed(2)}</td><td class="p-4 text-[10px] uppercase font-bold text-slate-500">${t.status}</td></tr>`).join('')}
+        document.getElementById('myTotalPnl').innerText=`$${totalPnl.toFixed(2)}`;
+        document.getElementById('myTotalPnl').className=`text-2xl font-black font-mono ${totalPnl>=0?'profit-text':'loss-text'}`;
       });
     }
 
-    function loadStudents() {
-      const list = document.getElementById('studentList');
-      getDocs(collection(db, 'users')).then(snap => {
-        if (snap.empty) { list.innerHTML = '<p class="text-center text-slate-500 text-xs mt-4">No students found.</p>'; return; }
-        list.innerHTML = snap.docs.map(docItem => {
-          const data = docItem.data();
-          const email = data.email || 'Unknown User';
-          const colors = ['bg-blue-600','bg-purple-600','bg-green-600','bg-yellow-600','bg-pink-600'];
-          const colorIndex = email.charCodeAt(0) % colors.length;
-          const bgClass = colors[colorIndex];
-          return `
-            <div onclick="selectStudent('${docItem.id}', '${email}')" class="p-3 rounded-lg hover:bg-slate-800 cursor-pointer transition-colors border border-transparent hover:border-slate-700 group flex items-center gap-3">
-              <div class="w-10 h-10 rounded-full ${bgClass} flex items-center justify-center text-xs font-bold text-white shadow-lg shrink-0">${email.substring(0,2).toUpperCase()}</div>
-              <div class="overflow-hidden">
-                <p class="text-xs font-bold text-slate-300 truncate group-hover:text-white transition-colors">${email}</p>
-                <p class="text-[10px] text-slate-500 truncate font-mono">ID: ${docItem.id.slice(0,6)}</p>
-              </div>
-              <i data-lucide="chevron-right" class="w-4 h-4 text-slate-600 group-hover:text-slate-400 ml-auto opacity-0 group-hover:opacity-100 transition-all"></i>
-            </div>
-          `;
-        }).join('');
-        if (window.lucide && window.lucide.createIcons) window.lucide.createIcons();
-      }).catch(e => { list.innerHTML = `<p class="text-center text-red-500 text-xs mt-4">Error: ${e.message}</p>`; notify('Failed to load students','error'); });
+    function loadStudents(){
+      const list=document.getElementById('studentList');
+      getDocs(collection(db,'users')).then(snap=>{
+        if(snap.empty){list.innerHTML='<p class="text-center text-slate-500 text-xs mt-4">No students found.</p>';return}
+        list.innerHTML=snap.docs.map(docItem=>{const data=docItem.data();const email=data.email||'Unknown User';const colors=['bg-blue-600','bg-purple-600','bg-green-600','bg-yellow-600','bg-pink-600'];const colorIndex=email.charCodeAt(0)%colors.length;const bgClass=colors[colorIndex];return `<div onclick="selectStudent('${docItem.id}','${email}')" class="p-3 rounded-lg hover:bg-slate-800 cursor-pointer transition-colors border border-transparent hover:border-slate-700 group flex items-center gap-3"><div class="w-10 h-10 rounded-full ${bgClass} flex items-center justify-center text-xs font-bold text-white shadow-lg shrink-0">${email.substring(0,2).toUpperCase()}</div><div class="overflow-hidden"><p class="text-xs font-bold text-slate-300 truncate group-hover:text-white transition-colors">${email}</p><p class="text-[10px] text-slate-500 truncate font-mono">ID: ${docItem.id.slice(0,6)}</p></div><i data-lucide="chevron-right" class="w-4 h-4 text-slate-600 group-hover:text-slate-400 ml-auto opacity-0 group-hover:opacity-100 transition-all"></i></div>`}).join('');
+        if(window.lucide&&window.lucide.createIcons)window.lucide.createIcons();
+      }).catch(e=>{list.innerHTML=`<p class="text-center text-red-500 text-xs mt-4">Error: ${e.message}</p>`;notify('Failed to load students','error')});
     }
 
-    window.selectStudent = function(uid, email) {
-      selectedStudentId = uid;
+    window.selectStudent=function(uid,email){
+      selectedStudentId=uid;
       document.getElementById('studentHeader').classList.remove('hidden');
       document.getElementById('feedbackSection').classList.remove('hidden');
-      document.getElementById('studentEmail').innerText = email;
-      document.getElementById('studentId').innerText = uid;
+      document.getElementById('studentEmail').innerText=email;
+      document.getElementById('studentId').innerText=uid;
       loadStudentTrades(uid);
       loadStudentComments(uid);
     }
 
-    function loadStudentTrades(uid) {
-      onSnapshot(query(collection(db, 'users', uid, 'trades'), orderBy('openTime','desc')), snap => {
-        const trades = snap.docs.map(d => d.data());
-        const totalPnl = trades.reduce((acc,t) => acc + (t.status === 'closed' ? (t.pnl||0) : 0), 0);
-        document.getElementById('adminTotalPnl').innerText = `$${totalPnl.toFixed(2)}`;
-        document.getElementById('adminTotalPnl').className = `text-2xl font-black font-mono ${totalPnl >= 0 ? 'profit-text' : 'loss-text'}`;
-        const tbody = document.getElementById('adminTradeTable');
-        if (trades.length === 0) { tbody.innerHTML = '<tr><td colspan="6" class="p-8 text-center text-slate-500 text-sm">No trades found for this student.</td></tr>'; return; }
-        tbody.innerHTML = trades.map(t => `
-          <tr class="hover:bg-slate-800/30 border-b border-slate-800/50">
-            <td class="p-4 text-xs text-slate-400">${t.openTime && t.openTime.seconds ? new Date(t.openTime.seconds*1000).toLocaleDateString() : '-'}</td>
-            <td class="p-4 text-xs font-bold text-white">${t.instrument}</td>
-            <td class="p-4"><span class="px-2 py-0.5 rounded text-[9px] font-black uppercase ${t.type === 'buy' ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}">${t.type}</span></td>
-            <td class="p-4 text-xs font-mono text-slate-400">${t.lots||0}</td>
-            <td class="p-4 text-xs font-mono font-bold ${t.pnl >= 0 ? 'profit-text' : 'loss-text'}">$${(t.pnl||0).toFixed(2)}</td>
-            <td class="p-4 text-[10px] uppercase font-bold text-slate-500">${t.status}</td>
-          </tr>
-        `).join('');
+    function loadStudentTrades(uid){
+      onSnapshot(query(collection(db,'users',uid,'trades'),orderBy('openTime','desc')),snap=>{
+        const trades=snap.docs.map(d=>d.data());
+        const totalPnl=trades.reduce((acc,t)=>acc+(t.status==='closed'?(t.pnl||0):0),0);
+        document.getElementById('adminTotalPnl').innerText=`$${totalPnl.toFixed(2)}`;
+        document.getElementById('adminTotalPnl').className=`text-2xl font-black font-mono ${totalPnl>=0?'profit-text':'loss-text'}`;
+        const tbody=document.getElementById('adminTradeTable');
+        if(trades.length===0){tbody.innerHTML='<tr><td colspan="6" class="p-8 text-center text-slate-500 text-sm">No trades found for this student.</td></tr>';return}
+        tbody.innerHTML=trades.map(t=>`<tr class="hover:bg-slate-800/30 border-b border-slate-800/50"><td class="p-4 text-xs text-slate-400">${t.openTime&&t.openTime.seconds?new Date(t.openTime.seconds*1000).toLocaleDateString():'-'}</td><td class="p-4 text-xs font-bold text-white">${t.instrument}</td><td class="p-4"><span class="px-2 py-0.5 rounded text-[9px] font-black uppercase ${t.type==='buy'?'bg-green-500/20 text-green-400':'bg-red-500/20 text-red-400'}">${t.type}</span></td><td class="p-4 text-xs font-mono text-slate-400">${t.lots||0}</td><td class="p-4 text-xs font-mono font-bold ${t.pnl>=0?'profit-text':'loss-text'}">$${(t.pnl||0).toFixed(2)}</td><td class="p-4 text-[10px] uppercase font-bold text-slate-500">${t.status}</td></tr>`).join('');
       });
     }
 
-    function loadStudentComments(uid) {
-      onSnapshot(query(collection(db, 'users', uid, 'comments'), orderBy('createdAt','desc')), snap => {
-        const list = document.getElementById('commentsList');
-        if (snap.empty) { list.innerHTML = '<p class="text-xs text-slate-500 italic">No feedback yet.</p>'; return; }
-        list.innerHTML = snap.docs.map(docItem => {
-          const c = docItem.data();
-          return `
-            <div class="bg-slate-900/50 p-3 rounded-lg border border-slate-800">
-              <p class="text-xs text-slate-300">${c.text}</p>
-              <p class="text-[9px] text-slate-600 mt-1 text-right">${c.createdAt && c.createdAt.seconds ? new Date(c.createdAt.seconds*1000).toLocaleString() : ''}</p>
-            </div>
-          `;
-        }).join('');
+    function loadStudentComments(uid){
+      onSnapshot(query(collection(db,'users',uid,'comments'),orderBy('createdAt','desc')),snap=>{
+        const list=document.getElementById('commentsList');
+        if(snap.empty){list.innerHTML='<p class="text-xs text-slate-500 italic">No feedback yet.</p>';return}
+        list.innerHTML=snap.docs.map(docItem=>{const c=docItem.data();return `<div class="bg-slate-900/50 p-3 rounded-lg border border-slate-800"><p class="text-xs text-slate-300">${c.text}</p><p class="text-[9px] text-slate-600 mt-1 text-right">${c.createdAt&&c.createdAt.seconds?new Date(c.createdAt.seconds*1000).toLocaleString():''}</p></div>`}).join('');
       });
-      document.getElementById('commentForm').onsubmit = async (e) => {
+      document.getElementById('commentForm').onsubmit=async(e)=>{
         e.preventDefault();
-        if (!selectedStudentId) return;
-        const text = document.getElementById('commentInput').value;
-        if (!text.trim()) return;
-        await addDoc(collection(db, 'users', selectedStudentId, 'comments'), {
-          text, createdAt: serverTimestamp(), author: 'Admin'
-        });
-        document.getElementById('commentInput').value = '';
+        if(!selectedStudentId)return;
+        const text=document.getElementById('commentInput').value;
+        if(!text.trim())return;
+        await addDoc(collection(db,'users',selectedStudentId,'comments'),{text,createdAt:serverTimestamp(),author:'Admin'});
+        document.getElementById('commentInput').value='';
       };
     }
 
-    async function loadLeaderboard() {
-      const tbody = document.getElementById('leaderboardTable');
-      const currentSnap = await getDoc(doc(db, 'leaderboard', 'current'));
-      if (currentSnap.exists()) {
-        const entries = (currentSnap.data().entries || []).slice();
-        entries.sort((a,b) => b.totalPnl - a.totalPnl);
-        if (entries.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="3" class="p-8 text-center text-slate-500 text-sm">No leaderboard yet.</td></tr>';
-          return;
-        }
-        tbody.innerHTML = entries.map((e,i) => `
-          <tr class="hover:bg-slate-800/30 border-b border-slate-800/50">
-            <td class="p-4 text-xs font-mono text-slate-400">${i+1}</td>
-            <td class="p-4 text-xs font-bold text-white">${e.email}</td>
-            <td class="p-4 text-xs font-mono font-bold ${e.totalPnl >= 0 ? 'profit-text' : 'loss-text'}">$${Number(e.totalPnl||0).toFixed(2)}</td>
-          </tr>
-        `).join('');
+    async function loadLeaderboard(){
+      const tbody=document.getElementById('leaderboardTable');
+      const currentSnap=await getDoc(doc(db,'leaderboard','current'));
+      if(currentSnap.exists()){
+        const entries=(currentSnap.data().entries||[]).slice();
+        entries.sort((a,b)=>b.totalPnl-a.totalPnl);
+        if(entries.length===0){tbody.innerHTML='<tr><td colspan="3" class="p-8 text-center text-slate-500 text-sm">No leaderboard yet.</td></tr>';return}
+        tbody.innerHTML=entries.map((e,i)=>`<tr class="hover:bg-slate-800/30 border-b border-slate-800/50"><td class="p-4 text-xs font-mono text-slate-400">${i+1}</td><td class="p-4 text-xs font-bold text-white">${e.email}</td><td class="p-4 text-xs font-mono font-bold ${e.totalPnl>=0?'profit-text':'loss-text'}">$${Number(e.totalPnl||0).toFixed(2)}</td></tr>`).join('');
         return;
       }
-      if (!isAdminVerified) {
-        tbody.innerHTML = '<tr><td colspan="3" class="p-8 text-center text-slate-500 text-sm">Leaderboard not published yet.</td></tr>';
-        return;
+      if(!isAdminVerified){tbody.innerHTML='<tr><td colspan="3" class="p-8 text-center text-slate-500 text-sm">Leaderboard not published yet.</td></tr>';return}
+      const usersSnap=await getDocs(collection(db,'users'));
+      const entries=[];
+      for(const docItem of usersSnap.docs){
+        const uid=docItem.id;
+        const email=docItem.data().email||'Unknown';
+        const tradesSnap=await getDocs(collection(db,'users',uid,'trades'));
+        const totalPnl=tradesSnap.docs.reduce((a,d)=>{const t=d.data();return a+(t.status==='closed'?(t.pnl||0):0)},0);
+        entries.push({uid,email,totalPnl});
       }
-      const usersSnap = await getDocs(collection(db, 'users'));
-      const entries = [];
-      for (const docItem of usersSnap.docs) {
-        const uid = docItem.id;
-        const email = docItem.data().email || 'Unknown';
-        const tradesSnap = await getDocs(collection(db, 'users', uid, 'trades'));
-        const totalPnl = tradesSnap.docs.reduce((a,d) => {
-          const t = d.data();
-          return a + (t.status === 'closed' ? (t.pnl||0) : 0);
-        }, 0);
-        entries.push({ uid, email, totalPnl });
-      }
-      entries.sort((a,b) => b.totalPnl - a.totalPnl);
-      if (entries.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="3" class="p-8 text-center text-slate-500 text-sm">No entries yet.</td></tr>';
-        return;
-      }
-      tbody.innerHTML = entries.map((e,i) => `
-        <tr class="hover:bg-slate-800/30 border-b border-slate-800/50">
-          <td class="p-4 text-xs font-mono text-slate-400">${i+1}</td>
-          <td class="p-4 text-xs font-bold text-white">${e.email}</td>
-          <td class="p-4 text-xs font-mono font-bold ${e.totalPnl >= 0 ? 'profit-text' : 'loss-text'}">$${e.totalPnl.toFixed(2)}</td>
-        </tr>
-      `).join('');
+      entries.sort((a,b)=>b.totalPnl-a.totalPnl);
+      if(entries.length===0){tbody.innerHTML='<tr><td colspan="3" class="p-8 text-center text-slate-500 text-sm">No entries yet.</td></tr>';return}
+      tbody.innerHTML=entries.map((e,i)=>`<tr class="hover:bg-slate-800/30 border-b border-slate-800/50"><td class="p-4 text-xs font-mono text-slate-400">${i+1}</td><td class="p-4 text-xs font-bold text-white">${e.email}</td><td class="p-4 text-xs font-mono font-bold ${e.totalPnl>=0?'profit-text':'loss-text'}">$${e.totalPnl.toFixed(2)}</td></tr>`).join('');
     }
 
-    async function publishLeaderboard() {
-      const usersSnap = await getDocs(collection(db, 'users'));
-      const entries = [];
-      for (const docItem of usersSnap.docs) {
-        const uid = docItem.id;
-        const email = docItem.data().email || 'Unknown';
-        const tradesSnap = await getDocs(collection(db, 'users', uid, 'trades'));
-        const totalPnl = tradesSnap.docs.reduce((a,d) => {
-          const t = d.data();
-          return a + (t.status === 'closed' ? (t.pnl||0) : 0);
-        }, 0);
-        entries.push({ uid, email, totalPnl });
+    async function publishLeaderboard(){
+      const usersSnap=await getDocs(collection(db,'users'));
+      const entries=[];
+      for(const docItem of usersSnap.docs){
+        const uid=docItem.id;
+        const email=docItem.data().email||'Unknown';
+        const tradesSnap=await getDocs(collection(db,'users',uid,'trades'));
+        const totalPnl=tradesSnap.docs.reduce((a,d)=>{const t=d.data();return a+(t.status==='closed'?(t.pnl||0):0)},0);
+        entries.push({uid,email,totalPnl});
       }
-      entries.sort((a,b) => b.totalPnl - a.totalPnl);
-      await setDoc(doc(db, 'leaderboard', 'current'), {
-        entries, publishedAt: serverTimestamp()
-      }, { merge: true });
-      await addDoc(collection(db, 'leaderboard_history'), {
-        entries, publishedAt: serverTimestamp()
-      });
+      entries.sort((a,b)=>b.totalPnl-a.totalPnl);
+      await setDoc(doc(db,'leaderboard','current'),{entries,publishedAt:serverTimestamp()},{merge:true});
+      await addDoc(collection(db,'leaderboard_history'),{entries,publishedAt:serverTimestamp()});
       notify('Leaderboard published','success');
       loadLeaderboard();
     }
 
-    async function resetLeaderboard() {
-      await setDoc(doc(db, 'leaderboard', 'current'), {
-        entries: [], resetAt: serverTimestamp()
-      }, { merge: true });
+    async function resetLeaderboard(){
+      await setDoc(doc(db,'leaderboard','current'),{entries:[],resetAt:serverTimestamp()},{merge:true});
       notify('Leaderboard reset without clearing trades','success');
       loadLeaderboard();
     }
 
-    function connectDeriv() {
-      const appId = DERIV_APP_ID;
-      const token = window.__deriv_token__;
-      if (!appId || !token) { notify('Deriv not configured','error'); return; }
-      try { if (ws) ws.close(); } catch {}
-      ws = new WebSocket(`wss://ws.binaryws.com/websockets/v3?app_id=${appId}`);
-      ws.onopen = () => { ws.send(JSON.stringify({ authorize: token })); };
-      ws.onmessage = (evt) => {
-        const data = JSON.parse(evt.data);
-        if (data.authorize) {
-          authorized = true;
-          ws.send(JSON.stringify({ balance: 1 }));
-          ws.send(JSON.stringify({ statement: 1, limit: 50, description: 1 }));
-        } else if (data.balance) {
-          const b = data.balance;
-          notify(`Deriv balance: $${Number(b.balance).toFixed(2)}`,'success');
-        } else if (data.statement) {
-          const list = data.statement.transactions || [];
-          const uid = currentUserDocId;
-          if (!uid) return;
-          list.forEach(s => {
-            const instrument = s.shortcode || s.description || 'DERIV';
-            const pnl = Number(s.amount || 0);
-            const status = 'closed';
-            const type = pnl >= 0 ? 'buy' : 'sell';
-            const lots = 0;
-            const ts = s.transaction_time ? new Date(s.transaction_time*1000) : new Date();
-            addDoc(collection(db, 'users', uid, 'trades'), {
-              instrument, type, lots, pnl, status, openTime: Timestamp.fromDate(ts)
-            });
-          });
-          notify('Imported statements','success');
-          loadMyTrades();
-        } else if (data.error) {
-          notify(data.error.message || 'Deriv error','error');
+    function initActiveSymbols(){
+      try{if(mktWs)mktWs.close()}catch{}
+      mktWs=new WebSocket(`wss://ws.binaryws.com/websockets/v3?app_id=${DERIV_APP_ID}`);
+      mktWs.onopen=()=>{mktWs.send(JSON.stringify({active_symbols:'brief',product_type:'basic'}))};
+      mktWs.onmessage=(evt)=>{
+        const data=JSON.parse(evt.data);
+        if(data.active_symbols){
+          const select=document.getElementById('liveSymbolSelect');
+          const symbols=data.active_symbols.filter(s=>s.is_trading===1);
+          select.innerHTML=symbols.map(s=>`<option value="${s.symbol}">${s.display_name}</option>`).join('');
+          if(symbols.length)subscribeSymbol(symbols[0].symbol);
+          select.onchange=()=>subscribeSymbol(select.value);
+        }else if(data.tick){
+          const price=Number(data.tick.quote);
+          if(!isNaN(price)){livePrices.push(price);if(livePrices.length>300)livePrices.shift();drawSparkline()}
         }
       };
-      ws.onerror = () => notify('WebSocket error','error');
-      ws.onclose = () => { authorized = false; };
+      mktWs.onerror=()=>{document.getElementById('liveChartStatus').innerText='Error'};
+      mktWs.onclose=()=>{document.getElementById('liveChartStatus').innerText='Disconnected'};
     }
 
-    function importStatements() {
-      if (!ws || !authorized) { notify('Connect Deriv first','error'); return; }
-      ws.send(JSON.stringify({ statement: 1, limit: 50, description: 1 }));
+    function subscribeSymbol(symbol){
+      if(!mktWs||mktWs.readyState!==1)return;
+      livePrices=[];
+      document.getElementById('liveChartStatus').innerText='Connecting';
+      mktWs.send(JSON.stringify({forget_all:'ticks'}));
+      mktWs.send(JSON.stringify({ticks:symbol,subscribe:1}));
+      document.getElementById('liveChartStatus').innerText='Live';
     }
 
-    window.configureDeriv = function(token) {
-      if (!token || typeof token !== 'string') { notify('Invalid Deriv token','error'); return; }
-      window.__deriv_token__ = token;
+    function drawSparkline(){
+      const canvas=document.getElementById('liveChartCanvas');
+      if(!canvas)return;
+      const ctx=canvas.getContext('2d');
+      const w=canvas.width=canvas.clientWidth;
+      const h=canvas.height;
+      ctx.clearRect(0,0,w,h);
+      if(livePrices.length<2)return;
+      const min=Math.min(...livePrices);
+      const max=Math.max(...livePrices);
+      const range=Math.max(1e-8,max-min);
+      ctx.strokeStyle='#3b82f6';
+      ctx.lineWidth=2;
+      ctx.beginPath();
+      livePrices.forEach((p,i)=>{const x=(i/(livePrices.length-1))*(w-10)+5;const y=h-((p-min)/range)*(h-10)-5;if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y)});
+      ctx.stroke();
+    }
+
+    window.configureDeriv=function(token){
+      if(!token||typeof token!=='string'){notify('Invalid Deriv token','error');return}
+      window.__deriv_token__=token;
       connectDeriv();
     }
+
+    function connectDeriv(){
+      const appId=DERIV_APP_ID;
+      const token=window.__deriv_token__;
+      if(!appId||!token){notify('Deriv not configured','error');return}
+      try{if(ws)ws.close()}catch{}
+      ws=new WebSocket(`wss://ws.binaryws.com/websockets/v3?app_id=${appId}`);
+      ws.onopen=()=>{ws.send(JSON.stringify({authorize:token}))};
+      ws.onmessage=(evt)=>{
+        const data=JSON.parse(evt.data);
+        if(data.authorize){ws.send(JSON.stringify({balance:1}));ws.send(JSON.stringify({statement:1,limit:50,description:1}))}
+        else if(data.balance){const b=data.balance;notify(`Deriv balance: $${Number(b.balance).toFixed(2)}`,'success')}
+        else if(data.statement){const list=data.statement.transactions||[];const uid=currentUserDocId;if(!uid)return;list.forEach(s=>{const instrument=s.shortcode||s.description||'DERIV';const pnl=Number(s.amount||0);const status='closed';const type=pnl>=0?'buy':'sell';const lots=0;const ts=s.transaction_time?new Date(s.transaction_time*1000):new Date();addDoc(collection(db,'users',uid,'trades'),{instrument,type,lots,pnl,status,openTime:Timestamp.fromDate(ts)})});notify('Imported statements','success');loadMyTrades()}
+        else if(data.error){notify(data.error.message||'Deriv error','error')}
+      };
+      ws.onerror=()=>notify('WebSocket error','error');
+      ws.onclose=()=>{authorized=false};
+    }
+
   </script>
 </body>
 </html>
