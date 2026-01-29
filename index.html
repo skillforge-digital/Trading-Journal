@@ -22,10 +22,12 @@
     .custom-scrollbar{scrollbar-width:thin;scrollbar-color:#334155 transparent}
     .custom-scrollbar::-webkit-scrollbar{width:8px}
     .custom-scrollbar::-webkit-scrollbar-thumb{background:#334155;border-radius:9999px}
+    .hidden { display: none !important; }
   </style>
 </head>
 <body class="pb-20">
 
+  <!-- AUTH CONTAINER -->
   <div id="authContainer" class="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-slate-950/95 backdrop-blur-xl hidden" role="dialog" aria-modal="true">
     <div class="glass w-full max-w-lg rounded-3xl overflow-hidden shadow-2xl flex flex-col relative border border-slate-700 max-h-[90vh] overflow-y-auto">
       <div class="p-8 pb-0 text-center">
@@ -33,16 +35,34 @@
         <h1 class="text-2xl md:text-3xl font-black tracking-tight mb-1">SKILLFORGE <span class="text-blue-500">DIGITAL</span> &amp; CO. LTD</h1>
         <p class="text-blue-400 text-xs font-bold uppercase tracking-[0.2em]">Official Company</p>
       </div>
+      
+      <!-- Landing Options -->
       <div id="landing-options" class="p-8 space-y-4">
         <div class="grid grid-cols-2 gap-4">
-          <button id="btn-show-login" type="button" class="group p-6 bg-slate-900/50 border border-slate-800 rounded-2xl hover:bg-blue-600 hover:border-blue-500 transition-all text-left"><div class="bg-slate-800 group-hover:bg-white/20 w-10 h-10 rounded-lg flex items-center justify-center mb-3 transition-colors"><i data-lucide="user" class="text-slate-400 group-hover:text-white w-5 h-5"></i></div><h3 class="font-bold text-white text-sm">Student Login</h3><p class="text-[10px] text-slate-500 group-hover:text-blue-200 mt-1">Access your journal</p></button>
-          <button id="btn-show-register" type="button" class="group p-6 bg-slate-900/50 border border-slate-800 rounded-2xl hover:bg-blue-600 hover:border-blue-500 transition-all text-left"><div class="bg-slate-800 group-hover:bg-white/20 w-10 h-10 rounded-lg flex items-center justify-center mb-3 transition-colors"><i data-lucide="user-plus" class="text-slate-400 group-hover:text-white w-5 h-5"></i></div><h3 class="font-bold text-white text-sm">New Student</h3><p class="text-[10px] text-slate-500 group-hover:text-blue-200 mt-1">Create account</p></button>
+          <button id="btn-show-login" type="button" class="group p-6 bg-slate-900/50 border border-slate-800 rounded-2xl hover:bg-blue-600 hover:border-blue-500 transition-all text-left">
+            <div class="bg-slate-800 group-hover:bg-white/20 w-10 h-10 rounded-lg flex items-center justify-center mb-3 transition-colors"><i data-lucide="user" class="text-slate-400 group-hover:text-white w-5 h-5"></i></div>
+            <h3 class="font-bold text-white text-sm">Student Login</h3>
+            <p class="text-[10px] text-slate-500 group-hover:text-blue-200 mt-1">Access your journal</p>
+          </button>
+          <button id="btn-show-register" type="button" class="group p-6 bg-slate-900/50 border border-slate-800 rounded-2xl hover:bg-blue-600 hover:border-blue-500 transition-all text-left">
+            <div class="bg-slate-800 group-hover:bg-white/20 w-10 h-10 rounded-lg flex items-center justify-center mb-3 transition-colors"><i data-lucide="user-plus" class="text-slate-400 group-hover:text-white w-5 h-5"></i></div>
+            <h3 class="font-bold text-white text-sm">New Student</h3>
+            <p class="text-[10px] text-slate-500 group-hover:text-blue-200 mt-1">Create account</p>
+          </button>
         </div>
         <div class="relative py-4"><div class="absolute inset-0 flex items-center"><div class="w-full border-t border-slate-800"></div></div><div class="relative flex justify-center"><span class="bg-slate-900 px-2 text-[10px] text-slate-500 uppercase font-bold">Authorized Personnel</span></div></div>
-        <button id="btn-show-admin" type="button" class="w-full p-4 rounded-xl border border-slate-800 hover:bg-slate-800 transition-all flex items-center justify-center gap-2 group"><i data-lucide="shield-check" class="text-slate-500 group-hover:text-red-500 w-4 h-4"></i><span class="text-xs font-bold text-slate-400 group-hover:text-white uppercase tracking-wider">Mentor Access</span></button>
+        <button id="btn-show-admin" type="button" class="w-full p-4 rounded-xl border border-slate-800 hover:bg-slate-800 transition-all flex items-center justify-center gap-2 group">
+          <i data-lucide="shield-check" class="text-slate-500 group-hover:text-red-500 w-4 h-4"></i>
+          <span class="text-xs font-bold text-slate-400 group-hover:text-white uppercase tracking-wider">Mentor Access</span>
+        </button>
       </div>
+
+      <!-- Auth Forms -->
       <div id="auth-forms" class="p-8 hidden">
-        <div class="flex items-center gap-4 mb-6"><button id="btn-back-auth" class="p-2 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white" type="button"><i data-lucide="arrow-left" class="w-5 h-5"></i></button><h2 id="auth-title" class="text-xl font-bold text-white"></h2></div>
+        <div class="flex items-center gap-4 mb-6">
+            <button id="btn-back-auth" class="p-2 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white" type="button"><i data-lucide="arrow-left" class="w-5 h-5"></i></button>
+            <h2 id="auth-title" class="text-xl font-bold text-white"></h2>
+        </div>
         <form id="authForm" class="space-y-4 hidden" novalidate>
           <div><label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Email Address</label><input type="email" id="email" required class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-white focus:border-blue-500 outline-none"></div>
           <div><label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Password</label><input type="password" id="password" required class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-white focus:border-blue-500 outline-none"></div>
@@ -57,180 +77,209 @@
     </div>
   </div>
 
+  <!-- MAIN APP CONTENT -->
   <div id="appContent" class="hidden">
-  <header class="glass sticky top-0 z-50">
-    <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-      <div class="flex items-center gap-3"><img src="https://i.postimg.cc/fRYD4HSw/Whats-App-Image-2026-01-16-at-1-20-06-PM.jpg" alt="Skillforge Digital" class="w-10 h-10 rounded-xl object-contain shadow-2xl ring-1 ring-white/10"><div class="text-xl font-extrabold tracking-tight text-white">SKILLFORGE <span class="text-blue-500">DIGITAL</span> &amp; CO. LTD</div></div>
-      <div class="flex items-center gap-2">
-        <div id="connectionStatus" class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900 border border-slate-800 text-xs"><div class="w-2 h-2 rounded-full bg-red-500"></div><span class="text-slate-400 font-medium">LIVE DATA</span></div>
-        <button id="btn-toggle-chart" type="button" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white"><i data-lucide="layout-grid" class="w-5 h-5"></i></button>
-        <button id="btn-new-trade" type="button" class="px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white"><i data-lucide="plus-circle" class="w-4 h-4"></i> NEW TRADE</button>
-        <button id="btn-export-csv" type="button" class="px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-300"><i data-lucide="download" class="w-4 h-4"></i> EXPORT CSV</button>
-        <button id="btn-logout" type="button" class="p-2 rounded-lg bg-red-900/20 hover:bg-red-900/40 text-red-400"><i data-lucide="log-out" class="w-5 h-5"></i></button>
-      </div>
-    </div>
-    <div class="max-w-7xl mx-auto px-4 pb-4">
-      <div class="mt-2 flex items-center gap-3">
-        <div class="relative w-full max-w-xs">
-          <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-500"></i>
-          <input type="text" id="marketSearch" placeholder="Search Assets..." class="w-full bg-slate-950 border border-slate-800 rounded-full py-1.5 pl-9 pr-4 text-xs text-white focus:outline-none focus:border-blue-500">
-        </div>
-        <div id="tickerContainer" class="flex gap-3 overflow-x-auto custom-scrollbar flex-1 py-1"></div>
-      </div>
-    </div>
-  </header>
-
-  <main class="max-w-7xl mx-auto px-4 mt-8 space-y-8">
     
-    <section id="chartSection" class="hidden mb-8">
-      <div class="glass rounded-2xl overflow-hidden border border-slate-700">
-        <div class="p-3 bg-slate-900/50 flex justify-between items-center border-b border-slate-800">
-          <div class="flex items-center gap-4">
-            <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Market Analysis</span>
-            <span id="chartSymbolName" class="text-sm font-black text-blue-400">LOADING...</span>
-          </div>
-          <button id="btn-close-chart" type="button" class="text-slate-500 hover:text-white"><i data-lucide="x" class="w-4 h-4"></i></button>
+    <!-- Header -->
+    <header class="glass sticky top-0 z-50">
+      <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+        <div class="flex items-center gap-3">
+            <img src="https://i.postimg.cc/fRYD4HSw/Whats-App-Image-2026-01-16-at-1-20-06-PM.jpg" alt="Skillforge Digital" class="w-10 h-10 rounded-xl object-contain shadow-2xl ring-1 ring-white/10">
+            <div class="text-xl font-extrabold tracking-tight text-white hidden md:block">SKILLFORGE <span class="text-blue-500">DIGITAL</span> &amp; CO. LTD</div>
         </div>
-        <div id="tv-container" class="h-[400px] w-full bg-slate-950 relative"></div>
-      </div>
-    </section>
-
-    <section class="grid grid-cols-2 md:grid-cols-4 gap-4" aria-label="Overview metrics">
-      <div class="glass p-5 rounded-2xl border-l-4 border-blue-500"><p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Realized PnL</p><h2 id="totalPnl" class="text-2xl font-black font-mono mt-1">$0.00</h2></div>
-      <div class="glass p-5 rounded-2xl border-l-4 border-green-500"><p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Win Rate</p><h2 id="winRate" class="text-2xl font-black font-mono mt-1">0%</h2></div>
-      <div class="glass p-5 rounded-2xl border-l-4 border-purple-500"><p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Total Lots</p><h2 id="totalLots" class="text-2xl font-black font-mono mt-1">0.00</h2></div>
-      <div class="glass p-5 rounded-2xl border-l-4 border-slate-500"><p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Active Trades</p><h2 id="activeCount" class="text-2xl font-black font-mono mt-1">0</h2></div>
-    </section>
-
-    <section id="journal" class="section active space-y-6">
-      <div class="glass p-6 rounded-2xl space-y-4">
-        <div class="flex items-center justify-between"><div class="flex items-center gap-2"><i data-lucide="activity" class="text-blue-500 w-5 h-5"></i><h3 class="text-sm font-bold text-white uppercase tracking-wider">Live Market</h3></div><div class="flex items-center gap-2"><select id="liveSymbolSelect" class="bg-slate-950 border border-slate-800 rounded-xl p-2 text-white text-xs outline-none min-w-40"></select><span id="liveChartStatus" class="text-[10px] font-bold uppercase text-slate-500">Disconnected</span></div></div>
-        <canvas id="liveChartCanvas" height="160" class="w-full rounded-xl bg-slate-950 border border-slate-800"></canvas>
+        <div class="flex items-center gap-2">
+          <div id="connectionStatus" class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900 border border-slate-800 text-xs"><div class="w-2 h-2 rounded-full bg-red-500"></div><span class="text-slate-400 font-medium hidden sm:inline">LIVE DATA</span></div>
+          <button id="btn-toggle-chart" type="button" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white" title="Toggle Chart"><i data-lucide="layout-grid" class="w-5 h-5"></i></button>
+          <button id="btn-new-trade" type="button" class="hidden sm:flex px-4 py-2 rounded-lg text-sm font-bold items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white"><i data-lucide="plus-circle" class="w-4 h-4"></i> NEW TRADE</button>
+          <button id="btn-export-csv" type="button" class="hidden sm:flex px-4 py-2 rounded-lg text-sm font-bold items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-300"><i data-lucide="download" class="w-4 h-4"></i> EXPORT CSV</button>
+          
+          <!-- Nav Tabs (Admin Hidden by Default) -->
+          <nav class="flex gap-1 ml-2">
+            <button data-tab="journal" class="p-2 rounded-lg bg-slate-800 text-white"><i data-lucide="home" class="w-5 h-5"></i></button>
+            <button data-tab="admin" class="hidden p-2 rounded-lg bg-red-900/20 text-red-400 hover:bg-red-900/40"><i data-lucide="shield" class="w-5 h-5"></i></button>
+          </nav>
+          
+          <button id="btn-logout" type="button" class="p-2 rounded-lg bg-red-900/20 hover:bg-red-900/40 text-red-400 ml-2"><i data-lucide="log-out" class="w-5 h-5"></i></button>
+        </div>
       </div>
       
-      <section class="space-y-4">
-        <div class="glass rounded-2xl overflow-hidden">
-          <div class="p-4 border-b border-slate-800 bg-slate-900/50 flex justify-between items-center"><span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Equity Curve</span></div>
-          <canvas id="equityCurveCanvas" height="220" class="w-full bg-slate-950"></canvas>
+      <!-- Ticker Tape -->
+      <div class="max-w-7xl mx-auto px-4 pb-4">
+        <div class="mt-2 flex items-center gap-3">
+          <div class="relative w-full max-w-xs">
+            <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-500"></i>
+            <input type="text" id="marketSearch" placeholder="Search Assets..." class="w-full bg-slate-950 border border-slate-800 rounded-full py-1.5 pl-9 pr-4 text-xs text-white focus:outline-none focus:border-blue-500">
+          </div>
+          <div id="tickerContainer" class="flex gap-3 overflow-x-auto custom-scrollbar flex-1 py-1"></div>
+        </div>
+      </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 mt-8 space-y-8">
+      
+      <!-- Chart Section (Hidden Default) -->
+      <section id="chartSection" class="hidden mb-8">
+        <div class="glass rounded-2xl overflow-hidden border border-slate-700">
+          <div class="p-3 bg-slate-900/50 flex justify-between items-center border-b border-slate-800">
+            <div class="flex items-center gap-4">
+              <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Market Analysis</span>
+              <span id="chartSymbolName" class="text-sm font-black text-blue-400">LOADING...</span>
+            </div>
+            <button id="btn-close-chart" type="button" class="text-slate-500 hover:text-white"><i data-lucide="x" class="w-4 h-4"></i></button>
+          </div>
+          <div id="tv-container" class="h-[400px] w-full bg-slate-950 relative"></div>
         </div>
       </section>
 
-      <div class="flex flex-wrap gap-2 mb-6 bg-slate-900/50 p-1.5 rounded-2xl w-fit border border-slate-800" role="tablist" aria-label="Views">
-        <button onclick="window.switchJournalTab('active')" id="tab-active" role="tab" aria-selected="true" class="px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all bg-slate-800 text-blue-400">Active</button>
-        <button onclick="window.switchJournalTab('history')" id="tab-history" role="tab" aria-selected="false" class="px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all text-slate-500 hover:text-slate-300">Closed</button>
-        <button onclick="window.switchJournalTab('leaderboard')" id="tab-leaderboard" role="tab" aria-selected="false" class="px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all text-slate-500 hover:text-slate-300">Leaderboard</button>
-        <button onclick="window.switchJournalTab('feedback')" id="tab-feedback" role="tab" aria-selected="false" class="px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all text-slate-500 hover:text-slate-300">Feedback</button>
-      </div>
-
-      <div id="activeTradesList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" aria-live="polite"></div>
-      
-      <div id="historyList" class="hidden overflow-x-auto glass rounded-2xl border border-slate-800" aria-hidden="true">
-        <div class="p-4 border-b border-slate-800 bg-slate-900/50 grid grid-cols-1 md:grid-cols-5 gap-3">
-          <input id="filterInstrument" placeholder="Instrument" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs text-white outline-none focus:border-blue-500">
-          <select id="filterSide" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs text-white outline-none focus:border-blue-500">
-            <option value="">Side</option>
-            <option value="buy">Buy</option>
-            <option value="sell">Sell</option>
-          </select>
-          <input id="filterTag" placeholder="Tag" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs text-white outline-none focus:border-blue-500">
-          <input id="filterFrom" type="date" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs text-white outline-none focus:border-blue-500">
-          <input id="filterTo" type="date" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs text-white outline-none focus:border-blue-500">
-        </div>
-        <table class="w-full text-left border-collapse">
-          <thead class="bg-slate-900/80 text-[10px] uppercase text-slate-400 font-bold border-b border-slate-800">
-            <tr>
-              <th class="p-5">Instrument</th>
-              <th class="p-5">Side</th>
-              <th class="p-5">Lots</th>
-              <th class="p-5">Entry / Close</th>
-              <th class="p-5">Pips</th>
-              <th class="p-5 text-right">PnL</th>
-              <th class="p-5"></th>
-            </tr>
-          </thead>
-          <tbody id="historyTableBody" class="divide-y divide-slate-800/50"></tbody>
-        </table>
-      </div>
-      
-      <div id="leaderboardList" class="hidden" aria-hidden="true">
-        <div class="glass rounded-2xl overflow-hidden border border-slate-800 max-w-2xl mx-auto">
-          <div class="p-5 border-b border-slate-800 bg-slate-900/50 flex items-center gap-3"><i data-lucide="trophy" class="text-yellow-500 w-5 h-5"></i><h3 class="text-sm font-bold text-white uppercase tracking-wider">Top Traders</h3></div>
-          <div id="leaderboardContent" class="p-5 space-y-3"><p class="text-slate-500 text-sm text-center">Loading leaderboard...</p></div>
-        </div>
-      </div>
-      
-      <div id="feedbackList" class="hidden" aria-hidden="true">
-        <div class="glass rounded-2xl overflow-hidden border border-slate-800 max-w-2xl mx-auto">
-          <div class="p-5 border-b border-slate-800 bg-slate-900/50 flex items-center gap-3"><i data-lucide="message-circle" class="text-blue-500 w-5 h-5"></i><h3 class="text-sm font-bold text-white uppercase tracking-wider">Instructor Feedback</h3></div>
-          <div id="feedbackContent" class="p-5 space-y-4"><p class="text-slate-500 text-sm text-center">Loading feedback...</p></div>
-        </div>
-      </div>
-      
-      <div class="grid md:grid-cols-2 gap-6">
-        <div class="glass p-6 rounded-2xl space-y-4">
-          <div class="flex items-center gap-2"><i data-lucide="user" class="text-slate-400 w-5 h-5"></i><h3 class="text-sm font-bold text-white uppercase tracking-wider">User</h3></div>
-          <div class="flex items-center justify-between"><p id="currentUserEmail" class="text-xs text-slate-300 font-bold truncate"></p><button id="signOutBtn" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-white text-[10px] font-bold uppercase tracking-wider">Sign Out</button></div>
-          <p id="currentUserId" class="text-[10px] text-slate-500 font-mono"></p>
-        </div>
-        <div class="glass p-6 rounded-2xl space-y-4">
-          <div class="flex items-center gap-2"><i data-lucide="file-plus" class="text-slate-400 w-5 h-5"></i><h3 class="text-sm font-bold text-white uppercase tracking-wider">Log Trade</h3></div>
-          <div class="grid grid-cols-2 gap-3">
-            <input id="tradeInstrument" type="text" placeholder="Instrument" class="bg-slate-950 border border-slate-800 rounded-xl p-3 text-white text-sm outline-none">
-            <select id="tradeType" class="bg-slate-950 border border-slate-800 rounded-xl p-3 text-white text-sm outline-none"><option value="buy">Buy</option><option value="sell">Sell</option></select>
-            <input id="tradeLots" type="number" step="0.01" placeholder="Lots" class="bg-slate-950 border border-slate-800 rounded-xl p-3 text-white text-sm outline-none">
-            <input id="tradePnl" type="number" step="0.01" placeholder="PnL" class="bg-slate-950 border border-slate-800 rounded-xl p-3 text-white text-sm outline-none">
-            <select id="tradeStatus" class="bg-slate-950 border border-slate-800 rounded-xl p-3 text-white text-sm outline-none"><option value="open">Open</option><option value="closed">Closed</option></select>
-            <button id="addTrade" class="py-2.5 rounded-xl bg-green-600 hover:bg-green-500 text-white text-[11px] font-black uppercase tracking-widest">Add</button>
-          </div>
-        </div>
-      </div>
-      
-    </section>
-
-    <section id="admin" class="section grid grid-cols-1 md:grid-cols-4 gap-6">
-      <aside class="glass rounded-2xl overflow-hidden h-[70vh] flex flex-col"><div class="p-4 border-b border-slate-800 bg-slate-900/50"><h3 class="text-sm font-bold text-white uppercase">Students</h3></div><div id="studentList" class="flex-1 overflow-y-auto p-2 space-y-2 custom-scrollbar"><p class="text-center text-slate-500 text-xs mt-4">Loading students...</p></div></aside>
-      <section class="md:col-span-3 space-y-6">
-        <div id="studentHeader" class="glass p-6 rounded-2xl border-l-4 border-blue-500 hidden"><div class="flex justify-between items-start"><div><h2 id="studentEmail" class="text-2xl font-bold text-white">Select a Student</h2><p class="text-slate-500 text-xs uppercase tracking-widest mt-1">Student ID: <span id="studentId">---</span></p></div><div class="text-right"><p class="text-[10px] font-bold text-slate-500 uppercase">Total Profit</p><h3 id="adminTotalPnl" class="text-2xl font-black font-mono text-white">$0.00</h3></div></div></div>
+      <!-- STUDENT DASHBOARD -->
+      <section id="journal" class="section active space-y-6">
         
-        <div id="adminTradesContainer" class="glass rounded-2xl overflow-hidden border border-slate-800 hidden">
-            <div class="p-4 border-b border-slate-800 bg-slate-900/50"><h3 class="text-sm font-bold text-white uppercase">Student Trades</h3></div>
-            <div class="overflow-x-auto"><table class="w-full text-left border-collapse"><thead class="bg-slate-900/80 text-[10px] uppercase text-slate-400 font-bold border-b border-slate-800"><tr><th class="p-5">Time</th><th class="p-5">Instrument</th><th class="p-5">Side</th><th class="p-5">Lots</th><th class="p-5">PnL</th><th class="p-5">Status</th></tr></thead><tbody id="adminTradeTable" class="divide-y divide-slate-800/50"></tbody></table></div>
+        <!-- Metrics -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4" aria-label="Overview metrics">
+            <div class="glass p-5 rounded-2xl border-l-4 border-blue-500"><p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Realized PnL</p><h2 id="totalPnl" class="text-2xl font-black font-mono mt-1">$0.00</h2></div>
+            <div class="glass p-5 rounded-2xl border-l-4 border-green-500"><p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Win Rate</p><h2 id="winRate" class="text-2xl font-black font-mono mt-1">0%</h2></div>
+            <div class="glass p-5 rounded-2xl border-l-4 border-purple-500"><p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Total Lots</p><h2 id="totalLots" class="text-2xl font-black font-mono mt-1">0.00</h2></div>
+            <div class="glass p-5 rounded-2xl border-l-4 border-slate-500"><p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Active Trades</p><h2 id="activeCount" class="text-2xl font-black font-mono mt-1">0</h2></div>
         </div>
 
-        <div id="feedbackSection" class="glass rounded-2xl overflow-hidden border border-slate-800 hidden">
-            <div class="p-4 border-b border-slate-800 bg-slate-900/50 flex items-center gap-3"><i data-lucide="message-circle" class="text-blue-500 w-5 h-5"></i><h3 class="text-sm font-bold text-white uppercase tracking-wider">Instructor Feedback</h3></div>
-            <div class="p-6 space-y-4">
-                <div id="commentsList" class="space-y-3 max-h-60 overflow-y-auto custom-scrollbar"></div>
-                <form id="commentForm" class="flex gap-2">
-                    <input id="commentInput" type="text" placeholder="Write feedback..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl p-3 text-white text-sm outline-none focus:border-blue-500">
-                    <button type="submit" class="p-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white"><i data-lucide="send" class="w-5 h-5"></i></button>
-                </form>
+        <!-- Live Market & Equity -->
+        <div class="grid md:grid-cols-2 gap-6">
+            <div class="glass p-6 rounded-2xl space-y-4">
+                <div class="flex items-center justify-between"><div class="flex items-center gap-2"><i data-lucide="activity" class="text-blue-500 w-5 h-5"></i><h3 class="text-sm font-bold text-white uppercase tracking-wider">Live Market</h3></div><div class="flex items-center gap-2"><select id="liveSymbolSelect" class="bg-slate-950 border border-slate-800 rounded-xl p-2 text-white text-xs outline-none min-w-40"></select><span id="liveChartStatus" class="text-[10px] font-bold uppercase text-slate-500">Disconnected</span></div></div>
+                <canvas id="liveChartCanvas" height="160" class="w-full rounded-xl bg-slate-950 border border-slate-800"></canvas>
+            </div>
+            <div class="glass rounded-2xl overflow-hidden">
+                <div class="p-4 border-b border-slate-800 bg-slate-900/50 flex justify-between items-center"><span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Equity Curve</span></div>
+                <canvas id="equityCurveCanvas" height="220" class="w-full bg-slate-950"></canvas>
             </div>
         </div>
+
+        <!-- Tab Controls -->
+        <div class="flex flex-wrap gap-2 mb-6 bg-slate-900/50 p-1.5 rounded-2xl w-fit border border-slate-800" role="tablist">
+          <button onclick="window.switchJournalTab('active')" id="tab-active" class="px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all bg-slate-800 text-blue-400">Active</button>
+          <button onclick="window.switchJournalTab('history')" id="tab-history" class="px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all text-slate-500 hover:text-slate-300">Closed</button>
+          <button onclick="window.switchJournalTab('leaderboard')" id="tab-leaderboard" class="px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all text-slate-500 hover:text-slate-300">Leaderboard</button>
+          <button onclick="window.switchJournalTab('feedback')" id="tab-feedback" class="px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all text-slate-500 hover:text-slate-300">Feedback</button>
+        </div>
+
+        <!-- Tab Contents -->
+        <div id="activeTradesList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+        
+        <div id="historyList" class="hidden glass rounded-2xl border border-slate-800 overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead class="bg-slate-900/80 text-[10px] uppercase text-slate-400 font-bold border-b border-slate-800">
+                    <tr><th class="p-5">Instrument</th><th class="p-5">Side</th><th class="p-5">Lots</th><th class="p-5">Entry / Close</th><th class="p-5">Pips</th><th class="p-5 text-right">PnL</th><th class="p-5 text-right">Date</th></tr>
+                    </thead>
+                    <tbody id="historyTableBody" class="divide-y divide-slate-800/50"></tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div id="leaderboardList" class="hidden">
+          <div class="glass rounded-2xl overflow-hidden border border-slate-800 max-w-2xl mx-auto">
+            <div class="p-5 border-b border-slate-800 bg-slate-900/50 flex items-center gap-3"><i data-lucide="trophy" class="text-yellow-500 w-5 h-5"></i><h3 class="text-sm font-bold text-white uppercase tracking-wider">Top Traders</h3></div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <tbody id="leaderboardContent"></tbody>
+                </table>
+            </div>
+          </div>
+        </div>
+        
+        <div id="feedbackList" class="hidden">
+          <div class="glass rounded-2xl overflow-hidden border border-slate-800 max-w-2xl mx-auto">
+            <div class="p-5 border-b border-slate-800 bg-slate-900/50 flex items-center gap-3"><i data-lucide="message-circle" class="text-blue-500 w-5 h-5"></i><h3 class="text-sm font-bold text-white uppercase tracking-wider">Instructor Feedback</h3></div>
+            <div id="feedbackContent" class="p-5 space-y-4"><p class="text-slate-500 text-sm text-center">Loading feedback...</p></div>
+          </div>
+        </div>
+        
+        <!-- User & Trade Logging (Always Visible at bottom) -->
+        <div class="grid md:grid-cols-2 gap-6 mt-8">
+          <div class="glass p-6 rounded-2xl space-y-4">
+            <div class="flex items-center gap-2"><i data-lucide="user" class="text-slate-400 w-5 h-5"></i><h3 class="text-sm font-bold text-white uppercase tracking-wider">User Profile</h3></div>
+            <div class="flex items-center justify-between"><p id="currentUserEmail" class="text-xs text-slate-300 font-bold truncate"></p></div>
+            <p id="currentUserId" class="text-[10px] text-slate-500 font-mono"></p>
+          </div>
+          <div class="glass p-6 rounded-2xl space-y-4">
+            <div class="flex items-center gap-2"><i data-lucide="file-plus" class="text-slate-400 w-5 h-5"></i><h3 class="text-sm font-bold text-white uppercase tracking-wider">Log Trade</h3></div>
+            <div class="grid grid-cols-2 gap-3">
+              <input id="tradeInstrument" type="text" placeholder="Instrument" class="bg-slate-950 border border-slate-800 rounded-xl p-3 text-white text-sm outline-none">
+              <select id="tradeType" class="bg-slate-950 border border-slate-800 rounded-xl p-3 text-white text-sm outline-none"><option value="buy">Buy</option><option value="sell">Sell</option></select>
+              <input id="tradeLots" type="number" step="0.01" placeholder="Lots" class="bg-slate-950 border border-slate-800 rounded-xl p-3 text-white text-sm outline-none">
+              <input id="tradePnl" type="number" step="0.01" placeholder="PnL" class="bg-slate-950 border border-slate-800 rounded-xl p-3 text-white text-sm outline-none">
+              <select id="tradeStatus" class="bg-slate-950 border border-slate-800 rounded-xl p-3 text-white text-sm outline-none"><option value="open">Open</option><option value="closed">Closed</option></select>
+              <button id="addTrade" class="py-2.5 rounded-xl bg-green-600 hover:bg-green-500 text-white text-[11px] font-black uppercase tracking-widest">Add</button>
+            </div>
+          </div>
+        </div>
+
       </section>
-    </section>
 
-  </main>
+      <!-- ADMIN PANEL (Consolidated) -->
+      <section id="admin" class="section grid grid-cols-1 md:grid-cols-4 gap-6">
+        
+        <!-- Sidebar -->
+        <aside class="glass rounded-2xl overflow-hidden h-[70vh] flex flex-col">
+            <div class="p-4 border-b border-slate-800 bg-slate-900/50 flex justify-between items-center">
+                <h3 class="text-sm font-bold text-white uppercase">Students</h3>
+                <button id="refreshStudents" class="text-slate-400 hover:text-white"><i data-lucide="refresh-ccw" class="w-4 h-4"></i></button>
+            </div>
+            <div id="studentList" class="flex-1 overflow-y-auto p-2 space-y-2 custom-scrollbar">
+                <p class="text-center text-slate-500 text-xs mt-4">Loading students...</p>
+            </div>
+            <div class="p-4 border-t border-slate-800 bg-slate-900/50">
+                <button id="publishLeaderboard" class="w-full py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-xs font-bold uppercase tracking-wider">Publish Leaderboard</button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <section class="md:col-span-3 space-y-6">
+            <!-- Student Header -->
+            <div id="studentHeader" class="glass p-6 rounded-2xl border-l-4 border-blue-500 hidden">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h2 id="studentEmail" class="text-2xl font-bold text-white">Select a Student</h2>
+                        <p class="text-slate-500 text-xs uppercase tracking-widest mt-1">Student ID: <span id="studentId">---</span></p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-[10px] font-bold text-slate-500 uppercase">Total Profit</p>
+                        <h3 id="adminTotalPnl" class="text-2xl font-black font-mono text-white">$0.00</h3>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Trades List -->
+            <div id="adminTradesContainer" class="glass rounded-2xl overflow-hidden border border-slate-800 hidden">
+                <div class="p-4 border-b border-slate-800 bg-slate-900/50"><h3 class="text-sm font-bold text-white uppercase">Student Trades</h3></div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="bg-slate-900/80 text-[10px] uppercase text-slate-400 font-bold border-b border-slate-800">
+                            <tr><th class="p-5">Time</th><th class="p-5">Instrument</th><th class="p-5">Side</th><th class="p-5">Lots</th><th class="p-5">PnL</th><th class="p-5">Status</th></tr>
+                        </thead>
+                        <tbody id="adminTradeTable" class="divide-y divide-slate-800/50"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Feedback -->
+            <div id="feedbackSection" class="glass rounded-2xl overflow-hidden border border-slate-800 hidden">
+                <div class="p-4 border-b border-slate-800 bg-slate-900/50 flex items-center gap-3"><i data-lucide="message-circle" class="text-blue-500 w-5 h-5"></i><h3 class="text-sm font-bold text-white uppercase tracking-wider">Instructor Feedback</h3></div>
+                <div class="p-6 space-y-4">
+                    <div id="commentsList" class="space-y-3 max-h-60 overflow-y-auto custom-scrollbar"></div>
+                    <form id="commentForm" class="flex gap-2">
+                        <input id="commentInput" type="text" placeholder="Write feedback..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl p-3 text-white text-sm outline-none focus:border-blue-500">
+                        <button type="submit" class="bg-blue-600 hover:bg-blue-500 text-white p-3 rounded-xl"><i data-lucide="send" class="w-4 h-4"></i></button>
+                    </form>
+                </div>
+            </div>
+        </section>
+      </section>
+
+    </main>
   </div>
 
-  <div id="tradeModal" class="fixed inset-0 z-[100] items-center justify-center p-4 bg-slate-950/90 backdrop-blur-md hidden">
-    <div class="glass w-full max-w-md rounded-2xl overflow-hidden border border-slate-700">
-      <div class="p-6 border-b border-slate-800 flex justify-between items-center bg-slate-900/50"><h3 class="text-sm font-bold text-white uppercase tracking-widest">New Trade Entry</h3><button id="tradeModalClose" type="button" class="text-slate-500 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button></div>
-      <form id="tradeForm" class="p-6 space-y-5">
-        <div><label class="block text-[10px] font-bold text-slate-500 uppercase mb-2">Asset Selection</label><div class="relative"><select id="f-instrument" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white font-bold outline-none focus:border-blue-500 appearance-none"></select><i data-lucide="chevron-down" class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none"></i></div></div>
-        <div class="grid grid-cols-2 gap-4"><div><label class="block text-[10px] font-bold text-slate-500 uppercase mb-2">Direction</label><div class="flex bg-slate-950 p-1.5 rounded-xl border border-slate-800"><button type="button" onclick="window.setSide('buy')" id="btn-buy" class="flex-1 py-2.5 rounded-lg text-[10px] font-black uppercase bg-green-600 text-white">BUY</button><button type="button" onclick="window.setSide('sell')" id="btn-sell" class="flex-1 py-2.5 rounded-lg text-[10px] font-black uppercase text-slate-500">SELL</button></div></div><div><label class="block text-[10px] font-bold text-slate-500 uppercase mb-2">Volume (Lots)</label><input type="number" id="f-lots" step="0.01" value="0.01" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white font-mono text-center outline-none focus:border-blue-500"></div></div>
-        <div class="grid grid-cols-2 gap-4"><div><label class="block text-[10px] font-bold text-slate-500 uppercase mb-2">Entry Price</label><input type="number" id="f-entry" step="0.00001" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white font-mono outline-none focus:border-blue-500"></div><div><label class="block text-[10px] font-bold text-slate-500 uppercase mb-2">Stop Loss</label><input type="number" id="f-sl" step="0.00001" placeholder="0.00" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white font-mono outline-none focus:border-blue-500"></div></div>
-        <div class="grid grid-cols-2 gap-4"><div><label class="block text-[10px] font-bold text-slate-500 uppercase mb-2 text-green-500">Take Profit</label><input type="number" id="f-tp" step="0.00001" placeholder="0.00" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white font-mono outline-none focus:border-blue-500"></div></div>
-        <div class="grid grid-cols-2 gap-4"><div><label class="block text-[10px] font-bold text-slate-500 uppercase mb-2">Strategy</label><input type="text" id="f-strategy" placeholder="Breakout" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white outline-none focus:border-blue-500"></div><div><label class="block text-[10px] font-bold text-slate-500 uppercase mb-2">Setup</label><input type="text" id="f-setup" placeholder="1-2-3" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white outline-none focus:border-blue-500"></div></div>
-        <div class="grid grid-cols-2 gap-4"><div><label class="block text-[10px] font-bold text-slate-500 uppercase mb-2">Tags</label><input type="text" id="f-tags" placeholder="comma separated" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white outline-none focus:border-blue-500"></div><div><label class="block text-[10px] font-bold text-slate-500 uppercase mb-2">Risk %</label><input type="number" id="f-riskpct" step="0.01" placeholder="1.0" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white outline-none focus:border-blue-500"></div></div>
-        <div><label class="block text-[10px] font-bold text-slate-500 uppercase mb-2">Notes</label><textarea id="f-notes" rows="3" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white outline-none focus:border-blue-500" placeholder="plan, emotions, mistakes, improvements"></textarea></div>
-        <button type="submit" class="w-full px-4 py-3 rounded-xl bg-blue-600 text-white font-black text-xs uppercase tracking-[0.2em]">Execute Trade</button>
-      </form>
-    </div>
-  </div>
-
-  <div id="notification-container" class="fixed top-4 right-4 z-[300] flex flex-col items-end w-full max-w-sm pointer-events-none"></div>
-
+  <!-- FIREBASE MODULES -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-analytics.js";
@@ -238,7 +287,7 @@
     import { getFirestore, collection, doc, setDoc, addDoc, getDocs, getDoc, query, orderBy, onSnapshot, serverTimestamp, Timestamp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
     
     // --- FIREBASE CONFIG ---
-    const firebaseConfig = { apiKey:"AIzaSyA28jc1OxMfc33m7rk8fCrfgmnw_uLzc50", authDomain:"trading-journal-914c4.firebaseapp.com", projectId:"trading-journal-914c4", storageBucket:"trading-journal-914c4.firebasestorage.app", messagingSenderId:"504948935584", appId:"1:504948935584:web:dbf3c74177c0794c9fb2c5", measurementId:"G-8V9K3WBRXN" };
+    const firebaseConfig = { apiKey:"AIzaSyA28jc1OxMfc33m7rk8fCrfgmnw_uLzc50", authDomain:"trading-journal-914c4.firebaseapp.com", projectId:"trading-journal-914c4", storageBucket:"trading-journal-914c4.firebasestorage.app", messagingSenderId:"504948935584", appId:"1:504948935584:web:dbf3c74177c07941785f7c", measurementId:"G-1234567890" };
     
     // --- CONSTANTS ---
     const DERIV_APP_ID = 123621;
@@ -265,704 +314,536 @@
     let journalTab = 'active';
     let livePrices = [];
     let derivActive = new Map();
-    let trailingSettings = {};
-
-    // --- CHART VARIABLES ---
     let chartInstance = null;
     let candleSeries = null;
-    let currentChartSymbol = 'JUMP_100';
+    let currentChartSymbol = '';
+    let trailingSettings = {};
 
-    // --- NOTIFICATIONS ---
-    function notify(message, type = 'info'){
-      const notif=document.createElement('div');
-      notif.className=`p-4 rounded-xl shadow-2xl mb-3 text-sm font-bold text-white transform transition-all translate-x-full ${type==='error'?'bg-red-600':type==='success'?'bg-green-600':'bg-blue-600'}`;
-      notif.innerHTML=`<div class="flex items-center gap-3"><i data-lucide="${type==='error'?'alert-circle':'check-circle'}" class="w-5 h-5"></i><span>${message}</span></div>`;
-      document.getElementById('notification-container').appendChild(notif);
-      if(window.lucide&&window.lucide.createIcons)window.lucide.createIcons();
-      requestAnimationFrame(()=>notif.classList.remove('translate-x-full'));
-      setTimeout(()=>{notif.classList.add('translate-x-full','opacity-0');setTimeout(()=>notif.remove(),300)},4000);
+    // --- UTILS ---
+    function notify(msg, type='info'){
+        const div = document.createElement('div');
+        div.className = `fixed top-4 right-4 z-[300] px-6 py-3 rounded-xl shadow-2xl font-bold text-xs uppercase tracking-wider animate-bounce ${type==='error'?'bg-red-600 text-white':'bg-slate-800 text-white border border-slate-700'}`;
+        div.innerText = msg;
+        document.body.appendChild(div);
+        setTimeout(()=>div.remove(), 3000);
     }
 
-    // --- TABS & NAVIGATION ---
-    function setTab(id){
-      document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
-      const el=document.getElementById(id);
-      if(el)el.classList.add('active');
-      window.scrollTo(0,0);
+    function setTab(tabName) {
+        document.querySelectorAll('.section').forEach(el => el.classList.remove('active'));
+        const target = document.getElementById(tabName);
+        if(target) target.classList.add('active');
+        
+        // Update Nav State
+        document.querySelectorAll('nav button').forEach(btn => {
+            if(btn.dataset.tab === tabName) btn.classList.add('bg-blue-600', 'text-white');
+            else {
+                btn.classList.remove('bg-blue-600', 'text-white');
+                if(btn.dataset.tab === 'admin') btn.classList.add('text-red-400');
+                else btn.classList.add('text-white');
+            }
+        });
     }
 
-    // --- MAIN EXECUTION ---
-    document.addEventListener('DOMContentLoaded',()=>{
-      if(window.lucide&&window.lucide.createIcons)window.lucide.createIcons();
-      document.querySelectorAll('nav [data-tab]').forEach(btn=>btn.addEventListener('click',()=>setTab(btn.getAttribute('data-tab'))));
-      document.getElementById('btn-show-login').addEventListener('click',()=>showAuthForm('login'));
-      document.getElementById('btn-show-register').addEventListener('click',()=>showAuthForm('register'));
-      document.getElementById('btn-show-admin').addEventListener('click',()=>showAuthForm('admin'));
-      document.getElementById('btn-back-auth').addEventListener('click',backToLanding);
-      document.getElementById('authForm').addEventListener('submit',handleAuthSubmit);
-      document.getElementById('adminForm').addEventListener('submit',verifyAdminPasscode);
-      document.getElementById('forgotPasswordLink').addEventListener('click',handlePasswordReset);
-      document.getElementById('signOutBtn').addEventListener('click',()=>signOut(auth).then(()=>{isAdminVerified=false;document.getElementById('authContainer').classList.remove('hidden');const appc=document.getElementById('appContent');if(appc)appc.classList.add('hidden');updateAdminNavVisibility();setTab('journal');notify('Signed out','success')}));
-      
-      const btnToggle=document.getElementById('btn-toggle-chart'); if(btnToggle) btnToggle.addEventListener('click',toggleChart);
-      const btnCloseChart=document.getElementById('btn-close-chart'); if(btnCloseChart) btnCloseChart.addEventListener('click',toggleChart);
-      const btnExport=document.getElementById('btn-export-csv'); if(btnExport) btnExport.addEventListener('click',exportCSV);
-      const btnNewTrade=document.getElementById('btn-new-trade'); if(btnNewTrade) btnNewTrade.addEventListener('click',openModal);
-      const tradeClose=document.getElementById('tradeModalClose'); if(tradeClose) tradeClose.addEventListener('click',closeModal);
-      const tradeForm=document.getElementById('tradeForm'); if(tradeForm) tradeForm.addEventListener('submit',handleTradeFormSubmit);
+    // --- EVENT LISTENERS ---
+    window.addEventListener('DOMContentLoaded', () => {
+      if(window.lucide) window.lucide.createIcons();
+      initActiveSymbols();
 
-      // Auth State
-      document.getElementById('authContainer').classList.remove('hidden');
-      updateAdminNavVisibility();
-      setTab('journal');
+      // Auth UI Toggles
+      const showAuthForm = (mode) => {
+        authMode = mode;
+        document.getElementById('landing-options').classList.add('hidden');
+        document.getElementById('auth-forms').classList.remove('hidden');
+        document.getElementById('authForm').classList.toggle('hidden', mode==='admin');
+        document.getElementById('adminForm').classList.toggle('hidden', mode!=='admin');
+        document.getElementById('auth-title').innerText = mode==='login'?'Student Login':mode==='register'?'New Student':'Mentor Access';
+        const forgotBtn = document.getElementById('forgotPasswordLink');
+        if(forgotBtn) forgotBtn.classList.toggle('hidden', mode!=='login');
+      };
 
-      onAuthStateChanged(auth,async(user)=>{
-        if(user){
-          currentUserDocId=user.uid;
-          await setDoc(doc(db,'users',user.uid),{email:user.email||'',role:(await getDoc(doc(db,'users',user.uid))).exists()? (await getDoc(doc(db,'users',user.uid))).data().role||'student':'student'},{merge:true});
-          const uDoc=await getDoc(doc(db,'users',user.uid));
-          const role=(uDoc.exists()?uDoc.data().role:'')||'';
-          hasAdminClaim=(role==='mentor'||role==='admin');
-          document.getElementById('currentUserEmail').innerText=user.email||'';
-          document.getElementById('currentUserId').innerText=user.uid;
-          document.getElementById('authContainer').classList.add('hidden');
-          const appc=document.getElementById('appContent'); if(appc) appc.classList.remove('hidden');
+      document.getElementById('btn-show-login').onclick = () => showAuthForm('login');
+      document.getElementById('btn-show-register').onclick = () => showAuthForm('register');
+      document.getElementById('btn-show-admin').onclick = () => showAuthForm('admin');
+      document.getElementById('btn-back-auth').onclick = () => {
+        document.getElementById('landing-options').classList.remove('hidden');
+        document.getElementById('auth-forms').classList.add('hidden');
+      };
+
+      // Auth Actions
+      document.getElementById('authForm').onsubmit = async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value.trim();
+        try {
+          if(authMode === 'login') {
+            await signInWithEmailAndPassword(auth, email, password);
+          } else if(authMode === 'register') {
+            const res = await createUserWithEmailAndPassword(auth, email, password);
+            await setDoc(doc(db, 'users', res.user.uid), { email, createdAt: serverTimestamp() }, { merge: true });
+          }
+        } catch(err) { notify(err.message, 'error'); }
+      };
+
+      document.getElementById('adminForm').onsubmit = async (e) => {
+        e.preventDefault();
+        const pass = document.getElementById('adminPasscode').value.trim();
+        if(pass === ADMIN_PASSCODE) {
+          isAdminVerified = true;
+          const u = auth.currentUser;
+          if(u) {
+             await setDoc(doc(db, 'users', u.uid), { role: 'mentor' }, { merge: true });
+             hasAdminClaim = true;
+          }
           updateAdminNavVisibility();
-          loadMyTrades();
-          onSnapshot(query(collection(db,'users',user.uid,'trades'),orderBy('openTime','desc')),snap=>{
-            myTrades=snap.docs.map(d=>({id:d.id,...d.data()}));
-            if(journalTab==='active')renderActiveTrades();
-            if(journalTab==='history')renderClosedHistory();
-            drawEquityCurve(myTrades.filter(t=>t.status==='closed'));
+          document.getElementById('authContainer').classList.add('hidden');
+          setTab('admin');
+          loadStudents();
+          notify('Mentor access granted', 'success');
+        } else {
+          notify('Invalid mentor passcode', 'error');
+        }
+      };
+      
+      document.getElementById('signOutBtn').onclick = async () => {
+          await signOut(auth);
+          isAdminVerified = false;
+          window.location.reload();
+      };
+      
+      document.getElementById('btn-logout').onclick = async () => {
+          await signOut(auth);
+          isAdminVerified = false;
+          window.location.reload();
+      };
+
+      // Nav
+      document.querySelectorAll('nav button').forEach(btn => {
+          btn.onclick = () => setTab(btn.dataset.tab);
+      });
+
+      // Features
+      document.getElementById('addTrade').onclick = addTrade;
+      document.getElementById('btn-toggle-chart').onclick = toggleChart;
+      document.getElementById('btn-close-chart').onclick = toggleChart;
+      document.getElementById('btn-export-csv').onclick = exportCSV;
+      
+      document.getElementById('refreshStudents').onclick = loadStudents;
+      document.getElementById('publishLeaderboard').onclick = publishLeaderboard;
+
+      // Auth State Observer
+      onAuthStateChanged(auth, user => {
+        if(user) {
+          currentUserDocId = user.uid;
+          document.getElementById('authContainer').classList.add('hidden');
+          document.getElementById('appContent').classList.remove('hidden');
+          document.getElementById('currentUserEmail').innerText = user.email;
+          document.getElementById('currentUserId').innerText = `ID: ${user.uid.slice(0,6)}`;
+          
+          // Check Admin
+          getDoc(doc(db, 'users', user.uid)).then(snap => {
+              if(snap.exists() && snap.data().role === 'mentor') {
+                  hasAdminClaim = true;
+                  updateAdminNavVisibility();
+              }
           });
+
+          // Load Data
+          loadMyTrades();
           loadJournalLeaderboard();
           loadJournalFeedback();
-          
-          // Connect Deriv Account if token present
-          const metaToken=(document.querySelector('meta[name="deriv-token"]')?.content||'').trim();
-          if(metaToken){ window.configureDeriv(metaToken); }
+
+          // Realtime Trades
+          onSnapshot(query(collection(db, 'users', user.uid, 'trades'), orderBy('openTime', 'desc')), snap => {
+             myTrades = snap.docs.map(d => ({id: d.id, ...d.data()}));
+             if(journalTab === 'active') renderActiveTrades();
+             if(journalTab === 'history') renderClosedHistory();
+             drawEquityCurve(myTrades.filter(t => t.status === 'closed'));
+             
+             // Update Metrics
+             const closed = myTrades.filter(t => t.status === 'closed');
+             const totalPnl = closed.reduce((a,t) => a + (t.pnl||0), 0);
+             const wins = closed.filter(t => (t.pnl||0) > 0).length;
+             const winRate = closed.length > 0 ? ((wins / closed.length) * 100).toFixed(0) : 0;
+             const activeCount = myTrades.filter(t => t.status === 'open' || t.status === 'running').length;
+             
+             document.getElementById('totalPnl').innerText = `$${totalPnl.toFixed(2)}`;
+             document.getElementById('totalPnl').className = `text-2xl font-black font-mono mt-1 ${totalPnl>=0?'profit-text':'loss-text'}`;
+             document.getElementById('winRate').innerText = `${winRate}%`;
+             document.getElementById('activeCount').innerText = activeCount;
+          });
 
         } else {
           document.getElementById('authContainer').classList.remove('hidden');
-          const appc=document.getElementById('appContent'); if(appc) appc.classList.add('hidden');
+          document.getElementById('appContent').classList.add('hidden');
         }
       });
-
-      // Events
-      document.getElementById('addTrade').addEventListener('click',addTrade);
-      document.getElementById('refreshMyTrades').addEventListener('click',loadMyTrades);
-      document.getElementById('refreshLeaderboard').addEventListener('click',loadLeaderboard);
-      document.getElementById('publishLeaderboard').addEventListener('click',publishLeaderboard);
-      document.getElementById('publishLeaderboard2').addEventListener('click',publishLeaderboard);
-      document.getElementById('resetLeaderboard').addEventListener('click',resetLeaderboard);
-      
-      // Init WebSocket
-      initActiveSymbols();
-      loadLeaderboard();
-      
-      // Ticker Interaction
-      const tickerContainer=document.getElementById('tickerContainer');
-      if(tickerContainer){ 
-        tickerContainer.addEventListener('click',(e)=>{
-          const card=e.target.closest('[data-deriv]');
-          if(card){
-            const sym = card.getAttribute('data-deriv');
-            const display = card.getAttribute('data-symbol');
-            showChartForSymbol(sym, display);
-          }
-        });
-      }
-      
-      const marketSearch=document.getElementById('marketSearch');
-      if(marketSearch){ marketSearch.oninput=renderTickers; }
-      
-      window.switchJournalTab=switchJournalTab;
-      ['filterInstrument','filterSide','filterTag','filterFrom','filterTo'].forEach(id=>{const el=document.getElementById(id);if(el){el.addEventListener('input',renderClosedHistory);el.addEventListener('change',renderClosedHistory)}});
     });
 
-    // --- AUTH FUNCTIONS ---
-    function showAuthForm(mode){
-      authMode=mode;
-      document.getElementById('landing-options').classList.add('hidden');
-      document.getElementById('auth-forms').classList.remove('hidden');
-      document.getElementById('authForm').classList.toggle('hidden',mode==='admin');
-      document.getElementById('adminForm').classList.toggle('hidden',mode!=='admin');
-      document.getElementById('auth-title').innerText=mode==='login'?'Student Login':mode==='register'?'New Student':'Mentor Access';
-      const forgotBtn=document.getElementById('forgotPasswordLink');
-      if(forgotBtn)forgotBtn.classList.toggle('hidden',mode!=='login');
-    }
-    function backToLanding(){
-      document.getElementById('landing-options').classList.remove('hidden');
-      document.getElementById('auth-forms').classList.add('hidden');
-    }
-    async function handleAuthSubmit(e){
-      e.preventDefault();
-      const email=document.getElementById('email').value.trim();
-      const password=document.getElementById('password').value.trim();
-      try{
-        if(authMode==='login'){
-          const res=await signInWithEmailAndPassword(auth,email,password);
-          currentUserDocId=res.user.uid;
-        }else if(authMode==='register'){
-          const res=await createUserWithEmailAndPassword(auth,email,password);
-          currentUserDocId=res.user.uid;
-          await setDoc(doc(db,'users',res.user.uid),{email},{merge:true});
-        }
-      }catch(err){notify(err.message,'error');}
-    }
-    async function verifyAdminPasscode(e){
-      e.preventDefault();
-      const pass=document.getElementById('adminPasscode').value.trim();
-      if(pass===ADMIN_PASSCODE){
-        isAdminVerified=true;
-        const u=auth.currentUser; if(u){ await setDoc(doc(db,'users',u.uid),{role:'mentor'},{merge:true}); hasAdminClaim=true; }
-        updateAdminNavVisibility();
-        document.getElementById('authContainer').classList.add('hidden');
-        setTab('admin');
-        loadStudents();
-        notify('Mentor access granted','success');
-      }else{notify('Invalid mentor passcode','error');}
-    }
-    function updateAdminNavVisibility(){
-      const adminBtn=document.querySelector('nav [data-tab="admin"]');
-      const showAdmin=isAdminVerified&&hasAdminClaim;
-      if(adminBtn)adminBtn.classList.toggle('hidden',!showAdmin);
-      ['publishLeaderboard','resetLeaderboard','publishLeaderboard2'].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.toggle('hidden',!showAdmin)});
-    }
-    async function handlePasswordReset(){
-      try{
-        const email=document.getElementById('email').value.trim();
-        if(!email){notify('Enter your email to reset password','error');return}
-        await sendPasswordResetEmail(auth,email);
-        notify('Password reset email sent','success');
-      }catch(err){notify(err.message,'error');}
+    function updateAdminNavVisibility() {
+        const btn = document.querySelector('nav button[data-tab="admin"]');
+        if(btn) btn.classList.toggle('hidden', !(isAdminVerified || hasAdminClaim));
     }
 
-    // --- DATA & CHARTING ---
-
-    // 1. CHART INITIALIZATION (Lightweight Charts)
-    function initLightweightChart() {
-      const container = document.getElementById('tv-container');
-      if(!container) return;
-      container.innerHTML = ''; 
-
-      chartInstance = LightweightCharts.createChart(container, {
-          width: container.clientWidth,
-          height: 400,
-          layout: { 
-              backgroundColor: '#0f172a', 
-              textColor: '#94a3b8',
-          },
-          grid: { 
-              vertLines: { color: '#1e293b' }, 
-              horzLines: { color: '#1e293b' },
-          },
-          timeScale: {
-              timeVisible: true,
-              secondsVisible: false,
-              borderColor: '#334155'
-          },
-          rightPriceScale: {
-              borderColor: '#334155',
-          },
-          crosshair: {
-              mode: LightweightCharts.CrosshairMode.Normal,
-          },
-      });
-
-      candleSeries = chartInstance.addCandlestickSeries({
-          upColor: '#22c55e',
-          downColor: '#ef4444',
-          borderUpColor: '#22c55e',
-          borderDownColor: '#ef4444',
-          wickUpColor: '#22c55e',
-          wickDownColor: '#ef4444',
-      });
-
-      // Resize
-      new ResizeObserver(entries => {
-          if (entries.length === 0 || entries[0].target !== container) { return; }
-          const newRect = entries[0].contentRect;
-          chartInstance.applyOptions({ height: newRect.height, width: newRect.width });
-      }).observe(container);
+    // --- ADMIN LOGIC ---
+    function loadStudents() {
+        const list = document.getElementById('studentList');
+        list.innerHTML = '<p class="text-center text-slate-500 text-xs mt-4">Loading...</p>';
+        getDocs(collection(db, 'users')).then(snap => {
+            if(snap.empty) { list.innerHTML = '<p class="text-center text-slate-500 text-xs mt-4">No students found.</p>'; return; }
+            list.innerHTML = snap.docs.map(docItem => {
+                const data = docItem.data();
+                const email = data.email || 'Unknown';
+                const color = 'bg-blue-600'; 
+                return `
+                <div onclick="window.selectStudent('${docItem.id}', '${email}')" class="p-3 rounded-lg hover:bg-slate-800 cursor-pointer transition-colors border border-transparent hover:border-slate-700 group flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-full ${color} flex items-center justify-center text-xs font-bold text-white shadow-lg shrink-0">${email.substring(0,2).toUpperCase()}</div>
+                    <div class="overflow-hidden">
+                        <p class="text-xs font-bold text-slate-300 truncate group-hover:text-white transition-colors">${email}</p>
+                        <p class="text-[10px] text-slate-500 truncate font-mono">ID: ${docItem.id.slice(0,6)}</p>
+                    </div>
+                </div>`;
+            }).join('');
+        });
     }
 
-    // 2. LOAD DATA TO CHART
-    function showChartForSymbol(symbol, displayName) {
-      if(!symbol) return;
-      
-      // Update UI
-      const s=document.getElementById('chartSection');
-      if(s && s.classList.contains('hidden')) s.classList.remove('hidden');
-      const nameEl = document.getElementById('chartSymbolName');
-      if(nameEl) nameEl.innerText = (displayName || symbol).toUpperCase();
-      
-      // Init Chart if needed
-      if(!chartInstance) initLightweightChart();
-      
-      currentChartSymbol = symbol;
-      
-      // Connect/Reset Chart WebSocket
-      initChartWs(symbol);
-    }
-
-    function initChartWs(symbol){
-        // Close existing chart connection
-        try { if(chartWs) chartWs.close(); } catch(e){}
-
-        // New Connection
-        chartWs = new WebSocket(`wss://ws.binaryws.com/websockets/v3?app_id=${DERIV_APP_ID}`);
+    window.selectStudent = function(uid, email) {
+        selectedStudentId = uid;
+        // Show sections
+        document.getElementById('studentHeader').classList.remove('hidden');
+        document.getElementById('adminTradesContainer').classList.remove('hidden');
+        document.getElementById('feedbackSection').classList.remove('hidden');
         
-        chartWs.onopen = () => {
-             // Request History
-             const request = {
-                ticks_history: symbol,
-                adjust_start_time: 1,
-                count: 300,
-                end: 'latest',
-                style: 'candles',
-                granularity: 60, // 1 Minute
-                subscribe: 1 // Keep streaming
-            };
-            chartWs.send(JSON.stringify(request));
-        };
+        // Update Info
+        document.getElementById('studentEmail').innerText = email;
+        document.getElementById('studentId').innerText = uid;
+        
+        // Load Data
+        loadStudentTrades(uid);
+        loadStudentComments(uid);
+    };
 
-        chartWs.onmessage = (evt) => {
-            const data = JSON.parse(evt.data);
+    function loadStudentTrades(uid) {
+        onSnapshot(query(collection(db, 'users', uid, 'trades'), orderBy('openTime', 'desc')), snap => {
+            const trades = snap.docs.map(d => d.data());
+            const totalPnl = trades.reduce((a,t) => a + (t.status==='closed'?(t.pnl||0):0), 0);
             
-            // Historical Candles
-            if (data.candles) {
-                const candles = data.candles.map(c => ({
-                    time: c.epoch,
-                    open: Number(c.open),
-                    high: Number(c.high),
-                    low: Number(c.low),
-                    close: Number(c.close)
-                }));
-                if (candleSeries) candleSeries.setData(candles);
+            const pnlEl = document.getElementById('adminTotalPnl');
+            pnlEl.innerText = `$${totalPnl.toFixed(2)}`;
+            pnlEl.className = `text-2xl font-black font-mono text-white ${totalPnl>=0?'profit-text':'loss-text'}`;
+            
+            const tbody = document.getElementById('adminTradeTable');
+            if(trades.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="p-8 text-center text-slate-500 text-sm">No trades found.</td></tr>';
+            } else {
+                tbody.innerHTML = trades.map(t => `
+                    <tr class="hover:bg-slate-800/30 border-b border-slate-800/50">
+                        <td class="p-4 text-xs text-slate-400">${t.openTime && t.openTime.seconds ? new Date(t.openTime.seconds*1000).toLocaleDateString() : '-'}</td>
+                        <td class="p-4 text-xs font-bold text-white">${t.instrument}</td>
+                        <td class="p-4"><span class="px-2 py-0.5 rounded text-[9px] font-black uppercase ${t.type==='buy'?'bg-green-500/20 text-green-400':'bg-red-500/20 text-red-400'}">${t.type}</span></td>
+                        <td class="p-4 text-xs font-mono text-slate-400">${t.lots||0}</td>
+                        <td class="p-4 text-xs font-mono font-bold ${t.pnl>=0?'profit-text':'loss-text'}">$${(t.pnl||0).toFixed(2)}</td>
+                        <td class="p-4 text-[10px] uppercase font-bold text-slate-500">${t.status}</td>
+                    </tr>
+                `).join('');
             }
+        });
+    }
+
+    function loadStudentComments(uid) {
+        const list = document.getElementById('commentsList');
+        onSnapshot(query(collection(db, 'users', uid, 'comments'), orderBy('createdAt', 'desc')), snap => {
+            if(snap.empty) { list.innerHTML = '<p class="text-xs text-slate-500 italic">No feedback yet.</p>'; return; }
+            list.innerHTML = snap.docs.map(docItem => {
+                const c = docItem.data();
+                return `
+                <div class="bg-slate-900/50 p-3 rounded-lg border border-slate-800">
+                    <p class="text-xs text-slate-300">${c.text}</p>
+                    <p class="text-[9px] text-slate-600 mt-1 text-right">${c.createdAt && c.createdAt.seconds ? new Date(c.createdAt.seconds*1000).toLocaleString() : ''}</p>
+                </div>`;
+            }).join('');
+        });
+
+        // Setup Form
+        const form = document.getElementById('commentForm');
+        form.onsubmit = async (e) => {
+            e.preventDefault();
+            const input = document.getElementById('commentInput');
+            const text = input.value.trim();
+            if(!text || !selectedStudentId) return;
             
-            // Live Update (OHLC)
-            if (data.ohlc) {
-                 if (data.ohlc.symbol === currentChartSymbol && candleSeries) {
-                     candleSeries.update({
-                        time: Number(data.ohlc.open_time),
-                        open: Number(data.ohlc.open),
-                        high: Number(data.ohlc.high),
-                        low: Number(data.ohlc.low),
-                        close: Number(data.ohlc.close)
-                    });
+            await addDoc(collection(db, 'users', selectedStudentId, 'comments'), {
+                text, createdAt: serverTimestamp(), author: 'Admin'
+            });
+            input.value = '';
+            notify('Feedback sent', 'success');
+        };
+    }
+
+    // --- STUDENT LOGIC ---
+    function addTrade() {
+        if(!currentUserDocId) { notify('Login first', 'error'); return; }
+        const instrument = document.getElementById('tradeInstrument').value.trim();
+        const type = document.getElementById('tradeType').value;
+        const lots = parseFloat(document.getElementById('tradeLots').value || '0');
+        const pnl = parseFloat(document.getElementById('tradePnl').value || '0');
+        const status = document.getElementById('tradeStatus').value;
+        
+        if(!instrument) { notify('Enter instrument', 'error'); return; }
+        
+        addDoc(collection(db, 'users', currentUserDocId, 'trades'), {
+            instrument, type, lots, pnl, status, openTime: serverTimestamp()
+        }).then(() => {
+            document.getElementById('tradeInstrument').value = '';
+            document.getElementById('tradeLots').value = '';
+            document.getElementById('tradePnl').value = '';
+            notify('Trade added', 'success');
+        }).catch(e => notify(e.message, 'error'));
+    }
+
+    function loadMyTrades() {
+        if(!currentUserDocId) return;
+        // This is handled by the onSnapshot in onAuthStateChanged
+    }
+
+    // --- LEADERBOARD LOGIC ---
+    async function publishLeaderboard() {
+        if(!isAdminVerified && !hasAdminClaim) { notify('Admin only', 'error'); return; }
+        
+        const usersSnap = await getDocs(collection(db, 'users'));
+        const entries = [];
+        
+        for(const uDoc of usersSnap.docs) {
+            const uid = uDoc.id;
+            const email = uDoc.data().email || 'Unknown';
+            const tradesSnap = await getDocs(collection(db, 'users', uid, 'trades'));
+            let total = 0;
+            tradesSnap.forEach(t => {
+                if(t.data().status === 'closed') total += (t.data().pnl || 0);
+            });
+            entries.push({ uid, email, totalPnl: total });
+        }
+        
+        entries.sort((a,b) => b.totalPnl - a.totalPnl);
+        
+        await setDoc(doc(db, 'leaderboard', 'current'), { entries, publishedAt: serverTimestamp() }, { merge: true });
+        notify('Leaderboard published!', 'success');
+        loadJournalLeaderboard(); // refresh local view
+    }
+
+    async function loadJournalLeaderboard() {
+        const tbody = document.getElementById('leaderboardContent');
+        const snap = await getDoc(doc(db, 'leaderboard', 'current'));
+        
+        if(snap.exists() && snap.data().entries) {
+            const entries = snap.data().entries;
+            if(entries.length === 0) { tbody.innerHTML = '<tr><td class="p-4 text-center text-slate-500 text-xs">No entries.</td></tr>'; return; }
+            
+            tbody.innerHTML = entries.map((e, i) => `
+                <tr class="hover:bg-slate-800/30 border-b border-slate-800/50">
+                    <td class="p-4 text-xs font-mono text-slate-400">${i+1}</td>
+                    <td class="p-4 text-xs font-bold text-white">${e.email}</td>
+                    <td class="p-4 text-xs font-mono font-bold ${e.totalPnl>=0?'profit-text':'loss-text'}">$${e.totalPnl.toFixed(2)}</td>
+                </tr>
+            `).join('');
+        } else {
+            tbody.innerHTML = '<tr><td class="p-4 text-center text-slate-500 text-xs">Leaderboard not published yet.</td></tr>';
+        }
+    }
+
+    function loadJournalFeedback() {
+        if(!currentUserDocId) return;
+        const container = document.getElementById('feedbackContent');
+        onSnapshot(query(collection(db, 'users', currentUserDocId, 'comments'), orderBy('createdAt', 'desc')), snap => {
+            if(snap.empty) { container.innerHTML = '<p class="text-center text-slate-500 text-xs">No feedback yet.</p>'; return; }
+            container.innerHTML = snap.docs.map(d => {
+                const c = d.data();
+                return `
+                <div class="bg-slate-900/50 p-4 rounded-2xl border border-slate-800 relative mb-3">
+                    <div class="absolute top-4 right-4 text-[9px] text-slate-600 font-mono">${c.createdAt ? new Date(c.createdAt.seconds*1000).toLocaleDateString() : 'Just now'}</div>
+                    <div class="flex items-start gap-3">
+                        <div class="bg-blue-900/30 p-2 rounded-lg"><i data-lucide="user-check" class="w-4 h-4 text-blue-400"></i></div>
+                        <div><h4 class="text-xs font-bold text-blue-200 mb-1">Mentor Feedback</h4><p class="text-sm text-slate-300 leading-relaxed">${c.text}</p></div>
+                    </div>
+                </div>`;
+            }).join('');
+        });
+    }
+
+    // --- TABS & UI HELPERS ---
+    window.switchJournalTab = function(tab) {
+        journalTab = tab;
+        ['active', 'history', 'leaderboard', 'feedback'].forEach(t => {
+            const btn = document.getElementById(`tab-${t}`);
+            if(btn) btn.className = t===tab ? "px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all bg-slate-800 text-blue-400" : "px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all text-slate-500 hover:text-slate-300";
+        });
+        
+        document.getElementById('activeTradesList').classList.add('hidden');
+        document.getElementById('historyList').classList.add('hidden');
+        document.getElementById('leaderboardList').classList.add('hidden');
+        document.getElementById('feedbackList').classList.add('hidden');
+        
+        if(tab==='active') { document.getElementById('activeTradesList').classList.remove('hidden'); renderActiveTrades(); }
+        if(tab==='history') { document.getElementById('historyList').classList.remove('hidden'); renderClosedHistory(); }
+        if(tab==='leaderboard') { document.getElementById('leaderboardList').classList.remove('hidden'); loadJournalLeaderboard(); }
+        if(tab==='feedback') { document.getElementById('feedbackList').classList.remove('hidden'); loadJournalFeedback(); }
+    }
+
+    function renderActiveTrades() {
+        const active = myTrades.filter(t => t.status==='open' || t.status==='running');
+        const container = document.getElementById('activeTradesList');
+        if(!container) return;
+        
+        if(active.length === 0) { container.innerHTML = '<div class="col-span-full py-16 text-center text-slate-500 text-sm font-bold uppercase tracking-wider opacity-50 border-2 border-dashed border-slate-800 rounded-2xl">No Active Positions</div>'; return; }
+        
+        container.innerHTML = active.map(t => {
+            const pnl = Number(t.pnl||0);
+            return `
+            <div class="glass p-5 rounded-2xl border border-slate-800 relative group hover:border-slate-600 transition-all ${pnl>=0?'shadow-green-900/10':'shadow-red-900/10'} shadow-xl">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="text-xs font-black text-white bg-slate-800 px-2 py-0.5 rounded uppercase tracking-wider">${t.instrument}</span>
+                            <span class="text-[10px] font-bold ${t.type==='buy'?'text-green-500':'text-red-500'} bg-slate-950 px-2 py-0.5 rounded uppercase">${t.type}</span>
+                        </div>
+                        <span class="text-[10px] text-slate-500 font-mono">${t.openTime && t.openTime.seconds ? new Date(t.openTime.seconds*1000).toLocaleDateString() : ''}</span>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-xl font-black font-mono ${pnl>=0?'text-green-500':'text-red-500'}">${pnl>=0?'+':''}${pnl.toFixed(2)}</div>
+                        <div class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">PnL</div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <div class="bg-slate-900/50 p-2 rounded-lg"><p class="text-[10px] text-slate-500 uppercase mb-0.5">Lots</p><p class="font-mono text-xs text-white">${t.lots}</p></div>
+                    <div class="bg-slate-900/50 p-2 rounded-lg"><p class="text-[10px] text-slate-500 uppercase mb-0.5">Status</p><p class="font-mono text-xs text-white">${t.status}</p></div>
+                </div>
+            </div>`;
+        }).join('');
+    }
+
+    function renderClosedHistory() {
+        const history = myTrades.filter(t => t.status==='closed');
+        const tbody = document.getElementById('historyTableBody');
+        if(!tbody) return;
+        
+        if(history.length === 0) { tbody.innerHTML = '<tr><td colspan="7" class="py-20 text-center text-slate-500 text-sm font-bold uppercase tracking-wider opacity-50">No History Records</td></tr>'; return; }
+        
+        tbody.innerHTML = history.map(t => {
+            const pnl = Number(t.pnl||0);
+            return `
+            <tr class="hover:bg-slate-800/30 transition-colors border-b border-slate-800/50 last:border-0">
+                <td class="p-5 font-bold text-white text-xs">${t.instrument}</td>
+                <td class="p-5"><span class="${t.type==='buy'?'text-green-500':'text-red-500'} font-bold text-[10px] uppercase bg-slate-900 px-2 py-1 rounded">${t.type}</span></td>
+                <td class="p-5 font-mono text-xs text-slate-300">${t.lots}</td>
+                <td class="p-5 text-[10px] font-mono text-slate-400">In: ${t.entryPrice||'-'} <br> Out: ${t.closePrice||'-'}</td>
+                <td class="p-5 font-mono text-xs ${Number(t.pips||0)>=0?'text-green-500':'text-red-500'}">${t.pips||0}</td>
+                <td class="p-5 text-right font-mono text-sm font-bold ${pnl>=0?'text-green-400':'text-red-400'}">${pnl>0?'+':''}${pnl.toFixed(2)}</td>
+                <td class="p-5 text-right text-[10px] text-slate-500">${t.closeTime && t.closeTime.seconds ? new Date(t.closeTime.seconds*1000).toLocaleDateString() : '-'}</td>
+            </tr>`;
+        }).join('');
+    }
+
+    // --- EXPORT CSV ---
+    function exportCSV() {
+        const rows = [['Time','Asset','Type','Lots','PnL','Status']];
+        myTrades.forEach(t => {
+            rows.push([
+                t.openTime && t.openTime.seconds ? new Date(t.openTime.seconds*1000).toISOString() : '',
+                t.instrument||'', t.type||'', t.lots||0, t.pnl||0, t.status||''
+            ]);
+        });
+        const csv = rows.map(r => r.map(x => `"${String(x).replace(/"/g,'""')}"`).join(',')).join('\n');
+        const blob = new Blob([csv], { type:'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a'); a.href = url; a.download = 'trades.csv';
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    }
+
+    // --- CHART & TICKERS (Simplified for clean integration) ---
+    function initActiveSymbols() {
+        // Simple websocket for ticker tape
+        const ws = new WebSocket(`wss://ws.binaryws.com/websockets/v3?app_id=${DERIV_APP_ID}`);
+        ws.onopen = () => ws.send(JSON.stringify({ active_symbols: 'brief', product_type: 'basic' }));
+        ws.onmessage = (msg) => {
+            const data = JSON.parse(msg.data);
+            if(data.active_symbols) {
+                const symbols = data.active_symbols.filter(s => s.is_trading === 1).slice(0, 30);
+                const container = document.getElementById('tickerContainer');
+                if(container) {
+                    container.innerHTML = symbols.map(s => `
+                        <div class="glass min-w-[120px] p-2 rounded-lg border border-slate-800 flex flex-col justify-center">
+                            <p class="text-[9px] font-bold text-slate-500 uppercase truncate">${s.display_name}</p>
+                            <p class="text-xs font-black text-blue-100 truncate">${s.symbol}</p>
+                        </div>
+                    `).join('');
+                }
+                const select = document.getElementById('liveSymbolSelect');
+                if(select) {
+                    select.innerHTML = symbols.map(s => `<option value="${s.symbol}">${s.display_name}</option>`).join('');
                 }
             }
         };
     }
     
-    function toggleChart(){
-      const s=document.getElementById('chartSection');
-      if(!s)return;
-      const isHidden=s.classList.contains('hidden');
-      s.classList.toggle('hidden',!isHidden);
-      // Default to Jump 100 if opening fresh
-      if(isHidden && !chartInstance) showChartForSymbol('JUMP_100', 'Jump 100');
+    // Chart toggling
+    function toggleChart() {
+        const s = document.getElementById('chartSection');
+        s.classList.toggle('hidden');
+        if(!s.classList.contains('hidden') && !chartInstance) {
+            initLightweightChart();
+        }
     }
 
-    // --- TICKERS & MARKET DATA ---
-    function initActiveSymbols(){
-      try{if(mktWs)mktWs.close()}catch{}
-      mktWs=new WebSocket(`wss://ws.binaryws.com/websockets/v3?app_id=${DERIV_APP_ID}`);
-      mktWs.onopen=()=>{setConnectionIndicator(true);mktWs.send(JSON.stringify({active_symbols:'brief',product_type:'basic'}))};
-      mktWs.onmessage=(evt)=>{
-        const data=JSON.parse(evt.data);
-        if(data.active_symbols){
-          const select=document.getElementById('liveSymbolSelect');
-          const symbols=data.active_symbols.filter(s=>s.is_trading===1);
-          if(select){
-             select.innerHTML=symbols.map(s=>`<option value="${s.symbol}">${s.display_name}</option>`).join('');
-             select.onchange=()=>subscribeSymbol(select.value);
-             if(symbols.length) subscribeSymbol(symbols[0].symbol);
-          }
-          
-          marketData=symbols.map(s=>({symbol:s.display_name,deriv:s.symbol,market:s.market,market_display:s.market_display_name,pip:s.pip,price:0}));
-          // Populate Ticker Stream
-          const topSymbols=marketData.slice(0,50).map(m=>m.deriv);
-          topSymbols.forEach(sym=>{ try{ mktWs.send(JSON.stringify({ticks:sym,subscribe:1})) }catch{} });
-          renderTickers();
-        }else if(data.tick){
-          const tick=data.tick;
-          const item=marketData.find(m=>m.deriv===tick.symbol);
-          if(item){ item.price=Number(tick.quote)||0; requestAnimationFrame(renderTickers); }
+    function initLightweightChart() {
+        const container = document.getElementById('tv-container');
+        if(!container) return;
+        container.innerHTML = '';
+        chartInstance = LightweightCharts.createChart(container, {
+            width: container.clientWidth, height: 400,
+            layout: { backgroundColor: '#0f172a', textColor: '#94a3b8' },
+            grid: { vertLines: { color: '#1e293b' }, horzLines: { color: '#1e293b' } },
+            timeScale: { timeVisible: true, secondsVisible: false, borderColor: '#334155' }
+        });
+        candleSeries = chartInstance.addCandlestickSeries({
+            upColor: '#22c55e', downColor: '#ef4444', borderUpColor: '#22c55e', borderDownColor: '#ef4444', wickUpColor: '#22c55e', wickDownColor: '#ef4444'
+        });
+        // Dummy data for visual
+        const data = [];
+        let time = new Date().getTime() / 1000 - 86400;
+        let price = 100;
+        for(let i=0; i<100; i++) {
+            price += (Math.random() - 0.5) * 2;
+            data.push({ time: time + i*3600, open: price, high: price+1, low: price-1, close: price+(Math.random()-0.5) });
         }
-      };
-      mktWs.onerror=()=>{setConnectionIndicator(false)};
-      mktWs.onclose=()=>{setConnectionIndicator(false)};
+        candleSeries.setData(data);
     }
     
-    // Mini Sparkline Logic
-    function initSparkWs(){
-      try{if(sparkWs)sparkWs.close()}catch{}
-      sparkWs=new WebSocket(`wss://ws.binaryws.com/websockets/v3?app_id=${DERIV_APP_ID}`);
-      sparkWs.onmessage=(evt)=>{
-        const data=JSON.parse(evt.data);
-        if(data.tick){
-          const price=Number(data.tick.quote);
-          if(!isNaN(price)){livePrices.push(price);if(livePrices.length>300)livePrices.shift();drawSparkline()}
-        }
-      };
-      sparkWs.onerror=()=>{document.getElementById('liveChartStatus').innerText='Error'};
-      sparkWs.onclose=()=>{document.getElementById('liveChartStatus').innerText='Disconnected'};
+    function drawEquityCurve(closedTrades) {
+        const canvas = document.getElementById('equityCurveCanvas');
+        if(!canvas) return;
+        const ctx = canvas.getContext('2d');
+        const w = canvas.width = canvas.clientWidth;
+        const h = canvas.height;
+        ctx.clearRect(0,0,w,h);
+        
+        let equity = 0;
+        const points = [0];
+        closedTrades.slice().reverse().forEach(t => { equity += (Number(t.pnl)||0); points.push(equity); });
+        
+        if(points.length < 2) return;
+        const min = Math.min(...points);
+        const max = Math.max(...points);
+        const range = Math.max(1e-8, max - min);
+        
+        ctx.strokeStyle = '#22c55e';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        points.forEach((p, i) => {
+            const x = (i / (points.length - 1)) * (w - 10) + 5;
+            const y = h - ((p - min) / range) * (h - 10) - 5;
+            if(i===0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+        });
+        ctx.stroke();
     }
-    function subscribeSymbol(symbol){
-      if(!sparkWs||sparkWs.readyState!==1){initSparkWs();setTimeout(()=>subscribeSymbol(symbol),300);return}
-      livePrices=[];
-      document.getElementById('liveChartStatus').innerText='Connecting';
-      sparkWs.send(JSON.stringify({forget_all:'ticks'}));
-      sparkWs.send(JSON.stringify({ticks:symbol,subscribe:1}));
-      document.getElementById('liveChartStatus').innerText='Live';
-    }
-    function drawSparkline(){
-      const canvas=document.getElementById('liveChartCanvas');
-      if(!canvas)return;
-      const ctx=canvas.getContext('2d');
-      const w=canvas.width=canvas.clientWidth;
-      const h=canvas.height;
-      ctx.clearRect(0,0,w,h);
-      if(livePrices.length<2)return;
-      const min=Math.min(...livePrices);
-      const max=Math.max(...livePrices);
-      const range=Math.max(1e-8,max-min);
-      ctx.strokeStyle='#3b82f6';
-      ctx.lineWidth=2;
-      ctx.beginPath();
-      livePrices.forEach((p,i)=>{const x=(i/(livePrices.length-1))*(w-10)+5;const y=h-((p-min)/range)*(h-10)-5;if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y)});
-      ctx.stroke();
-    }
-    function mapCategory(market){
-      if(market==='synthetic_index')return 'SYN';
-      if(market==='forex')return 'FX';
-      if(market==='cryptocurrency')return 'CRY';
-      return 'OTC';
-    }
-    function renderTickers(){
-      const q=(document.getElementById('marketSearch')?.value||'').toLowerCase();
-      const filtered=marketData.filter(m=>m.symbol.toLowerCase().includes(q));
-      const container=document.getElementById('tickerContainer');
-      if(!container)return;
-      container.innerHTML=filtered.map(t=>`
-        <div class="glass min-w-[120px] p-2 rounded-lg border border-slate-800 cursor-pointer hover:bg-slate-800 transition-colors" data-deriv="${t.deriv}" data-symbol="${t.symbol}">
-          <p class="text-[9px] font-bold text-slate-500 uppercase">${mapCategory(t.market)}</p>
-          <p class="text-xs font-black text-blue-100 truncate">${t.symbol}</p>
-          <p class="text-xs font-mono text-white mt-1">${t.price>0?t.price.toFixed(String(t.pip).split('.')[1]?.length||2):'...'}</p>
-        </div>
-      `).join('');
-    }
-    function setConnectionIndicator(connected){
-      const el=document.getElementById('connectionStatus');
-      if(!el)return;
-      const dot=el.querySelector('div');
-      if(dot) dot.style.backgroundColor=connected?'#22c55e':'#ef4444';
-    }
-
-    // --- TRADING LOGIC ---
-    function openModal(){
-      const m=document.getElementById('tradeModal');
-      const sel=document.getElementById('f-instrument');
-      if(sel) sel.innerHTML=marketData.map(m=>`<option value="${m.symbol}">${m.symbol}</option>`).join('');
-      if(m) m.classList.remove('hidden');
-    }
-    function closeModal(){
-      const m=document.getElementById('tradeModal');
-      if(m) m.classList.add('hidden');
-    }
-    window.setSide=function(side){
-      const b=document.getElementById('btn-buy'), s=document.getElementById('btn-sell');
-      if(b&&s){ if(side==='buy'){ b.classList.add('bg-green-600','text-white'); s.classList.remove('bg-red-600','text-white'); s.classList.add('text-slate-500'); } else { s.classList.add('bg-red-600','text-white'); b.classList.remove('bg-green-600','text-white'); b.classList.add('text-slate-500'); } }
-    }
-    function handleTradeFormSubmit(e){
-      e.preventDefault();
-      if(!currentUserDocId){notify('Login first','error');return}
-      const instrument=document.getElementById('f-instrument')?.value||'';
-      const lots=parseFloat(document.getElementById('f-lots')?.value||'0');
-      const entry=parseFloat(document.getElementById('f-entry')?.value||'0');
-      const sl=parseFloat(document.getElementById('f-sl')?.value||'0');
-      const tp=parseFloat(document.getElementById('f-tp')?.value||'0');
-      const strategy=(document.getElementById('f-strategy')?.value||'').trim();
-      const setup=(document.getElementById('f-setup')?.value||'').trim();
-      const tags=(document.getElementById('f-tags')?.value||'').split(',').map(t=>t.trim()).filter(Boolean);
-      const riskpct=parseFloat(document.getElementById('f-riskpct')?.value||'0');
-      const notes=(document.getElementById('f-notes')?.value||'').trim();
-      const type=(document.getElementById('btn-buy')?.classList.contains('bg-green-600'))?'buy':'sell';
-      if(!instrument){notify('Select instrument','error');return}
-      addDoc(collection(db,'users',currentUserDocId,'trades'),{instrument,type,lots,pnl:0,status:'open',openTime:serverTimestamp(),entryPrice:entry,stopLoss:sl,takeProfit:tp,strategy,setup,tags,riskpct,notes}).then(()=>{closeModal();notify('Trade added','success')}).catch(e=>notify(e.message,'error'));
-    }
-    function addTrade(){
-      if(!currentUserDocId){notify('Login first','error');return}
-      const instrument=document.getElementById('tradeInstrument').value.trim();
-      const type=document.getElementById('tradeType').value;
-      const lots=parseFloat(document.getElementById('tradeLots').value||'0');
-      const pnl=parseFloat(document.getElementById('tradePnl').value||'0');
-      const status=document.getElementById('tradeStatus').value;
-      if(!instrument)return;
-      addDoc(collection(db,'users',currentUserDocId,'trades'),{instrument,type,lots,pnl,status,openTime:serverTimestamp()}).then(()=>{document.getElementById('tradeInstrument').value='';document.getElementById('tradeLots').value='';document.getElementById('tradePnl').value='';loadMyTrades();notify('Trade added','success')}).catch(e=>notify(e.message,'error'));
-    }
-    
-    // --- LOAD DATA ---
-    function loadMyTrades(){
-      if(!currentUserDocId)return;
-      getDocs(query(collection(db,'users',currentUserDocId,'trades'),orderBy('openTime','desc'))).then(snap=>{
-        const trades=snap.docs.map(d=>d.data());
-        const totalPnl=trades.reduce((a,t)=>a+(t.status==='closed'?(t.pnl||0):0),0);
-        const tbody=document.getElementById('myTradeTable');
-        if(tbody){
-          if(trades.length===0){tbody.innerHTML='<tr><td colspan="6" class="p-8 text-center text-slate-500 text-sm">No trades yet.</td></tr>'}else{tbody.innerHTML=trades.map(t=>`<tr class="hover:bg-slate-800/30 border-b border-slate-800/50"><td class="p-4 text-xs text-slate-400">${t.openTime&&t.openTime.seconds?new Date(t.openTime.seconds*1000).toLocaleString():'-'}</td><td class="p-4 text-xs font-bold text-white">${t.instrument}</td><td class="p-4"><span class="px-2 py-0.5 rounded text-[9px] font-black uppercase ${t.type==='buy'?'bg-green-500/20 text-green-400':'bg-red-500/20 text-red-400'}">${t.type}</span></td><td class="p-4 text-xs font-mono text-slate-400">${t.lots||0}</td><td class="p-4 text-xs font-mono font-bold ${t.pnl>=0?'profit-text':'loss-text'}">$${(t.pnl||0).toFixed(2)}</td><td class="p-4 text-[10px] uppercase font-bold text-slate-500">${t.status}</td></tr>`).join('')}
-        }
-        document.getElementById('myTotalPnl').innerText=`$${totalPnl.toFixed(2)}`;
-        document.getElementById('myTotalPnl').className=`text-2xl font-black font-mono ${totalPnl>=0?'profit-text':'loss-text'}`;
-      });
-    }
-    function loadStudents(){
-      const list=document.getElementById('studentList');
-      getDocs(collection(db,'users')).then(snap=>{
-        if(snap.empty){list.innerHTML='<p class="text-center text-slate-500 text-xs mt-4">No students found.</p>';return}
-        list.innerHTML=snap.docs.map(docItem=>{const data=docItem.data();const email=data.email||'Unknown User';const colors=['bg-blue-600','bg-purple-600','bg-green-600','bg-yellow-600','bg-pink-600'];const colorIndex=email.charCodeAt(0)%colors.length;const bgClass=colors[colorIndex];return `<div onclick="selectStudent('${docItem.id}','${email}')" class="p-3 rounded-lg hover:bg-slate-800 cursor-pointer transition-colors border border-transparent hover:border-slate-700 group flex items-center gap-3"><div class="w-10 h-10 rounded-full ${bgClass} flex items-center justify-center text-xs font-bold text-white shadow-lg shrink-0">${email.substring(0,2).toUpperCase()}</div><div class="overflow-hidden"><p class="text-xs font-bold text-slate-300 truncate group-hover:text-white transition-colors">${email}</p><p class="text-[10px] text-slate-500 truncate font-mono">ID: ${docItem.id.slice(0,6)}</p></div><i data-lucide="chevron-right" class="w-4 h-4 text-slate-600 group-hover:text-slate-400 ml-auto opacity-0 group-hover:opacity-100 transition-all"></i></div>`}).join('');
-        if(window.lucide&&window.lucide.createIcons)window.lucide.createIcons();
-      }).catch(e=>{list.innerHTML=`<p class="text-center text-red-500 text-xs mt-4">Error: ${e.message}</p>`;notify('Failed to load students','error')});
-    }
-    window.selectStudent=function(uid,email){
-      selectedStudentId=uid;
-      document.getElementById('studentHeader').classList.remove('hidden');
-      document.getElementById('feedbackSection').classList.remove('hidden');
-      document.getElementById('adminTradesContainer').classList.remove('hidden');
-      document.getElementById('studentEmail').innerText=email;
-      document.getElementById('studentId').innerText=uid;
-      loadStudentTrades(uid);
-      loadStudentComments(uid);
-    }
-    function loadStudentTrades(uid){
-      onSnapshot(query(collection(db,'users',uid,'trades'),orderBy('openTime','desc')),snap=>{
-        const trades=snap.docs.map(d=>d.data());
-        const totalPnl=trades.reduce((acc,t)=>acc+(t.status==='closed'?(t.pnl||0):0),0);
-        document.getElementById('adminTotalPnl').innerText=`$${totalPnl.toFixed(2)}`;
-        document.getElementById('adminTotalPnl').className=`text-2xl font-black font-mono ${totalPnl>=0?'profit-text':'loss-text'}`;
-        const tbody=document.getElementById('adminTradeTable');
-        if(trades.length===0){tbody.innerHTML='<tr><td colspan="6" class="p-8 text-center text-slate-500 text-sm">No trades found for this student.</td></tr>';return}
-        tbody.innerHTML=trades.map(t=>`<tr class="hover:bg-slate-800/30 border-b border-slate-800/50"><td class="p-4 text-xs text-slate-400">${t.openTime&&t.openTime.seconds?new Date(t.openTime.seconds*1000).toLocaleDateString():'-'}</td><td class="p-4 text-xs font-bold text-white">${t.instrument}</td><td class="p-4"><span class="px-2 py-0.5 rounded text-[9px] font-black uppercase ${t.type==='buy'?'bg-green-500/20 text-green-400':'bg-red-500/20 text-red-400'}">${t.type}</span></td><td class="p-4 text-xs font-mono text-slate-400">${t.lots||0}</td><td class="p-4 text-xs font-mono font-bold ${t.pnl>=0?'profit-text':'loss-text'}">$${(t.pnl||0).toFixed(2)}</td><td class="p-4 text-[10px] uppercase font-bold text-slate-500">${t.status}</td></tr>`).join('');
-      });
-    }
-    function loadStudentComments(uid){
-      onSnapshot(query(collection(db,'users',uid,'comments'),orderBy('createdAt','desc')),snap=>{
-        const list=document.getElementById('commentsList');
-        if(snap.empty){list.innerHTML='<p class="text-xs text-slate-500 italic">No feedback yet.</p>';return}
-        list.innerHTML=snap.docs.map(docItem=>{const c=docItem.data();return `<div class="bg-slate-900/50 p-3 rounded-lg border border-slate-800"><p class="text-xs text-slate-300">${c.text}</p><p class="text-[9px] text-slate-600 mt-1 text-right">${c.createdAt&&c.createdAt.seconds?new Date(c.createdAt.seconds*1000).toLocaleString():''}</p></div>`}).join('');
-      });
-      document.getElementById('commentForm').onsubmit=async(e)=>{
-        e.preventDefault();
-        if(!selectedStudentId)return;
-        const text=document.getElementById('commentInput').value;
-        if(!text.trim())return;
-        await addDoc(collection(db,'users',selectedStudentId,'comments'),{text,createdAt:serverTimestamp(),author:'Admin'});
-        document.getElementById('commentInput').value='';
-      };
-    }
-    
-    // --- LEADERBOARD & UTILS ---
-    async function loadLeaderboard(){
-      const tbody=document.getElementById('leaderboardTable');
-      if(!tbody) return;
-      
-      const currentSnap=await getDoc(doc(db,'leaderboard','current'));
-      if(currentSnap.exists()){
-        const entries=(currentSnap.data().entries||[]).slice();
-        entries.sort((a,b)=>b.totalPnl-a.totalPnl);
-        if(entries.length===0){tbody.innerHTML='<tr><td colspan="3" class="p-8 text-center text-slate-500 text-sm">No leaderboard yet.</td></tr>';return}
-        tbody.innerHTML=entries.map((e,i)=>`<tr class="hover:bg-slate-800/30 border-b border-slate-800/50"><td class="p-4 text-xs font-mono text-slate-400">${i+1}</td><td class="p-4 text-xs font-bold text-white">${e.email}</td><td class="p-4 text-xs font-mono font-bold ${e.totalPnl>=0?'profit-text':'loss-text'}">$${Number(e.totalPnl||0).toFixed(2)}</td></tr>`).join('');
-        return;
-      }
-      if(!isAdminVerified){tbody.innerHTML='<tr><td colspan="3" class="p-8 text-center text-slate-500 text-sm">Leaderboard not published yet.</td></tr>';return}
-      const usersSnap=await getDocs(collection(db,'users'));
-      const entries=[];
-      for(const docItem of usersSnap.docs){
-        const uid=docItem.id;
-        const email=docItem.data().email||'Unknown';
-        const tradesSnap=await getDocs(collection(db,'users',uid,'trades'));
-        const totalPnl=tradesSnap.docs.reduce((a,d)=>{const t=d.data();return a+(t.status==='closed'?(t.pnl||0):0)},0);
-        entries.push({uid,email,totalPnl});
-      }
-      entries.sort((a,b)=>b.totalPnl-a.totalPnl);
-      if(entries.length===0){tbody.innerHTML='<tr><td colspan="3" class="p-8 text-center text-slate-500 text-sm">No entries yet.</td></tr>';return}
-      tbody.innerHTML=entries.map((e,i)=>`<tr class="hover:bg-slate-800/30 border-b border-slate-800/50"><td class="p-4 text-xs font-mono text-slate-400">${i+1}</td><td class="p-4 text-xs font-bold text-white">${e.email}</td><td class="p-4 text-xs font-mono font-bold ${e.totalPnl>=0?'profit-text':'loss-text'}">$${e.totalPnl.toFixed(2)}</td></tr>`).join('');
-    }
-    async function publishLeaderboard(){
-      if(!isAdminVerified||!hasAdminClaim){notify('Admin rights required','error');return}
-      const usersSnap=await getDocs(collection(db,'users'));
-      const entries=[];
-      for(const docItem of usersSnap.docs){
-        const uid=docItem.id;
-        const email=docItem.data().email||'Unknown';
-        const tradesSnap=await getDocs(collection(db,'users',uid,'trades'));
-        const totalPnl=tradesSnap.docs.reduce((a,d)=>{const t=d.data();return a+(t.status==='closed'?(t.pnl||0):0)},0);
-        entries.push({uid,email,totalPnl});
-      }
-      entries.sort((a,b)=>b.totalPnl-a.totalPnl);
-      await setDoc(doc(db,'leaderboard','current'),{entries,publishedAt:serverTimestamp()},{merge:true});
-      await addDoc(collection(db,'leaderboard_history'),{entries,publishedAt:serverTimestamp()});
-      notify('Leaderboard published','success');
-      loadLeaderboard();
-    }
-    async function resetLeaderboard(){
-      if(!isAdminVerified||!hasAdminClaim){notify('Admin rights required','error');return}
-      await setDoc(doc(db,'leaderboard','current'),{entries:[],resetAt:serverTimestamp()},{merge:true});
-      notify('Leaderboard reset without clearing trades','success');
-      loadLeaderboard();
-    }
-    function exportCSV(){
-      const rows=[['Time','Asset','Type','Lots','PnL','Status']];
-      myTrades.forEach(t=>{rows.push([t.openTime&&t.openTime.seconds?new Date(t.openTime.seconds*1000).toISOString():'',t.instrument||'',t.type||'',t.lots||0,t.pnl||0,t.status||''])});
-      const csv=rows.map(r=>r.map(x=>`"${String(x).replace(/"/g,'""')}"`).join(',')).join('\n');
-      const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
-      const url=URL.createObjectURL(blob);
-      const a=document.createElement('a');a.href=url;a.download='trades.csv';document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
-    }
-    function drawEquityCurve(closedTrades){
-      const canvas=document.getElementById('equityCurveCanvas');
-      if(!canvas)return;
-      const ctx=canvas.getContext('2d');
-      const w=canvas.width=canvas.clientWidth;
-      const h=canvas.height;
-      ctx.clearRect(0,0,w,h);
-      const points=[];
-      let equity=0;
-      closedTrades.slice().reverse().forEach(t=>{equity+=(Number(t.pnl)||0);points.push(equity)});
-      if(points.length<2)return;
-      const min=Math.min(...points);
-      const max=Math.max(...points);
-      const range=Math.max(1e-8,max-min);
-      ctx.strokeStyle='#22c55e';
-      ctx.lineWidth=2;
-      ctx.beginPath();
-      points.forEach((p,i)=>{const x=(i/(points.length-1))*(w-10)+5;const y=h-((p-min)/range)*(h-10)-5;if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y)});
-      ctx.stroke();
-    }
-    
-    // --- DERIV ACCOUNT INTEGRATION ---
-    window.configureDeriv=function(token){
-      if(typeof token==='string' && token.trim()){
-        window.__deriv_token__=token.trim();
-        connectDeriv();
-      }
-    }
-    function connectDeriv(){
-      const appId=DERIV_APP_ID;
-      const token=window.__deriv_token__;
-      if(!appId||!token){return}
-      try{if(ws)ws.close()}catch{}
-      ws=new WebSocket(`wss://ws.binaryws.com/websockets/v3?app_id=${appId}`);
-      ws.onopen=()=>{ws.send(JSON.stringify({authorize:token}))};
-      ws.onmessage=(evt)=>{
-        const data=JSON.parse(evt.data);
-        if(data.authorize){ws.send(JSON.stringify({balance:1}));ws.send(JSON.stringify({statement:1,limit:50,description:1}));ws.send(JSON.stringify({portfolio:1}))}
-        else if(data.balance){const b=data.balance;notify(`Deriv balance: $${Number(b.balance).toFixed(2)}`,'success')}
-        else if(data.statement){const list=data.statement.transactions||[];const uid=currentUserDocId;if(!uid)return;list.forEach(s=>{const instrument=s.shortcode||s.description||'DERIV';const pnl=Number(s.amount||0);const status='closed';const type=pnl>=0?'buy':'sell';const lots=0;const ts=s.transaction_time?new Date(s.transaction_time*1000):new Date();addDoc(collection(db,'users',uid,'trades'),{instrument,type,lots,pnl,status,openTime:Timestamp.fromDate(ts)})});notify('Imported statements','success');loadMyTrades()}
-        else if(data.portfolio&&data.portfolio.contracts){const cs=data.portfolio.contracts||[];cs.forEach(c=>{const id=c.contract_id||c.id; if(id){ ws.send(JSON.stringify({proposal_open_contract:1,contract_id:id,subscribe:1})) }})}
-        else if(data.proposal_open_contract){const poc=data.proposal_open_contract;const id=poc.contract_id;const underlying=poc.underlying||poc.asset_name||'DERIV';const entry=Number(poc.entry_tick||poc.buy_price||0);const spot=Number(poc.current_spot||poc.bid_price||0);const profit=Number(poc.profit||0);const sl=(poc.limit_order&&poc.limit_order.stop_loss)?Number(poc.limit_order.stop_loss):0;const tp=(poc.limit_order&&poc.limit_order.take_profit)?Number(poc.limit_order.take_profit):0;const side=(spot>=entry)?'buy':'sell';const item={id:String(id),instrument:underlying,type:side,lots:0,pnl:profit,status:'open',openTime:Timestamp.fromDate(new Date((poc.entry_tick_time||poc.buy_time||Date.now()))),entryPrice:entry,stopLoss:sl,takeProfit:tp,liveSpot:spot};derivActive.set(String(id),item);if(journalTab==='active')renderActiveTrades();if(trailingSettings[id]){const dist=trailingSettings[id];const pip=getPipForInstrument(underlying)||((underlying.includes('JPY')||underlying==='R_100')?0.01:0.0001);if(pip&&spot){const newSL=(side==='buy')?(spot-(dist*pip)):(spot+(dist*pip)); updateContractSL(id,newSL,tp);}}}
-        else if(data.error){/* silent */}
-      };
-      ws.onerror=()=>{};
-      ws.onclose=()=>{authorized=false};
-    }
-    function updateContractSL(id,sl,tp){
-      try{ws&&ws.send(JSON.stringify({contract_update:1,contract_id:id,limit_order:{stop_loss:sl,take_profit:tp||undefined}}))}catch{}
-    }
-    function switchJournalTab(tab){
-      journalTab=tab;
-      ['active','history','leaderboard','feedback'].forEach(t=>{
-        const btn=document.getElementById(`tab-${t}`);
-        if(btn)btn.className=t===tab?"px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all bg-slate-800 text-blue-400":"px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all text-slate-500 hover:text-slate-300";
-      });
-      document.getElementById('activeTradesList').classList.add('hidden');
-      document.getElementById('historyList').classList.add('hidden');
-      document.getElementById('leaderboardList').classList.add('hidden');
-      document.getElementById('feedbackList').classList.add('hidden');
-      if(tab==='active'){document.getElementById('activeTradesList').classList.remove('hidden');renderActiveTrades();}
-      if(tab==='history'){document.getElementById('historyList').classList.remove('hidden');renderClosedHistory();}
-      if(tab==='leaderboard'){document.getElementById('leaderboardList').classList.remove('hidden');loadJournalLeaderboard();}
-      if(tab==='feedback'){document.getElementById('feedbackList').classList.remove('hidden');loadJournalFeedback();}
-    }
-    function renderActiveTrades(){
-      const activeLocal=myTrades.filter(t=>t.status==='running'||t.status==='open');
-      const fromDeriv=Array.from(derivActive.values());
-      const active=activeLocal.concat(fromDeriv);
-      const container=document.getElementById('activeTradesList');
-      if(!container)return;
-      if(active.length===0){container.innerHTML='<div class="col-span-full py-16 text-center text-slate-500 text-sm font-bold uppercase tracking-wider opacity-50 border-2 border-dashed border-slate-800 rounded-2xl">No Active Positions</div>';return}
-      container.innerHTML=active.map(t=>{
-        const pnl=Number(t.pnl||0);
-        const isProfit=pnl>=0;
-        const live=t.liveSpot||getLivePriceForInstrument(t.instrument);
-        const pip=getPipForInstrument(t.instrument);
-        const entry=Number(t.entryPrice||0);
-        const sl=Number(t.stopLoss||0);
-        const tp=Number(t.takeProfit||0);
-        const pipsNow=(pip&&entry&&live)?formatPips((live-entry)/pip):0;
-        return `<div class="glass p-5 rounded-2xl border border-slate-800 relative group hover:border-slate-600 transition-all ${isProfit?'shadow-green-900/10':'shadow-red-900/10'} shadow-xl">
-          <div class="flex justify-between items-start mb-4">
-            <div>
-              <div class="flex items-center gap-2 mb-1">
-                <span class="text-xs font-black text-white bg-slate-800 px-2 py-0.5 rounded uppercase tracking-wider">${t.instrument||'Instrument'}</span>
-                <span class="text-[10px] font-bold ${t.type==='buy'?'text-green-500':'text-red-500'} bg-slate-950 px-2 py-0.5 rounded uppercase">${t.type}</span>
-              </div>
-              <span class="text-[10px] text-slate-500 font-mono">${t.openTime&&t.openTime.seconds?new Date(t.openTime.seconds*1000).toLocaleDateString():''}</span>
-            </div>
-            <div class="text-right">
-              <div class="text-xl font-black font-mono ${isProfit?'text-green-500':'text-red-500'}">${isProfit?'+':''}${pnl.toFixed(2)}</div>
-              <div class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">PnL</div>
-            </div>
-          </div>
-          <div class="grid grid-cols-2 gap-4 mb-4">
-            <div class="bg-slate-900/50 p-2 rounded-lg">
-              <p class="text-[10px] text-slate-500 uppercase mb-0.5">Lots</p>
-              <p class="font-mono text-xs text-white">${t.lots||0}</p>
-            </div>
-            <div class="bg-slate-900/50 p-2 rounded-lg">
-              <p class="text-[10px] text-slate-500 uppercase mb-0.5">Status</p>
-              <p class="font-mono text-xs text-white">${t.status}</p>
-            </div>
-          </div>
-        </div>`;
-      }).join('');
-    }
-    function renderClosedHistory(){
-      let history=myTrades.filter(t=>t.status==='closed');
-      const tbody=document.getElementById('historyTableBody');
-      if(!tbody)return;
-      if(history.length===0){tbody.innerHTML='<tr><td colspan="7" class="py-20 text-center text-slate-500 text-sm font-bold uppercase tracking-wider opacity-50">No History Records</td></tr>';return}
-      tbody.innerHTML=history.map(t=>{
-        const pnl=Number(t.pnl||0);
-        const isWin=pnl>=0;
-        return `<tr class="hover:bg-slate-800/30 transition-colors border-b border-slate-800/50 last:border-0"><td class="p-5 font-bold text-white text-xs">${t.instrument||''}</td><td class="p-5"><span class="${t.type==='buy'?'text-green-500':'text-red-500'} font-bold text-[10px] uppercase bg-slate-900 px-2 py-1 rounded">${t.type||''}</span></td><td class="p-5 font-mono text-xs text-slate-300">${t.lots||0}</td><td class="p-5"><div class="flex flex-col gap-1"><span class="font-mono text-[10px] text-slate-400">In: ${t.entryPrice||'-'}</span><span class="font-mono text-[10px] text-slate-400">Out: ${t.closePrice||'-'}</span></div></td><td class="p-5 font-mono text-xs ${Number(t.pips||0)>=0?'text-green-500':'text-red-500'}">${t.pips||0}</td><td class="p-5 text-right font-mono text-sm font-bold ${isWin?'text-green-400':'text-red-400'}">${pnl>0?'+':''}${pnl.toFixed(2)}</td><td class="p-5 text-right"><span class="text-[10px] text-slate-500">${t.closeTime&&t.closeTime.seconds?new Date(t.closeTime.seconds*1000).toLocaleDateString():'-'}</span></td></tr>`;
-      }).join('');
-    }
-    function loadJournalLeaderboard(){
-      const container=document.getElementById('leaderboardContent');
-      if(!container)return;
-      // Simple stub:
-      container.innerHTML='<p class="text-center text-slate-500 text-xs py-10">Leaderboard not published yet.</p>';
-    }
-    function loadJournalFeedback(){
-      const u=auth.currentUser; if(!u)return;
-      const container=document.getElementById('feedbackContent');
-      onSnapshot(query(collection(db,'users',u.uid,'comments'),orderBy('createdAt','desc')),snap=>{
-        if(snap.empty){container.innerHTML='<div class="text-center py-10"><div class="inline-flex p-4 rounded-full bg-slate-900 mb-3"><i data-lucide="message-square" class="text-slate-600"></i></div><p class="text-slate-500 text-xs">No feedback from mentors yet.</p></div>';if(window.lucide&&window.lucide.createIcons)window.lucide.createIcons();return}
-        container.innerHTML=snap.docs.map(docItem=>{const c=docItem.data();return `<div class="bg-slate-900/50 p-4 rounded-2xl border border-slate-800 relative"><div class="absolute top-4 right-4 text-[9px] text-slate-600 font-mono">${c.createdAt?new Date(c.createdAt.seconds*1000).toLocaleDateString():'Just now'}</div><div class="flex items-start gap-3"><div class="bg-blue-900/30 p-2 rounded-lg"><i data-lucide="user-check" class="w-4 h-4 text-blue-400"></i></div><div><h4 class="text-xs font-bold text-blue-200 mb-1">Mentor Feedback</h4><p class="text-sm text-slate-300 leading-relaxed">${c.text}</p></div></div></div>`}).join('');
-        if(window.lucide&&window.lucide.createIcons)window.lucide.createIcons();
-      });
-    }
-    function getPipForInstrument(name){
-      const m=marketData.find(x=>x.symbol===name||x.deriv===name); return m?Number(m.pip)||0:null;
-    }
-    function getLivePriceForInstrument(name){
-      const m=marketData.find(x=>x.symbol===name||x.deriv===name); return m?Number(m.price)||0:null;
-    }
-    function formatPips(v){ return Math.round(Number(v)||0); }
 
   </script>
 </body>
