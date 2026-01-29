@@ -226,6 +226,8 @@
     let myTrades = [];
     let journalTab = 'active';
     let hasAdminClaim = false;
+    let trailingSettings = {};
+    let derivActive = new Map();
 
     function notify(message, type = 'info'){
       const notif=document.createElement('div');
@@ -712,14 +714,16 @@
     }
 
     function renderActiveTrades(){
-      const active=myTrades.filter(t=>t.status==='running'||t.status==='open');
+      const activeLocal=myTrades.filter(t=>t.status==='running'||t.status==='open');
+      const fromDeriv=Array.from(derivActive.values());
+      const active=activeLocal.concat(fromDeriv);
       const container=document.getElementById('activeTradesList');
       if(!container)return;
       if(active.length===0){container.innerHTML='<div class="col-span-full py-16 text-center text-slate-500 text-sm font-bold uppercase tracking-wider opacity-50 border-2 border-dashed border-slate-800 rounded-2xl">No Active Positions</div>';return}
       container.innerHTML=active.map(t=>{
         const pnl=Number(t.pnl||0);
         const isProfit=pnl>=0;
-        const live=getLivePriceForInstrument(t.instrument);
+        const live=t.liveSpot||getLivePriceForInstrument(t.instrument);
         const pip=getPipForInstrument(t.instrument);
         const entry=Number(t.entryPrice||0);
         const sl=Number(t.stopLoss||0);
@@ -856,13 +860,18 @@
       ws.onopen=()=>{ws.send(JSON.stringify({authorize:token}))};
       ws.onmessage=(evt)=>{
         const data=JSON.parse(evt.data);
-        if(data.authorize){ws.send(JSON.stringify({balance:1}));ws.send(JSON.stringify({statement:1,limit:50,description:1}))}
+        if(data.authorize){ws.send(JSON.stringify({balance:1}));ws.send(JSON.stringify({statement:1,limit:50,description:1}));ws.send(JSON.stringify({portfolio:1}))}
         else if(data.balance){const b=data.balance;notify(`Deriv balance: $${Number(b.balance).toFixed(2)}`,'success')}
         else if(data.statement){const list=data.statement.transactions||[];const uid=currentUserDocId;if(!uid)return;list.forEach(s=>{const instrument=s.shortcode||s.description||'DERIV';const pnl=Number(s.amount||0);const status='closed';const type=pnl>=0?'buy':'sell';const lots=0;const ts=s.transaction_time?new Date(s.transaction_time*1000):new Date();addDoc(collection(db,'users',uid,'trades'),{instrument,type,lots,pnl,status,openTime:Timestamp.fromDate(ts)})});notify('Imported statements','success');loadMyTrades()}
+        else if(data.portfolio&&data.portfolio.contracts){const cs=data.portfolio.contracts||[];cs.forEach(c=>{const id=c.contract_id||c.id; if(id){ ws.send(JSON.stringify({proposal_open_contract:1,contract_id:id,subscribe:1})) }})}
+        else if(data.proposal_open_contract){const poc=data.proposal_open_contract;const id=poc.contract_id;const underlying=poc.underlying||poc.asset_name||'DERIV';const entry=Number(poc.entry_tick||poc.buy_price||0);const spot=Number(poc.current_spot||poc.bid_price||0);const profit=Number(poc.profit||0);const sl=(poc.limit_order&&poc.limit_order.stop_loss)?Number(poc.limit_order.stop_loss):0;const tp=(poc.limit_order&&poc.limit_order.take_profit)?Number(poc.limit_order.take_profit):0;const side=(spot>=entry)?'buy':'sell';const item={id:String(id),instrument:underlying,type:side,lots:0,pnl:profit,status:'open',openTime:Timestamp.fromDate(new Date((poc.entry_tick_time||poc.buy_time||Date.now()))),entryPrice:entry,stopLoss:sl,takeProfit:tp,liveSpot:spot};derivActive.set(String(id),item);if(journalTab==='active')renderActiveTrades();if(trailingSettings[id]){const dist=trailingSettings[id];const pip=getPipForInstrument(underlying)||((underlying.includes('JPY')||underlying==='R_100')?0.01:0.0001);if(pip&&spot){const newSL=(side==='buy')?(spot-(dist*pip)):(spot+(dist*pip)); updateContractSL(id,newSL,tp);}}}
         else if(data.error){/* silent */}
       };
       ws.onerror=()=>{};
       ws.onclose=()=>{authorized=false};
+    }
+    function updateContractSL(id,sl,tp){
+      try{ws&&ws.send(JSON.stringify({contract_update:1,contract_id:id,limit_order:{stop_loss:sl,take_profit:tp||undefined}}))}catch{}
     }
 
   </script>
