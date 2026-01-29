@@ -260,7 +260,7 @@
 
         <main class="max-w-7xl mx-auto px-4 mt-8" id="main">
             <!-- Chart Section -->
-            <section id="chartSection" class="hidden mb-8">
+            <section id="chartSection" class="mb-8">
                 <div class="glass rounded-2xl overflow-hidden border border-slate-700 shadow-2xl">
                     <div class="p-3 bg-slate-900/50 flex justify-between items-center border-b border-slate-800">
                         <div class="flex items-center gap-3">
@@ -472,6 +472,7 @@
             <form id="tradeForm" class="p-6 space-y-5" novalidate>
                 <div>
                     <label for="f-instrument" class="block text-[10px] font-bold text-slate-500 uppercase mb-2">Asset Selection</label>
+                    <input type="text" id="instrumentFilter" placeholder="Type to filter..." class="w-full bg-slate-900 border border-slate-800 rounded-xl p-2 mb-2 text-xs text-white outline-none focus:border-blue-500">
                     <div class="relative">
                         <select id="f-instrument" name="instrument" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white font-bold outline-none focus:border-blue-500 appearance-none"></select>
                         <i data-lucide="chevron-down" class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none"></i>
@@ -578,6 +579,7 @@
         let currentEditTradeId = null;
         let derivWS = null;
         let selectedStudentId = null; 
+        let lastFilter = '';
         
         // Charting
         let chart = null;
@@ -841,6 +843,20 @@
             bind('btn-toggle-chart', toggleChart);
             bind('btn-close-chart', toggleChart);
             bind('btn-export-csv', exportCSV);
+            
+            // Market Search
+            const marketSearch = document.getElementById('marketSearch');
+            if (marketSearch) {
+                marketSearch.addEventListener('input', (e) => {
+                    renderTicker(e.target.value);
+                });
+            }
+            
+            // Trade Instrument Filter
+            const instrumentFilter = document.getElementById('instrumentFilter');
+            if(instrumentFilter) {
+                instrumentFilter.addEventListener('input', (e) => filterTradeInstruments(e.target.value));
+            }
 
             // Resume Audio Context on first interaction
             document.body.addEventListener('click', () => { 
@@ -1111,38 +1127,104 @@
             }
         }
 
-        function populateInstruments() {
+        function filterTradeInstruments(term) {
             const s = document.getElementById('f-instrument');
+            const lower = term.toLowerCase();
             const groups = {};
+            
             marketData.forEach(m => {
-                if (!groups[m.market]) groups[m.market] = [];
-                groups[m.market].push(m);
+                if (m.symbol.toLowerCase().includes(lower) || m.market.toLowerCase().includes(lower)) {
+                    if (!groups[m.market]) groups[m.market] = [];
+                    groups[m.market].push(m);
+                }
             });
+            
             s.innerHTML = Object.keys(groups).sort().map(cat => `
                 <optgroup label="${cat}">
                     ${groups[cat].map(m => `<option value="${m.symbol}">${m.symbol}</option>`).join('')}
                 </optgroup>
             `).join('');
+            
+            if(s.options.length > 0) {
+                 s.selectedIndex = 0;
+                 s.dispatchEvent(new Event('change'));
+            }
+        }
+
+        function populateInstruments() {
+            const s = document.getElementById('f-instrument');
+            const c = document.getElementById('chartSymbolSelector');
+            const groups = {};
+            marketData.forEach(m => {
+                if (!groups[m.market]) groups[m.market] = [];
+                groups[m.market].push(m);
+            });
+            
+            // Trade Modal Select (Value = Display Name)
+            s.innerHTML = Object.keys(groups).sort().map(cat => `
+                <optgroup label="${cat}">
+                    ${groups[cat].map(m => `<option value="${m.symbol}">${m.symbol}</option>`).join('')}
+                </optgroup>
+            `).join('');
+            
+            // Chart Selector (Value = API Symbol)
+            if(c) {
+                c.innerHTML = Object.keys(groups).sort().map(cat => `
+                    <optgroup label="${cat}">
+                        ${groups[cat].map(m => `<option value="${m.deriv}">${m.symbol}</option>`).join('')}
+                    </optgroup>
+                `).join('');
+                // Set initial value if matches
+                if(currentChartSymbol && Array.from(c.options).some(o => o.value === currentChartSymbol)) {
+                    c.value = currentChartSymbol;
+                }
+            }
+
             s.addEventListener('change', () => {
                  const m = marketData.find(x => x.symbol === s.value);
                  if(m && m.price) document.getElementById('f-entry').value = m.price;
             });
         }
 
-        function renderTicker() {
+        function renderTicker(filterText = null) {
             const c = document.getElementById('tickerContainer');
-            if (c.childElementCount === 0) {
-                c.innerHTML = marketData.slice(0, 10).map(m => `
-                    <div class="flex-shrink-0 px-3 py-1.5 bg-slate-900 rounded-lg border border-slate-800 flex items-center gap-2 min-w-[120px]">
+            const searchInput = document.getElementById('marketSearch');
+            const currentFilter = filterText !== null ? filterText : (searchInput ? searchInput.value : '');
+            
+            // Rebuild if filter changed or empty
+            if (currentFilter !== lastFilter || c.childElementCount === 0) {
+                lastFilter = currentFilter;
+                const filtered = currentFilter 
+                    ? marketData.filter(m => m.symbol.toLowerCase().includes(currentFilter.toLowerCase()) || m.deriv.toLowerCase().includes(currentFilter.toLowerCase()))
+                    : marketData;
+                    
+                c.innerHTML = filtered.slice(0, 20).map(m => `
+                    <div class="flex-shrink-0 px-3 py-1.5 bg-slate-900 rounded-lg border border-slate-800 flex items-center gap-2 min-w-[120px]" onclick="selectTickerInstrument('${m.deriv}')" style="cursor:pointer">
                         <span class="text-[10px] font-bold text-slate-400">${m.symbol}</span>
                         <span class="text-xs font-mono font-bold text-white" id="price-${m.deriv}">${m.price}</span>
                     </div>
                 `).join('');
             } else {
-                marketData.slice(0, 10).forEach(m => {
+                // Update visible prices
+                const filtered = currentFilter 
+                    ? marketData.filter(m => m.symbol.toLowerCase().includes(currentFilter.toLowerCase()) || m.deriv.toLowerCase().includes(currentFilter.toLowerCase()))
+                    : marketData;
+                    
+                filtered.slice(0, 20).forEach(m => {
                     const el = document.getElementById(`price-${m.deriv}`);
                     if(el) el.innerText = m.price;
                 });
+            }
+        }
+        
+        function selectTickerInstrument(symbol) {
+            const c = document.getElementById('chartSymbolSelector');
+            if(c) {
+                c.value = symbol;
+                c.dispatchEvent(new Event('change'));
+                document.getElementById('chartSection').classList.remove('hidden');
+                // Scroll to chart
+                document.getElementById('chartSection').scrollIntoView({ behavior: 'smooth' });
             }
         }
 
@@ -1261,6 +1343,13 @@
         function openModal() {
             document.getElementById('tradeModal').classList.remove('hidden');
             document.getElementById('tradeModal').classList.add('active');
+            
+            // Reset Filter
+            const filter = document.getElementById('instrumentFilter');
+            if(filter) {
+                filter.value = '';
+                filterTradeInstruments('');
+            }
         }
         function closeModal() {
             document.getElementById('tradeModal').classList.remove('active');
