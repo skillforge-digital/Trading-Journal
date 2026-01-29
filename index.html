@@ -51,14 +51,17 @@
       </div>
     </div>
   </div>
+  <div id="appContent" class="hidden">
   <header class="glass sticky top-0 z-50">
     <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
       <div class="flex items-center gap-3"><img src="https://i.postimg.cc/fRYD4HSw/Whats-App-Image-2026-01-16-at-1-20-06-PM.jpg" alt="Skillforge Digital" class="w-10 h-10 rounded-xl object-contain shadow-2xl ring-1 ring-white/10"><div class="text-xl font-extrabold tracking-tight text-white">SKILLFORGE <span class="text-blue-500">DIGITAL</span> &amp; CO. LTD</div></div>
-      <nav class="flex items-center gap-2">
-        <button data-tab="journal" class="px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-widest bg-slate-800 text-slate-300 hover:bg-slate-700">Journal</button>
-        <button data-tab="leaderboard" class="px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-widest bg-slate-800 text-slate-300 hover:bg-slate-700">Leaderboard</button>
-        <button data-tab="admin" class="px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-widest bg-slate-800 text-slate-300 hover:bg-slate-700 hidden">Admin</button>
-      </nav>
+      <div class="flex items-center gap-2">
+        <div id="connectionStatus" class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900 border border-slate-800 text-xs"><div class="w-2 h-2 rounded-full bg-red-500"></div><span class="text-slate-400 font-medium">LIVE DATA</span></div>
+        <button id="btn-toggle-chart" type="button" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white"><i data-lucide="layout-grid" class="w-5 h-5"></i></button>
+        <button id="btn-new-trade" type="button" class="px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white"><i data-lucide="plus-circle" class="w-4 h-4"></i> NEW TRADE</button>
+        <button id="btn-export-csv" type="button" class="px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-300"><i data-lucide="download" class="w-4 h-4"></i> EXPORT CSV</button>
+        <button id="btn-logout" type="button" class="p-2 rounded-lg bg-red-900/20 hover:bg-red-900/40 text-red-400"><i data-lucide="log-out" class="w-5 h-5"></i></button>
+      </div>
     </div>
     <div class="max-w-7xl mx-auto px-4 pb-4">
       <div class="mt-2 flex items-center gap-3">
@@ -71,6 +74,18 @@
     </div>
   </header>
   <main class="max-w-7xl mx-auto px-4 mt-8 space-y-8">
+    <section id="chartSection" class="hidden mb-8">
+      <div class="glass rounded-2xl overflow-hidden border border-slate-700">
+        <div class="p-3 bg-slate-900/50 flex justify-between items-center border-b border-slate-800"><span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Market Analysis</span><button id="btn-close-chart" type="button" class="text-slate-500 hover:text-white"><i data-lucide="x" class="w-4 h-4"></i></button></div>
+        <div id="tv-container" class="h-[500px]"></div>
+      </div>
+    </section>
+    <section class="grid grid-cols-2 md:grid-cols-4 gap-4" aria-label="Overview metrics">
+      <div class="glass p-5 rounded-2xl border-l-4 border-blue-500"><p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Realized PnL</p><h2 id="totalPnl" class="text-2xl font-black font-mono mt-1">$0.00</h2></div>
+      <div class="glass p-5 rounded-2xl border-l-4 border-green-500"><p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Win Rate</p><h2 id="winRate" class="text-2xl font-black font-mono mt-1">0%</h2></div>
+      <div class="glass p-5 rounded-2xl border-l-4 border-purple-500"><p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Total Lots</p><h2 id="totalLots" class="text-2xl font-black font-mono mt-1">0.00</h2></div>
+      <div class="glass p-5 rounded-2xl border-l-4 border-slate-500"><p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Active Trades</p><h2 id="activeCount" class="text-2xl font-black font-mono mt-1">0</h2></div>
+    </section>
     <section id="journal" class="section active space-y-6">
       <div class="glass p-6 rounded-2xl space-y-4">
         <div class="flex items-center justify-between"><div class="flex items-center gap-2"><i data-lucide="activity" class="text-blue-500 w-5 h-5"></i><h3 class="text-sm font-bold text-white uppercase tracking-wider">Live Market</h3></div><div class="flex items-center gap-2"><select id="liveSymbolSelect" class="bg-slate-950 border border-slate-800 rounded-xl p-2 text-white text-xs outline-none min-w-40"></select><span id="liveChartStatus" class="text-[10px] font-bold uppercase text-slate-500">Disconnected</span></div></div>
@@ -168,6 +183,22 @@
       </section>
     </section>
   </main>
+  </div>
+  <div id="tradeModal" class="fixed inset-0 z-[100] items-center justify-center p-4 bg-slate-950/90 backdrop-blur-md hidden">
+    <div class="glass w-full max-w-md rounded-2xl overflow-hidden border border-slate-700">
+      <div class="p-6 border-b border-slate-800 flex justify-between items-center bg-slate-900/50"><h3 class="text-sm font-bold text-white uppercase tracking-widest">New Trade Entry</h3><button id="tradeModalClose" type="button" class="text-slate-500 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button></div>
+      <form id="tradeForm" class="p-6 space-y-5">
+        <div><label class="block text-[10px] font-bold text-slate-500 uppercase mb-2">Asset Selection</label><div class="relative"><select id="f-instrument" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white font-bold outline-none focus:border-blue-500 appearance-none"></select><i data-lucide="chevron-down" class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none"></i></div></div>
+        <div class="grid grid-cols-2 gap-4"><div><label class="block text-[10px] font-bold text-slate-500 uppercase mb-2">Direction</label><div class="flex bg-slate-950 p-1.5 rounded-xl border border-slate-800"><button type="button" onclick="window.setSide('buy')" id="btn-buy" class="flex-1 py-2.5 rounded-lg text-[10px] font-black uppercase bg-green-600 text-white">BUY</button><button type="button" onclick="window.setSide('sell')" id="btn-sell" class="flex-1 py-2.5 rounded-lg text-[10px] font-black uppercase text-slate-500">SELL</button></div></div><div><label class="block text-[10px] font-bold text-slate-500 uppercase mb-2">Volume (Lots)</label><input type="number" id="f-lots" step="0.01" value="0.01" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white font-mono text-center outline-none focus:border-blue-500"></div></div>
+        <div class="grid grid-cols-2 gap-4"><div><label class="block text-[10px] font-bold text-slate-500 uppercase mb-2">Entry Price</label><input type="number" id="f-entry" step="0.00001" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white font-mono outline-none focus:border-blue-500"></div><div><label class="block text-[10px] font-bold text-slate-500 uppercase mb-2">Stop Loss</label><input type="number" id="f-sl" step="0.00001" placeholder="0.00" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white font-mono outline-none focus:border-blue-500"></div></div>
+        <div class="grid grid-cols-2 gap-4"><div><label class="block text-[10px] font-bold text-slate-500 uppercase mb-2 text-green-500">Take Profit</label><input type="number" id="f-tp" step="0.00001" placeholder="0.00" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white font-mono outline-none focus:border-blue-500"></div></div>
+        <div class="grid grid-cols-2 gap-4"><div><label class="block text-[10px] font-bold text-slate-500 uppercase mb-2">Strategy</label><input type="text" id="f-strategy" placeholder="Breakout" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white outline-none focus:border-blue-500"></div><div><label class="block text-[10px] font-bold text-slate-500 uppercase mb-2">Setup</label><input type="text" id="f-setup" placeholder="1-2-3" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white outline-none focus:border-blue-500"></div></div>
+        <div class="grid grid-cols-2 gap-4"><div><label class="block text-[10px] font-bold text-slate-500 uppercase mb-2">Tags</label><input type="text" id="f-tags" placeholder="comma separated" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white outline-none focus:border-blue-500"></div><div><label class="block text-[10px] font-bold text-slate-500 uppercase mb-2">Risk %</label><input type="number" id="f-riskpct" step="0.01" placeholder="1.0" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white outline-none focus:border-blue-500"></div></div>
+        <div><label class="block text-[10px] font-bold text-slate-500 uppercase mb-2">Notes</label><textarea id="f-notes" rows="3" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white outline-none focus:border-blue-500" placeholder="plan, emotions, mistakes, improvements"></textarea></div>
+        <button type="submit" class="w-full px-4 py-3 rounded-xl bg-blue-600 text-white font-black text-xs uppercase tracking-[0.2em]">Execute Trade</button>
+      </form>
+    </div>
+  </div>
   <div id="notification-container" class="fixed top-4 right-4 z-[300] flex flex-col items-end w-full max-w-sm pointer-events-none"></div>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
@@ -223,12 +254,18 @@
       document.getElementById('authForm').addEventListener('submit',handleAuthSubmit);
       document.getElementById('adminForm').addEventListener('submit',verifyAdminPasscode);
       document.getElementById('forgotPasswordLink').addEventListener('click',handlePasswordReset);
-      document.getElementById('signOutBtn').addEventListener('click',()=>signOut(auth).then(()=>{isAdminVerified=false;document.getElementById('authContainer').classList.remove('hidden');updateAdminNavVisibility();notify('Signed out','success')}));
+      document.getElementById('signOutBtn').addEventListener('click',()=>signOut(auth).then(()=>{isAdminVerified=false;document.getElementById('authContainer').classList.remove('hidden');const appc=document.getElementById('appContent');if(appc)appc.classList.add('hidden');updateAdminNavVisibility();setTab('journal');notify('Signed out','success')}));
+      const btnToggle=document.getElementById('btn-toggle-chart'); if(btnToggle) btnToggle.addEventListener('click',toggleChart);
+      const btnCloseChart=document.getElementById('btn-close-chart'); if(btnCloseChart) btnCloseChart.addEventListener('click',toggleChart);
+      const btnExport=document.getElementById('btn-export-csv'); if(btnExport) btnExport.addEventListener('click',exportCSV);
+      const btnNewTrade=document.getElementById('btn-new-trade'); if(btnNewTrade) btnNewTrade.addEventListener('click',openModal);
+      const tradeClose=document.getElementById('tradeModalClose'); if(tradeClose) tradeClose.addEventListener('click',closeModal);
+      const tradeForm=document.getElementById('tradeForm'); if(tradeForm) tradeForm.addEventListener('submit',handleTradeFormSubmit);
       document.getElementById('authContainer').classList.remove('hidden');
       updateAdminNavVisibility();
       setTab('journal');
       const metaToken=(document.querySelector('meta[name="deriv-token"]')?.content||'').trim();
-      if(metaToken){ window.configureDeriv(metaToken); }
+      if(metaToken){ try{ window.configureDeriv(metaToken); }catch{} }
       onAuthStateChanged(auth,async(user)=>{
         if(user){
           currentUserDocId=user.uid;
@@ -239,6 +276,7 @@
           document.getElementById('currentUserEmail').innerText=user.email||'';
           document.getElementById('currentUserId').innerText=user.uid;
           document.getElementById('authContainer').classList.add('hidden');
+          const appc=document.getElementById('appContent'); if(appc) appc.classList.remove('hidden');
           updateAdminNavVisibility();
           loadMyTrades();
           onSnapshot(query(collection(db,'users',user.uid,'trades'),orderBy('openTime','desc')),snap=>{
@@ -249,6 +287,9 @@
           });
           loadJournalLeaderboard();
           loadJournalFeedback();
+        } else {
+          document.getElementById('authContainer').classList.remove('hidden');
+          const appc=document.getElementById('appContent'); if(appc) appc.classList.add('hidden');
         }
       });
       document.getElementById('addTrade').addEventListener('click',addTrade);
@@ -463,7 +504,7 @@
     function initActiveSymbols(){
       try{if(mktWs)mktWs.close()}catch{}
       mktWs=new WebSocket(`wss://ws.binaryws.com/websockets/v3?app_id=${DERIV_APP_ID}`);
-      mktWs.onopen=()=>{mktWs.send(JSON.stringify({active_symbols:'brief',product_type:'basic'}))};
+      mktWs.onopen=()=>{setConnectionIndicator(true);mktWs.send(JSON.stringify({active_symbols:'brief',product_type:'basic'}))};
       mktWs.onmessage=(evt)=>{
         const data=JSON.parse(evt.data);
         if(data.active_symbols){
@@ -482,8 +523,8 @@
           if(item){ item.price=Number(tick.quote)||0; requestAnimationFrame(renderTickers); }
         }
       };
-      mktWs.onerror=()=>{};
-      mktWs.onclose=()=>{};
+      mktWs.onerror=()=>{setConnectionIndicator(false)};
+      mktWs.onclose=()=>{setConnectionIndicator(false)};
     }
 
     function initSparkWs(){
@@ -551,6 +592,87 @@
       const sel=document.getElementById('liveSymbolSelect');
       if(sel){ sel.value=symbol; }
       subscribeSymbol(symbol);
+    }
+    function setConnectionIndicator(connected){
+      const el=document.getElementById('connectionStatus');
+      if(!el)return;
+      const dot=el.querySelector('div');
+      if(dot) dot.style.backgroundColor=connected?'#22c55e':'#ef4444';
+    }
+    function toggleChart(){
+      const s=document.getElementById('chartSection');
+      if(!s)return;
+      const isHidden=s.classList.contains('hidden');
+      s.classList.toggle('hidden',!isHidden);
+      if(isHidden) ensureTradingView();
+    }
+    function ensureTradingView(){
+      if(window.TradingView){ createTVWidget(); return; }
+      const s=document.createElement('script');
+      s.src='https://s3.tradingview.com/tv.js';
+      s.onload=()=>createTVWidget();
+      document.head.appendChild(s);
+    }
+    function createTVWidget(){
+      const containerId='tv-container';
+      const defSym=mapTVSymbol((document.getElementById('liveSymbolSelect')?.value)||'EURUSD');
+      try{
+        new window.TradingView.widget({
+          autosize: true,
+          symbol: defSym,
+          interval: '30',
+          timezone: 'Etc/UTC',
+          theme: 'dark',
+          style: '1',
+          toolbar_bg: '#0f172a',
+          hide_side_toolbar: false,
+          container_id: containerId
+        });
+      }catch{}
+    }
+    function mapTVSymbol(sym){
+      const s=(sym||'').toUpperCase();
+      if(/^[A-Z]{6}$/.test(s)) return `FX:${s}`;
+      return 'FX:EURUSD';
+    }
+    function openModal(){
+      const m=document.getElementById('tradeModal');
+      const sel=document.getElementById('f-instrument');
+      if(sel) sel.innerHTML=marketData.map(m=>`<option value="${m.symbol}">${m.symbol}</option>`).join('');
+      if(m) m.classList.remove('hidden');
+    }
+    function closeModal(){
+      const m=document.getElementById('tradeModal');
+      if(m) m.classList.add('hidden');
+    }
+    window.setSide=function(side){
+      const b=document.getElementById('btn-buy'), s=document.getElementById('btn-sell');
+      if(b&&s){ if(side==='buy'){ b.classList.add('bg-green-600','text-white'); s.classList.remove('bg-red-600','text-white'); s.classList.add('text-slate-500'); } else { s.classList.add('bg-red-600','text-white'); b.classList.remove('bg-green-600','text-white'); b.classList.add('text-slate-500'); } }
+    }
+    function handleTradeFormSubmit(e){
+      e.preventDefault();
+      if(!currentUserDocId){notify('Login first','error');return}
+      const instrument=document.getElementById('f-instrument')?.value||'';
+      const lots=parseFloat(document.getElementById('f-lots')?.value||'0');
+      const entry=parseFloat(document.getElementById('f-entry')?.value||'0');
+      const sl=parseFloat(document.getElementById('f-sl')?.value||'0');
+      const tp=parseFloat(document.getElementById('f-tp')?.value||'0');
+      const strategy=(document.getElementById('f-strategy')?.value||'').trim();
+      const setup=(document.getElementById('f-setup')?.value||'').trim();
+      const tags=(document.getElementById('f-tags')?.value||'').split(',').map(t=>t.trim()).filter(Boolean);
+      const riskpct=parseFloat(document.getElementById('f-riskpct')?.value||'0');
+      const notes=(document.getElementById('f-notes')?.value||'').trim();
+      const type=(document.getElementById('btn-buy')?.classList.contains('bg-green-600'))?'buy':'sell';
+      if(!instrument){notify('Select instrument','error');return}
+      addDoc(collection(db,'users',currentUserDocId,'trades'),{instrument,type,lots,pnl:0,status:'open',openTime:serverTimestamp(),entryPrice:entry,stopLoss:sl,takeProfit:tp,strategy,setup,tags,riskpct,notes}).then(()=>{closeModal();notify('Trade added','success')}).catch(e=>notify(e.message,'error'));
+    }
+    function exportCSV(){
+      const rows=[['Time','Asset','Type','Lots','PnL','Status']];
+      myTrades.forEach(t=>{rows.push([t.openTime&&t.openTime.seconds?new Date(t.openTime.seconds*1000).toISOString():'',t.instrument||'',t.type||'',t.lots||0,t.pnl||0,t.status||''])});
+      const csv=rows.map(r=>r.map(x=>`"${String(x).replace(/"/g,'""')}"`).join(',')).join('\\n');
+      const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+      const url=URL.createObjectURL(blob);
+      const a=document.createElement('a');a.href=url;a.download='trades.csv';document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
     }
     function drawEquityCurve(closedTrades){
       const canvas=document.getElementById('equityCurveCanvas');
@@ -651,15 +773,16 @@
     }
 
     window.configureDeriv=function(token){
-      if(!token||typeof token!=='string'){notify('Invalid Deriv token','error');return}
-      window.__deriv_token__=token;
-      connectDeriv();
+      if(typeof token==='string' && token.trim()){
+        window.__deriv_token__=token.trim();
+        connectDeriv();
+      }
     }
 
     function connectDeriv(){
       const appId=DERIV_APP_ID;
       const token=window.__deriv_token__;
-      if(!appId||!token){notify('Deriv not configured','error');return}
+      if(!appId||!token){return}
       try{if(ws)ws.close()}catch{}
       ws=new WebSocket(`wss://ws.binaryws.com/websockets/v3?app_id=${appId}`);
       ws.onopen=()=>{ws.send(JSON.stringify({authorize:token}))};
@@ -668,9 +791,9 @@
         if(data.authorize){ws.send(JSON.stringify({balance:1}));ws.send(JSON.stringify({statement:1,limit:50,description:1}))}
         else if(data.balance){const b=data.balance;notify(`Deriv balance: $${Number(b.balance).toFixed(2)}`,'success')}
         else if(data.statement){const list=data.statement.transactions||[];const uid=currentUserDocId;if(!uid)return;list.forEach(s=>{const instrument=s.shortcode||s.description||'DERIV';const pnl=Number(s.amount||0);const status='closed';const type=pnl>=0?'buy':'sell';const lots=0;const ts=s.transaction_time?new Date(s.transaction_time*1000):new Date();addDoc(collection(db,'users',uid,'trades'),{instrument,type,lots,pnl,status,openTime:Timestamp.fromDate(ts)})});notify('Imported statements','success');loadMyTrades()}
-        else if(data.error){notify(data.error.message||'Deriv error','error')}
+        else if(data.error){/* silent */}
       };
-      ws.onerror=()=>notify('WebSocket error','error');
+      ws.onerror=()=>{};
       ws.onclose=()=>{authorized=false};
     }
 
