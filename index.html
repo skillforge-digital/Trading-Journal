@@ -1,850 +1,1192 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Skillforge Trading Journal</title>
-  
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/lucide@latest"></script>
-  
-  <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#0f172a">
+    <meta name="description" content="Skillforge Trading Journal — Student Dashboard & Admin Panel">
+    <title>Skillforge Trading Journal</title>
 
-  <meta name="deriv-token" content="VRTC4389111">
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap');
-    body{font-family:'Plus Jakarta Sans',sans-serif;background:#0f172a;color:#e2e8f0}
-    .glass{background:rgba(2,6,23,.7);backdrop-filter:blur(12px);border:1px solid rgba(148,163,184,.15)}
-    .profit-text{color:#34d399}
-    .loss-text{color:#f87171}
-    .section{display:none}
-    .section.active{display:block}
-    .custom-scrollbar{scrollbar-width:thin;scrollbar-color:#334155 transparent}
-    .custom-scrollbar::-webkit-scrollbar{width:8px}
-    .custom-scrollbar::-webkit-scrollbar-thumb{background:#334155;border-radius:9999px}
-    .hidden { display: none !important; }
-  </style>
-</head>
-<body class="pb-20">
+    <!-- Preconnect -->
+    <link rel="preconnect" href="https://www.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://unpkg.com" crossorigin />
+    <link rel="preconnect" href="https://s3.tradingview.com" crossorigin />
 
-  <!-- AUTH CONTAINER -->
-  <div id="authContainer" class="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-slate-950/95 backdrop-blur-xl hidden" role="dialog" aria-modal="true">
-    <div class="glass w-full max-w-lg rounded-3xl overflow-hidden shadow-2xl flex flex-col relative border border-slate-700 max-h-[90vh] overflow-y-auto">
-      <div class="p-8 pb-0 text-center">
-        <div class="flex items-center justify-center mb-5"><img src="https://i.postimg.cc/fRYD4HSw/Whats-App-Image-2026-01-16-at-1-20-06-PM.jpg" alt="Skillforge Digital" class="w-20 h-20 object-contain rounded-xl shadow-2xl ring-1 ring-white/10"></div>
-        <h1 class="text-2xl md:text-3xl font-black tracking-tight mb-1">SKILLFORGE <span class="text-blue-500">DIGITAL</span> &amp; CO. LTD</h1>
-        <p class="text-blue-400 text-xs font-bold uppercase tracking-[0.2em]">Official Company</p>
-      </div>
-      
-      <!-- Landing Options -->
-      <div id="landing-options" class="p-8 space-y-4">
-        <div class="grid grid-cols-2 gap-4">
-          <button id="btn-show-login" type="button" class="group p-6 bg-slate-900/50 border border-slate-800 rounded-2xl hover:bg-blue-600 hover:border-blue-500 transition-all text-left">
-            <div class="bg-slate-800 group-hover:bg-white/20 w-10 h-10 rounded-lg flex items-center justify-center mb-3 transition-colors"><i data-lucide="user" class="text-slate-400 group-hover:text-white w-5 h-5"></i></div>
-            <h3 class="font-bold text-white text-sm">Student Login</h3>
-            <p class="text-[10px] text-slate-500 group-hover:text-blue-200 mt-1">Access your journal</p>
-          </button>
-          <button id="btn-show-register" type="button" class="group p-6 bg-slate-900/50 border border-slate-800 rounded-2xl hover:bg-blue-600 hover:border-blue-500 transition-all text-left">
-            <div class="bg-slate-800 group-hover:bg-white/20 w-10 h-10 rounded-lg flex items-center justify-center mb-3 transition-colors"><i data-lucide="user-plus" class="text-slate-400 group-hover:text-white w-5 h-5"></i></div>
-            <h3 class="font-bold text-white text-sm">New Student</h3>
-            <p class="text-[10px] text-slate-500 group-hover:text-blue-200 mt-1">Create account</p>
-          </button>
-        </div>
-        <div class="relative py-4"><div class="absolute inset-0 flex items-center"><div class="w-full border-t border-slate-800"></div></div><div class="relative flex justify-center"><span class="bg-slate-900 px-2 text-[10px] text-slate-500 uppercase font-bold">Authorized Personnel</span></div></div>
-        <button id="btn-show-admin" type="button" class="w-full p-4 rounded-xl border border-slate-800 hover:bg-slate-800 transition-all flex items-center justify-center gap-2 group">
-          <i data-lucide="shield-check" class="text-slate-500 group-hover:text-red-500 w-4 h-4"></i>
-          <span class="text-xs font-bold text-slate-400 group-hover:text-white uppercase tracking-wider">Mentor Access</span>
-        </button>
-      </div>
-
-      <!-- Auth Forms -->
-      <div id="auth-forms" class="p-8 hidden">
-        <div class="flex items-center gap-4 mb-6">
-            <button id="btn-back-auth" class="p-2 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white" type="button"><i data-lucide="arrow-left" class="w-5 h-5"></i></button>
-            <h2 id="auth-title" class="text-xl font-bold text-white"></h2>
-        </div>
-        <form id="authForm" class="space-y-4 hidden" novalidate>
-          <div><label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Email Address</label><input type="email" id="email" required class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-white focus:border-blue-500 outline-none"></div>
-          <div><label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Password</label><input type="password" id="password" required class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-white focus:border-blue-500 outline-none"></div>
-          <button type="submit" id="btn-auth-action" class="w-full py-3 rounded-xl bg-blue-600 text-white font-bold text-sm uppercase tracking-wider shadow-lg mt-2">Proceed</button>
-          <button type="button" id="forgotPasswordLink" class="w-full mt-2 text-[11px] font-bold uppercase tracking-widest text-blue-400 hover:text-blue-300">Forgot password?</button>
-        </form>
-        <form id="adminForm" class="space-y-4 hidden" novalidate>
-          <div><label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Security Passcode</label><input type="password" id="adminPasscode" placeholder="••••••••" required class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-center"></div>
-          <button type="submit" class="w-full py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold text-sm uppercase tracking-wider">Verify Identity</button>
-        </form>
-      </div>
-    </div>
-  </div>
-
-  <!-- MAIN APP CONTENT -->
-  <div id="appContent" class="hidden">
+    <!-- CDNs -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
     
-    <!-- Header -->
-    <header class="glass sticky top-0 z-50">
-      <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-        <div class="flex items-center gap-3">
-            <img src="https://i.postimg.cc/fRYD4HSw/Whats-App-Image-2026-01-16-at-1-20-06-PM.jpg" alt="Skillforge Digital" class="w-10 h-10 rounded-xl object-contain shadow-2xl ring-1 ring-white/10">
-            <div class="text-xl font-extrabold tracking-tight text-white hidden md:block">SKILLFORGE <span class="text-blue-500">DIGITAL</span> &amp; CO. LTD</div>
-        </div>
-        <div class="flex items-center gap-2">
-          <div id="connectionStatus" class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900 border border-slate-800 text-xs"><div class="w-2 h-2 rounded-full bg-red-500"></div><span class="text-slate-400 font-medium hidden sm:inline">LIVE DATA</span></div>
-          <button id="btn-toggle-chart" type="button" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white" title="Toggle Chart"><i data-lucide="layout-grid" class="w-5 h-5"></i></button>
-          <button id="btn-new-trade" type="button" class="hidden sm:flex px-4 py-2 rounded-lg text-sm font-bold items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white"><i data-lucide="plus-circle" class="w-4 h-4"></i> NEW TRADE</button>
-          <button id="btn-export-csv" type="button" class="hidden sm:flex px-4 py-2 rounded-lg text-sm font-bold items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-300"><i data-lucide="download" class="w-4 h-4"></i> EXPORT CSV</button>
-          
-          <!-- Nav Tabs (Admin Hidden by Default) -->
-          <nav class="flex gap-1 ml-2">
-            <button data-tab="journal" class="p-2 rounded-lg bg-slate-800 text-white"><i data-lucide="home" class="w-5 h-5"></i></button>
-            <button data-tab="admin" class="hidden p-2 rounded-lg bg-red-900/20 text-red-400 hover:bg-red-900/40"><i data-lucide="shield" class="w-5 h-5"></i></button>
-          </nav>
-          
-          <button id="btn-logout" type="button" class="p-2 rounded-lg bg-red-900/20 hover:bg-red-900/40 text-red-400 ml-2"><i data-lucide="log-out" class="w-5 h-5"></i></button>
-        </div>
-      </div>
-      
-      <!-- Ticker Tape -->
-      <div class="max-w-7xl mx-auto px-4 pb-4">
-        <div class="mt-2 flex items-center gap-3">
-          <div class="relative w-full max-w-xs">
-            <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-500"></i>
-            <input type="text" id="marketSearch" placeholder="Search Assets..." class="w-full bg-slate-950 border border-slate-800 rounded-full py-1.5 pl-9 pr-4 text-xs text-white focus:outline-none focus:border-blue-500">
-          </div>
-          <div id="tickerContainer" class="flex gap-3 overflow-x-auto custom-scrollbar flex-1 py-1"></div>
-        </div>
-      </div>
-    </header>
+    <!-- Firebase Compat SDK -->
+    <script src="https://www.gstatic.com/firebasejs/11.1.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.1.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore-compat.js"></script>
 
-    <main class="max-w-7xl mx-auto px-4 mt-8 space-y-8">
-      
-      <!-- Chart Section (Hidden Default) -->
-      <section id="chartSection" class="hidden mb-8">
-        <div class="glass rounded-2xl overflow-hidden border border-slate-700">
-          <div class="p-3 bg-slate-900/50 flex justify-between items-center border-b border-slate-800">
-            <div class="flex items-center gap-4">
-              <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Market Analysis</span>
-              <span id="chartSymbolName" class="text-sm font-black text-blue-400">LOADING...</span>
-            </div>
-            <button id="btn-close-chart" type="button" class="text-slate-500 hover:text-white"><i data-lucide="x" class="w-4 h-4"></i></button>
-          </div>
-          <div id="tv-container" class="h-[400px] w-full bg-slate-950 relative"></div>
-        </div>
-      </section>
+    <!-- TradingView Widget -->
+    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
 
-      <!-- STUDENT DASHBOARD -->
-      <section id="journal" class="section active space-y-6">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@300;400;600;800&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #020617;
+            color: #f8fafc;
+            overflow-x: hidden;
+            padding-top: env(safe-area-inset-top);
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+
+        .glass {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(51, 65, 85, 0.5);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+        .ticker-scroll::-webkit-scrollbar { display: none; }
+        .ticker-scroll { -ms-overflow-style: none; scrollbar-width: none; }
+
+        .hidden { display: none !important; }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            transition: all 0.2s ease;
+        }
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+        }
+
+        .profit-text { color: #4ade80; }
+        .loss-text { color: #f87171; }
+
+        @keyframes pulse-dot {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(74, 222, 128, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(74, 222, 128, 0); }
+        }
+        .live-indicator {
+            width: 8px; height: 8px; background-color: #4ade80; border-radius: 50%; animation: pulse-dot 2s infinite;
+        }
+
+        .modal {
+            display: none; opacity: 0; transition: opacity 0.3s ease;
+        }
+        .modal.active {
+            display: flex; opacity: 1; overflow-y: auto; -webkit-overflow-scrolling: touch;
+        }
+
+        select option, select optgroup { background-color: #0f172a; color: white; }
+        input, select, textarea, button { font-size: 16px; } /* iOS zoom fix */
         
-        <!-- Metrics -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4" aria-label="Overview metrics">
-            <div class="glass p-5 rounded-2xl border-l-4 border-blue-500"><p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Realized PnL</p><h2 id="totalPnl" class="text-2xl font-black font-mono mt-1">$0.00</h2></div>
-            <div class="glass p-5 rounded-2xl border-l-4 border-green-500"><p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Win Rate</p><h2 id="winRate" class="text-2xl font-black font-mono mt-1">0%</h2></div>
-            <div class="glass p-5 rounded-2xl border-l-4 border-purple-500"><p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Total Lots</p><h2 id="totalLots" class="text-2xl font-black font-mono mt-1">0.00</h2></div>
-            <div class="glass p-5 rounded-2xl border-l-4 border-slate-500"><p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Active Trades</p><h2 id="activeCount" class="text-2xl font-black font-mono mt-1">0</h2></div>
-        </div>
-
-        <!-- Live Market & Equity -->
-        <div class="grid md:grid-cols-2 gap-6">
-            <div class="glass p-6 rounded-2xl space-y-4">
-                <div class="flex items-center justify-between"><div class="flex items-center gap-2"><i data-lucide="activity" class="text-blue-500 w-5 h-5"></i><h3 class="text-sm font-bold text-white uppercase tracking-wider">Live Market</h3></div><div class="flex items-center gap-2"><select id="liveSymbolSelect" class="bg-slate-950 border border-slate-800 rounded-xl p-2 text-white text-xs outline-none min-w-40"></select><span id="liveChartStatus" class="text-[10px] font-bold uppercase text-slate-500">Disconnected</span></div></div>
-                <canvas id="liveChartCanvas" height="160" class="w-full rounded-xl bg-slate-950 border border-slate-800"></canvas>
-            </div>
-            <div class="glass rounded-2xl overflow-hidden">
-                <div class="p-4 border-b border-slate-800 bg-slate-900/50 flex justify-between items-center"><span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Equity Curve</span></div>
-                <canvas id="equityCurveCanvas" height="220" class="w-full bg-slate-950"></canvas>
-            </div>
-        </div>
-
-        <!-- Tab Controls -->
-        <div class="flex flex-wrap gap-2 mb-6 bg-slate-900/50 p-1.5 rounded-2xl w-fit border border-slate-800" role="tablist">
-          <button onclick="window.switchJournalTab('active')" id="tab-active" class="px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all bg-slate-800 text-blue-400">Active</button>
-          <button onclick="window.switchJournalTab('history')" id="tab-history" class="px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all text-slate-500 hover:text-slate-300">Closed</button>
-          <button onclick="window.switchJournalTab('leaderboard')" id="tab-leaderboard" class="px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all text-slate-500 hover:text-slate-300">Leaderboard</button>
-          <button onclick="window.switchJournalTab('feedback')" id="tab-feedback" class="px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all text-slate-500 hover:text-slate-300">Feedback</button>
-        </div>
-
-        <!-- Tab Contents -->
-        <div id="activeTradesList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+        .touch-scroll { -webkit-overflow-scrolling: touch; }
         
-        <div id="historyList" class="hidden glass rounded-2xl border border-slate-800 overflow-hidden">
-            <div class="overflow-x-auto">
+        .logo-img {
+            object-fit: cover;
+        }
+    </style>
+</head>
+<body class="pb-10 bg-slate-950 text-white">
+
+    <noscript>
+        <div class="fixed inset-0 z-[300] flex items-center justify-center bg-red-900/80">
+            <div class="max-w-lg p-6 bg-slate-900 rounded-2xl">
+                <h2 class="text-lg font-bold">JavaScript required</h2>
+                <p class="mt-2 text-sm text-slate-300">This application requires JavaScript to run.</p>
+            </div>
+        </div>
+    </noscript>
+
+    <!-- ================= AUTH CONTAINER ================= -->
+    <div id="authContainer" class="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-slate-950/95 backdrop-blur-xl" role="dialog" aria-modal="true">
+        <div class="glass w-full max-w-lg rounded-3xl overflow-hidden shadow-2xl flex flex-col relative border border-slate-700 max-h-[90vh] overflow-y-auto">
+            <div class="p-8 pb-0 text-center">
+                <div class="inline-flex items-center justify-center w-24 h-24 mb-5 shadow-2xl shadow-blue-900/50">
+                    <img src="https://i.postimg.cc/fRYD4HSw/Whats-App-Image-2026-01-16-at-1-20-06-PM.jpg" alt="Skillforge Logo" class="w-full h-full rounded-2xl logo-img">
+                </div>
+                <h1 id="authTitle" class="text-2xl md:text-3xl font-black tracking-tight mb-1">SKILLFORGE <span class="text-blue-500">DIGITAL</span></h1>
+                <p class="text-blue-400 text-xs font-bold uppercase tracking-[0.2em]">Official Trading Journal</p>
+            </div>
+
+            <!-- Step 1: Landing Options -->
+            <div id="landing-options" class="p-8 space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <button id="btn-show-login" type="button" class="group p-6 bg-slate-900/50 border border-slate-800 rounded-2xl hover:bg-blue-600 hover:border-blue-500 transition-all text-left">
+                        <div class="bg-slate-800 group-hover:bg-white/20 w-10 h-10 rounded-lg flex items-center justify-center mb-3 transition-colors">
+                            <i data-lucide="user" class="text-slate-400 group-hover:text-white w-5 h-5"></i>
+                        </div>
+                        <h3 class="font-bold text-white text-sm">Student Login</h3>
+                        <p class="text-[10px] text-slate-500 group-hover:text-blue-200 mt-1">Access journal</p>
+                    </button>
+
+                    <button id="btn-show-register" type="button" class="group p-6 bg-slate-900/50 border border-slate-800 rounded-2xl hover:bg-blue-600 hover:border-blue-500 transition-all text-left">
+                        <div class="bg-slate-800 group-hover:bg-white/20 w-10 h-10 rounded-lg flex items-center justify-center mb-3 transition-colors">
+                            <i data-lucide="user-plus" class="text-slate-400 group-hover:text-white w-5 h-5"></i>
+                        </div>
+                        <h3 class="font-bold text-white text-sm">New Student</h3>
+                        <p class="text-[10px] text-slate-500 group-hover:text-blue-200 mt-1">Create account</p>
+                    </button>
+                </div>
+
+                <div class="relative py-4">
+                    <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-slate-800"></div></div>
+                    <div class="relative flex justify-center"><span class="bg-slate-900 px-2 text-[10px] text-slate-500 uppercase font-bold">Authorized Personnel</span></div>
+                </div>
+
+                <button id="btn-show-admin" type="button" class="w-full p-4 rounded-xl border border-slate-800 hover:bg-slate-800 transition-all flex items-center justify-center gap-2 group">
+                    <i data-lucide="shield-check" class="text-slate-500 group-hover:text-red-500 w-4 h-4 transition-colors"></i>
+                    <span class="text-xs font-bold text-slate-400 group-hover:text-white uppercase tracking-wider">Mentor Access</span>
+                </button>
+            </div>
+
+            <!-- Step 2: Forms -->
+            <div id="auth-forms" class="p-8 hidden">
+                <div class="flex items-center gap-4 mb-6">
+                    <button id="btn-back-auth" class="p-2 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white transition-colors" type="button">
+                        <i data-lucide="arrow-left" class="w-5 h-5"></i>
+                    </button>
+                    <h2 id="auth-title" class="text-xl font-bold text-white"></h2>
+                </div>
+
+                <!-- Student Form -->
+                <form id="authForm" class="space-y-4 hidden" novalidate>
+                    <div>
+                        <label for="email" class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Email Address</label>
+                        <input type="email" id="email" name="email" required class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-white focus:border-blue-500 outline-none transition-colors">
+                    </div>
+                    <div>
+                        <label for="password" class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Password</label>
+                        <input type="password" id="password" name="password" required class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-white focus:border-blue-500 outline-none transition-colors">
+                    </div>
+                    <button type="submit" id="btn-auth-action" class="w-full btn-primary py-3 rounded-xl font-bold text-sm uppercase tracking-wider shadow-lg shadow-blue-900/20 mt-2">
+                        Proceed
+                    </button>
+                </form>
+
+                <!-- Admin Form -->
+                <form id="adminForm" class="space-y-4 hidden" novalidate>
+                    <div>
+                        <label for="adminPasscode" class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Security Passcode</label>
+                        <input type="password" id="adminPasscode" name="adminPasscode" placeholder="••••••••••••" required class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-center">
+                    </div>
+                    <button type="submit" class="w-full py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold text-sm uppercase tracking-wider shadow-lg shadow-red-900/20 mt-2 transition-all">
+                        Verify Identity
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= STUDENT APP CONTENT ================= -->
+    <div id="studentApp" class="hidden">
+        <header class="glass sticky top-0 z-50 border-b border-slate-800 shadow-2xl">
+            <div class="max-w-7xl mx-auto px-4 py-4">
+                <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-lg overflow-hidden border border-slate-700">
+                            <img src="https://i.postimg.cc/fRYD4HSw/Whats-App-Image-2026-01-16-at-1-20-06-PM.jpg" alt="Logo" class="w-full h-full object-cover">
+                        </div>
+                        <div>
+                            <h1 class="text-xl md:text-2xl font-extrabold tracking-tight flex items-center gap-2">
+                                SKILLFORGE <span class="text-blue-500">DIGITAL</span>
+                            </h1>
+                            <p class="text-[10px] uppercase tracking-[0.2em] text-slate-500 font-bold">Student Dashboard</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <div id="connectionStatus" class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900 border border-slate-800 text-xs">
+                            <div class="live-indicator"></div>
+                            <span class="text-slate-400 font-medium">LIVE DATA</span>
+                        </div>
+
+                        <button id="btn-toggle-chart" type="button" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition-colors" title="Toggle Chart">
+                            <i data-lucide="layout-grid" class="w-5 h-5"></i>
+                        </button>
+
+                        <button id="btn-new-trade" type="button" class="btn-primary px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2">
+                            <i data-lucide="plus-circle" class="w-4 h-4"></i> NEW TRADE
+                        </button>
+                        
+                        <button id="btn-export-csv" type="button" class="px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors">
+                            <i data-lucide="download" class="w-4 h-4"></i> EXPORT
+                        </button>
+
+                        <button id="btn-logout" type="button" class="p-2 rounded-lg bg-red-900/20 hover:bg-red-900/40 text-red-400 transition-colors" title="Logout">
+                            <i data-lucide="log-out" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Market Ticker -->
+                <div class="mt-4 flex items-center gap-3">
+                    <div class="relative w-full max-w-xs">
+                        <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-500"></i>
+                        <input type="text" id="marketSearch" placeholder="Search Assets..." class="w-full bg-slate-950 border border-slate-800 rounded-full py-1.5 pl-9 pr-4 text-xs text-white focus:outline-none focus:border-blue-500">
+                    </div>
+                    <div id="tickerContainer" class="flex gap-3 overflow-x-auto ticker-scroll flex-1 py-1"></div>
+                </div>
+            </div>
+        </header>
+
+        <main class="max-w-7xl mx-auto px-4 mt-8" id="main">
+            <!-- Chart Section -->
+            <section id="chartSection" class="hidden mb-8">
+                <div class="glass rounded-2xl overflow-hidden border border-slate-700 shadow-2xl">
+                    <div class="p-3 bg-slate-900/50 flex justify-between items-center border-b border-slate-800">
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Market Analysis</span>
+                        <button id="btn-close-chart" type="button" class="text-slate-500 hover:text-white">
+                            <i data-lucide="x" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                    <div id="tv-container" class="h-[500px]"></div>
+                </div>
+            </section>
+
+            <!-- Analytics Overview -->
+            <section class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                <div class="glass p-5 rounded-2xl border-l-4 border-blue-500">
+                    <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Realized PnL</p>
+                    <h2 id="totalPnl" class="text-2xl font-black font-mono mt-1">$0.00</h2>
+                </div>
+                <div class="glass p-5 rounded-2xl border-l-4 border-green-500">
+                    <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Win Rate</p>
+                    <h2 id="winRate" class="text-2xl font-black font-mono mt-1">0%</h2>
+                </div>
+                <div class="glass p-5 rounded-2xl border-l-4 border-purple-500">
+                    <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Total Lots</p>
+                    <h2 id="totalLots" class="text-2xl font-black font-mono mt-1">0.00</h2>
+                </div>
+                <div class="glass p-5 rounded-2xl border-l-4 border-slate-500">
+                    <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Active Trades</p>
+                    <h2 id="activeCount" class="text-2xl font-black font-mono mt-1">0</h2>
+                </div>
+            </section>
+            
+            <!-- Logging Tabs -->
+            <div class="flex flex-wrap gap-2 mb-6 bg-slate-900/50 p-1.5 rounded-2xl w-fit border border-slate-800">
+                <button onclick="switchTab('active')" id="tab-active" class="px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all bg-slate-800 text-blue-400">Active</button>
+                <button onclick="switchTab('history')" id="tab-history" class="px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all text-slate-500 hover:text-slate-300">Closed</button>
+                <button onclick="switchTab('leaderboard')" id="tab-leaderboard" class="px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all text-slate-500 hover:text-slate-300">Leaderboard</button>
+                <button onclick="switchTab('feedback')" id="tab-feedback" class="px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all text-slate-500 hover:text-slate-300">Feedback</button>
+            </div>
+
+            <!-- Views -->
+            <div id="activeTradesList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+
+            <div id="historyList" class="hidden overflow-x-auto glass rounded-2xl border border-slate-800">
+                <div class="p-4 border-b border-slate-800 bg-slate-900/50 grid grid-cols-1 md:grid-cols-5 gap-3">
+                    <input id="filterInstrument" placeholder="Instrument" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs text-white outline-none focus:border-blue-500">
+                    <select id="filterSide" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs text-white outline-none focus:border-blue-500">
+                        <option value="">Side</option>
+                        <option value="buy">Buy</option>
+                        <option value="sell">Sell</option>
+                    </select>
+                    <input id="filterTag" placeholder="Tag" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs text-white outline-none focus:border-blue-500">
+                    <input id="filterFrom" type="date" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs text-white outline-none focus:border-blue-500">
+                    <input id="filterTo" type="date" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs text-white outline-none focus:border-blue-500">
+                </div>
                 <table class="w-full text-left border-collapse">
                     <thead class="bg-slate-900/80 text-[10px] uppercase text-slate-400 font-bold border-b border-slate-800">
-                    <tr><th class="p-5">Instrument</th><th class="p-5">Side</th><th class="p-5">Lots</th><th class="p-5">Entry / Close</th><th class="p-5">Pips</th><th class="p-5 text-right">PnL</th><th class="p-5 text-right">Date</th></tr>
+                        <tr>
+                            <th class="p-5">Instrument</th>
+                            <th class="p-5">Side</th>
+                            <th class="p-5">Lots</th>
+                            <th class="p-5">Entry / Close</th>
+                            <th class="p-5">Pips</th>
+                            <th class="p-5 text-right">PnL</th>
+                            <th class="p-5"></th>
+                        </tr>
                     </thead>
                     <tbody id="historyTableBody" class="divide-y divide-slate-800/50"></tbody>
                 </table>
             </div>
-        </div>
-        
-        <div id="leaderboardList" class="hidden">
-          <div class="glass rounded-2xl overflow-hidden border border-slate-800 max-w-2xl mx-auto">
-            <div class="p-5 border-b border-slate-800 bg-slate-900/50 flex items-center gap-3"><i data-lucide="trophy" class="text-yellow-500 w-5 h-5"></i><h3 class="text-sm font-bold text-white uppercase tracking-wider">Top Traders</h3></div>
-            <div class="overflow-x-auto">
-                <table class="w-full text-left">
-                    <tbody id="leaderboardContent"></tbody>
-                </table>
-            </div>
-          </div>
-        </div>
-        
-        <div id="feedbackList" class="hidden">
-          <div class="glass rounded-2xl overflow-hidden border border-slate-800 max-w-2xl mx-auto">
-            <div class="p-5 border-b border-slate-800 bg-slate-900/50 flex items-center gap-3"><i data-lucide="message-circle" class="text-blue-500 w-5 h-5"></i><h3 class="text-sm font-bold text-white uppercase tracking-wider">Instructor Feedback</h3></div>
-            <div id="feedbackContent" class="p-5 space-y-4"><p class="text-slate-500 text-sm text-center">Loading feedback...</p></div>
-          </div>
-        </div>
-        
-        <!-- User & Trade Logging (Always Visible at bottom) -->
-        <div class="grid md:grid-cols-2 gap-6 mt-8">
-          <div class="glass p-6 rounded-2xl space-y-4">
-            <div class="flex items-center gap-2"><i data-lucide="user" class="text-slate-400 w-5 h-5"></i><h3 class="text-sm font-bold text-white uppercase tracking-wider">User Profile</h3></div>
-            <div class="flex items-center justify-between"><p id="currentUserEmail" class="text-xs text-slate-300 font-bold truncate"></p></div>
-            <p id="currentUserId" class="text-[10px] text-slate-500 font-mono"></p>
-          </div>
-          <div class="glass p-6 rounded-2xl space-y-4">
-            <div class="flex items-center gap-2"><i data-lucide="file-plus" class="text-slate-400 w-5 h-5"></i><h3 class="text-sm font-bold text-white uppercase tracking-wider">Log Trade</h3></div>
-            <div class="grid grid-cols-2 gap-3">
-              <input id="tradeInstrument" type="text" placeholder="Instrument" class="bg-slate-950 border border-slate-800 rounded-xl p-3 text-white text-sm outline-none">
-              <select id="tradeType" class="bg-slate-950 border border-slate-800 rounded-xl p-3 text-white text-sm outline-none"><option value="buy">Buy</option><option value="sell">Sell</option></select>
-              <input id="tradeLots" type="number" step="0.01" placeholder="Lots" class="bg-slate-950 border border-slate-800 rounded-xl p-3 text-white text-sm outline-none">
-              <input id="tradePnl" type="number" step="0.01" placeholder="PnL" class="bg-slate-950 border border-slate-800 rounded-xl p-3 text-white text-sm outline-none">
-              <select id="tradeStatus" class="bg-slate-950 border border-slate-800 rounded-xl p-3 text-white text-sm outline-none"><option value="open">Open</option><option value="closed">Closed</option></select>
-              <button id="addTrade" class="py-2.5 rounded-xl bg-green-600 hover:bg-green-500 text-white text-[11px] font-black uppercase tracking-widest">Add</button>
-            </div>
-          </div>
-        </div>
 
-      </section>
+            <div id="leaderboardList" class="hidden">
+                <div class="glass rounded-2xl overflow-hidden border border-slate-800 max-w-2xl mx-auto">
+                    <div class="p-5 border-b border-slate-800 bg-slate-900/50 flex items-center gap-3">
+                        <i data-lucide="trophy" class="text-yellow-500 w-5 h-5"></i>
+                        <h3 class="text-sm font-bold text-white uppercase tracking-wider">Top Traders</h3>
+                    </div>
+                    <div id="leaderboardContent" class="p-5 space-y-3">
+                        <p class="text-slate-500 text-sm text-center">Loading leaderboard...</p>
+                    </div>
+                </div>
+            </div>
 
-      <!-- ADMIN PANEL (Consolidated) -->
-      <section id="admin" class="section grid grid-cols-1 md:grid-cols-4 gap-6">
-        
-        <!-- Sidebar -->
-        <aside class="glass rounded-2xl overflow-hidden h-[70vh] flex flex-col">
-            <div class="p-4 border-b border-slate-800 bg-slate-900/50 flex justify-between items-center">
-                <h3 class="text-sm font-bold text-white uppercase">Students</h3>
-                <button id="refreshStudents" class="text-slate-400 hover:text-white"><i data-lucide="refresh-ccw" class="w-4 h-4"></i></button>
+            <div id="feedbackList" class="hidden">
+                <div class="glass rounded-2xl overflow-hidden border border-slate-800 max-w-2xl mx-auto">
+                    <div class="p-5 border-b border-slate-800 bg-slate-900/50 flex items-center gap-3">
+                        <i data-lucide="message-circle" class="text-blue-500 w-5 h-5"></i>
+                        <h3 class="text-sm font-bold text-white uppercase tracking-wider">Instructor Feedback</h3>
+                    </div>
+                    <div id="feedbackContent" class="p-5 space-y-4">
+                        <p class="text-slate-500 text-sm text-center">Loading feedback...</p>
+                    </div>
+                </div>
             </div>
-            <div id="studentList" class="flex-1 overflow-y-auto p-2 space-y-2 custom-scrollbar">
-                <p class="text-center text-slate-500 text-xs mt-4">Loading students...</p>
-            </div>
-            <div class="p-4 border-t border-slate-800 bg-slate-900/50">
-                <button id="publishLeaderboard" class="w-full py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-xs font-bold uppercase tracking-wider">Publish Leaderboard</button>
-            </div>
-        </aside>
+        </main>
+    </div>
 
-        <!-- Main Content -->
-        <section class="md:col-span-3 space-y-6">
-            <!-- Student Header -->
-            <div id="studentHeader" class="glass p-6 rounded-2xl border-l-4 border-blue-500 hidden">
-                <div class="flex justify-between items-start">
+    <!-- ================= ADMIN APP CONTENT ================= -->
+    <div id="adminApp" class="hidden">
+        <header class="glass sticky top-0 z-50 border-b border-slate-800 shadow-2xl">
+            <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <div class="bg-red-600 p-2 rounded-lg">
+                        <i data-lucide="shield" class="text-white w-6 h-6"></i>
+                    </div>
                     <div>
-                        <h2 id="studentEmail" class="text-2xl font-bold text-white">Select a Student</h2>
-                        <p class="text-slate-500 text-xs uppercase tracking-widest mt-1">Student ID: <span id="studentId">---</span></p>
-                    </div>
-                    <div class="text-right">
-                        <p class="text-[10px] font-bold text-slate-500 uppercase">Total Profit</p>
-                        <h3 id="adminTotalPnl" class="text-2xl font-black font-mono text-white">$0.00</h3>
+                        <h1 class="text-xl font-extrabold tracking-tight text-white">
+                            SKILLFORGE <span class="text-red-500">ADMIN</span>
+                        </h1>
                     </div>
                 </div>
+                <button id="btn-admin-logout" class="text-slate-400 hover:text-white text-sm font-bold uppercase">Log Out</button>
             </div>
-            
-            <!-- Trades List -->
-            <div id="adminTradesContainer" class="glass rounded-2xl overflow-hidden border border-slate-800 hidden">
-                <div class="p-4 border-b border-slate-800 bg-slate-900/50"><h3 class="text-sm font-bold text-white uppercase">Student Trades</h3></div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse">
-                        <thead class="bg-slate-900/80 text-[10px] uppercase text-slate-400 font-bold border-b border-slate-800">
-                            <tr><th class="p-5">Time</th><th class="p-5">Instrument</th><th class="p-5">Side</th><th class="p-5">Lots</th><th class="p-5">PnL</th><th class="p-5">Status</th></tr>
-                        </thead>
-                        <tbody id="adminTradeTable" class="divide-y divide-slate-800/50"></tbody>
-                    </table>
-                </div>
-            </div>
+        </header>
 
-            <!-- Feedback -->
-            <div id="feedbackSection" class="glass rounded-2xl overflow-hidden border border-slate-800 hidden">
-                <div class="p-4 border-b border-slate-800 bg-slate-900/50 flex items-center gap-3"><i data-lucide="message-circle" class="text-blue-500 w-5 h-5"></i><h3 class="text-sm font-bold text-white uppercase tracking-wider">Instructor Feedback</h3></div>
-                <div class="p-6 space-y-4">
-                    <div id="commentsList" class="space-y-3 max-h-60 overflow-y-auto custom-scrollbar"></div>
-                    <form id="commentForm" class="flex gap-2">
-                        <input id="commentInput" type="text" placeholder="Write feedback..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl p-3 text-white text-sm outline-none focus:border-blue-500">
-                        <button type="submit" class="bg-blue-600 hover:bg-blue-500 text-white p-3 rounded-xl"><i data-lucide="send" class="w-4 h-4"></i></button>
+        <main class="max-w-7xl mx-auto px-4 mt-8 grid grid-cols-1 md:grid-cols-4 gap-6 relative">
+            <!-- Sidebar: Student List -->
+            <aside class="glass rounded-2xl overflow-hidden h-[80vh] flex flex-col sticky top-24">
+                <div class="p-4 border-b border-slate-800 bg-slate-900/50">
+                    <h3 class="text-sm font-bold text-white uppercase">Students</h3>
+                </div>
+                <div id="studentList" class="flex-1 overflow-y-auto p-2 space-y-2 custom-scrollbar touch-scroll">
+                    <p class="text-center text-slate-500 text-xs mt-4">Loading students...</p>
+                </div>
+            </aside>
+
+            <!-- Main: Student Logs -->
+            <section class="md:col-span-3 space-y-6">
+                <!-- Selected Student Info -->
+                <div id="studentHeader" class="glass p-6 rounded-2xl border-l-4 border-blue-500 hidden">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h2 id="studentEmail" class="text-2xl font-bold text-white">Select a Student</h2>
+                            <p class="text-slate-500 text-xs uppercase tracking-widest mt-1">Student ID: <span id="studentId">---</span></p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-[10px] font-bold text-slate-500 uppercase">Total Profit</p>
+                            <h3 id="adminTotalPnl" class="text-2xl font-black font-mono text-white">$0.00</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Trades Table -->
+                <div class="glass rounded-2xl overflow-hidden min-h-[400px]">
+                    <div class="p-4 border-b border-slate-800 bg-slate-900/50 flex justify-between items-center">
+                        <h3 class="text-sm font-bold text-white uppercase">Trade Log</h3>
+                        <div class="flex items-center gap-3">
+                            <button onclick="refreshTrades()" class="text-slate-400 hover:text-white"><i data-lucide="refresh-cw" class="w-4 h-4"></i></button>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead class="bg-slate-900/80 text-[10px] uppercase text-slate-400 font-bold border-b border-slate-800">
+                                <tr>
+                                    <th class="p-5">Time</th>
+                                    <th class="p-5">Asset</th>
+                                    <th class="p-5">Type</th>
+                                    <th class="p-5">Lots</th>
+                                    <th class="p-5">PnL</th>
+                                    <th class="p-5">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="adminTradeTable" class="divide-y divide-slate-800/50">
+                                <tr>
+                                    <td colspan="6" class="p-8 text-center text-slate-500 text-sm font-bold uppercase tracking-wider opacity-50">Select a student to view trades.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Feedback Section -->
+                <div id="feedbackSection" class="glass p-6 rounded-2xl hidden border border-slate-700">
+                    <div class="flex items-center gap-2 mb-4">
+                        <i data-lucide="message-square" class="text-blue-500 w-5 h-5"></i>
+                        <h3 class="text-sm font-bold text-white uppercase tracking-wider">Mentor Feedback & Notes</h3>
+                    </div>
+                    
+                    <div id="commentsList" class="space-y-3 mb-6 max-h-60 overflow-y-auto pr-2 custom-scrollbar touch-scroll"></div>
+                    
+                    <form id="commentForm" class="flex gap-3">
+                        <input type="text" id="commentInput" placeholder="Write a constructive comment..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl p-4 text-white focus:border-blue-500 outline-none text-sm transition-colors">
+                        <button type="submit" class="btn-primary px-8 rounded-xl font-bold text-xs uppercase tracking-wider shadow-lg shadow-blue-900/20 hover:scale-105 transition-transform">Send</button>
                     </form>
                 </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- ================= MODALS ================= -->
+    <div id="tradeModal" class="modal fixed inset-0 z-[100] items-center justify-center p-4 bg-slate-950/90 backdrop-blur-md hidden" role="dialog" aria-modal="true">
+        <div class="glass w-full max-w-md rounded-2xl overflow-hidden shadow-2xl border border-slate-700">
+            <div class="p-6 border-b border-slate-800 flex justify-between items-center bg-slate-900/50">
+                <h3 id="tradeModalTitle" class="text-sm font-bold text-white tracking-widest uppercase">New Trade Entry</h3>
+                <button id="tradeModalClose" type="button" class="text-slate-500 hover:text-white icon-button" aria-label="Close">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
             </div>
-        </section>
-      </section>
-
-    </main>
-  </div>
-
-  <!-- FIREBASE MODULES -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
-    import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-analytics.js";
-    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
-    import { getFirestore, collection, doc, setDoc, addDoc, getDocs, getDoc, query, orderBy, onSnapshot, serverTimestamp, Timestamp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
-    
-    // --- FIREBASE CONFIG ---
-    const firebaseConfig = { apiKey:"AIzaSyA28jc1OxMfc33m7rk8fCrfgmnw_uLzc50", authDomain:"trading-journal-914c4.firebaseapp.com", projectId:"trading-journal-914c4", storageBucket:"trading-journal-914c4.firebasestorage.app", messagingSenderId:"504948935584", appId:"1:504948935584:web:dbf3c74177c07941785f7c", measurementId:"G-1234567890" };
-    
-    // --- CONSTANTS ---
-    const DERIV_APP_ID = 123621;
-    const ADMIN_PASSCODE = '#skillmindset#';
-    
-    // --- INIT ---
-    const app = initializeApp(firebaseConfig);
-    getAnalytics(app);
-    const db = getFirestore(app);
-    const auth = getAuth(app);
-
-    // --- VARIABLES ---
-    let currentUserDocId = null;
-    let selectedStudentId = null;
-    let ws = null; // Main Deriv WS (Account)
-    let mktWs = null; // Ticker WS
-    let sparkWs = null; // Mini Chart WS
-    let chartWs = null; // MAIN CHART WS
-    let authMode = null;
-    let isAdminVerified = false;
-    let hasAdminClaim = false;
-    let marketData = [];
-    let myTrades = [];
-    let journalTab = 'active';
-    let livePrices = [];
-    let derivActive = new Map();
-    let chartInstance = null;
-    let candleSeries = null;
-    let currentChartSymbol = '';
-    let trailingSettings = {};
-
-    // --- UTILS ---
-    function notify(msg, type='info'){
-        const div = document.createElement('div');
-        div.className = `fixed top-4 right-4 z-[300] px-6 py-3 rounded-xl shadow-2xl font-bold text-xs uppercase tracking-wider animate-bounce ${type==='error'?'bg-red-600 text-white':'bg-slate-800 text-white border border-slate-700'}`;
-        div.innerText = msg;
-        document.body.appendChild(div);
-        setTimeout(()=>div.remove(), 3000);
-    }
-
-    function setTab(tabName) {
-        document.querySelectorAll('.section').forEach(el => el.classList.remove('active'));
-        const target = document.getElementById(tabName);
-        if(target) target.classList.add('active');
-        
-        // Update Nav State
-        document.querySelectorAll('nav button').forEach(btn => {
-            if(btn.dataset.tab === tabName) btn.classList.add('bg-blue-600', 'text-white');
-            else {
-                btn.classList.remove('bg-blue-600', 'text-white');
-                if(btn.dataset.tab === 'admin') btn.classList.add('text-red-400');
-                else btn.classList.add('text-white');
-            }
-        });
-    }
-
-    // --- EVENT LISTENERS ---
-    window.addEventListener('DOMContentLoaded', () => {
-      if(window.lucide) window.lucide.createIcons();
-      initActiveSymbols();
-
-      // Auth UI Toggles
-      const showAuthForm = (mode) => {
-        authMode = mode;
-        document.getElementById('landing-options').classList.add('hidden');
-        document.getElementById('auth-forms').classList.remove('hidden');
-        document.getElementById('authForm').classList.toggle('hidden', mode==='admin');
-        document.getElementById('adminForm').classList.toggle('hidden', mode!=='admin');
-        document.getElementById('auth-title').innerText = mode==='login'?'Student Login':mode==='register'?'New Student':'Mentor Access';
-        const forgotBtn = document.getElementById('forgotPasswordLink');
-        if(forgotBtn) forgotBtn.classList.toggle('hidden', mode!=='login');
-      };
-
-      document.getElementById('btn-show-login').onclick = () => showAuthForm('login');
-      document.getElementById('btn-show-register').onclick = () => showAuthForm('register');
-      document.getElementById('btn-show-admin').onclick = () => showAuthForm('admin');
-      document.getElementById('btn-back-auth').onclick = () => {
-        document.getElementById('landing-options').classList.remove('hidden');
-        document.getElementById('auth-forms').classList.add('hidden');
-      };
-
-      // Auth Actions
-      document.getElementById('authForm').onsubmit = async (e) => {
-        e.preventDefault();
-        const email = document.getElementById('email').value.trim();
-        const password = document.getElementById('password').value.trim();
-        try {
-          if(authMode === 'login') {
-            await signInWithEmailAndPassword(auth, email, password);
-          } else if(authMode === 'register') {
-            const res = await createUserWithEmailAndPassword(auth, email, password);
-            await setDoc(doc(db, 'users', res.user.uid), { email, createdAt: serverTimestamp() }, { merge: true });
-          }
-        } catch(err) { notify(err.message, 'error'); }
-      };
-
-      document.getElementById('adminForm').onsubmit = async (e) => {
-        e.preventDefault();
-        const pass = document.getElementById('adminPasscode').value.trim();
-        if(pass === ADMIN_PASSCODE) {
-          isAdminVerified = true;
-          const u = auth.currentUser;
-          if(u) {
-             await setDoc(doc(db, 'users', u.uid), { role: 'mentor' }, { merge: true });
-             hasAdminClaim = true;
-          }
-          updateAdminNavVisibility();
-          document.getElementById('authContainer').classList.add('hidden');
-          setTab('admin');
-          loadStudents();
-          notify('Mentor access granted', 'success');
-        } else {
-          notify('Invalid mentor passcode', 'error');
-        }
-      };
-      
-      document.getElementById('signOutBtn').onclick = async () => {
-          await signOut(auth);
-          isAdminVerified = false;
-          window.location.reload();
-      };
-      
-      document.getElementById('btn-logout').onclick = async () => {
-          await signOut(auth);
-          isAdminVerified = false;
-          window.location.reload();
-      };
-
-      // Nav
-      document.querySelectorAll('nav button').forEach(btn => {
-          btn.onclick = () => setTab(btn.dataset.tab);
-      });
-
-      // Features
-      document.getElementById('addTrade').onclick = addTrade;
-      document.getElementById('btn-toggle-chart').onclick = toggleChart;
-      document.getElementById('btn-close-chart').onclick = toggleChart;
-      document.getElementById('btn-export-csv').onclick = exportCSV;
-      
-      document.getElementById('refreshStudents').onclick = loadStudents;
-      document.getElementById('publishLeaderboard').onclick = publishLeaderboard;
-
-      // Auth State Observer
-      onAuthStateChanged(auth, user => {
-        if(user) {
-          currentUserDocId = user.uid;
-          document.getElementById('authContainer').classList.add('hidden');
-          document.getElementById('appContent').classList.remove('hidden');
-          document.getElementById('currentUserEmail').innerText = user.email;
-          document.getElementById('currentUserId').innerText = `ID: ${user.uid.slice(0,6)}`;
-          
-          // Check Admin
-          getDoc(doc(db, 'users', user.uid)).then(snap => {
-              if(snap.exists() && snap.data().role === 'mentor') {
-                  hasAdminClaim = true;
-                  updateAdminNavVisibility();
-              }
-          });
-
-          // Load Data
-          loadMyTrades();
-          loadJournalLeaderboard();
-          loadJournalFeedback();
-
-          // Realtime Trades
-          onSnapshot(query(collection(db, 'users', user.uid, 'trades'), orderBy('openTime', 'desc')), snap => {
-             myTrades = snap.docs.map(d => ({id: d.id, ...d.data()}));
-             if(journalTab === 'active') renderActiveTrades();
-             if(journalTab === 'history') renderClosedHistory();
-             drawEquityCurve(myTrades.filter(t => t.status === 'closed'));
-             
-             // Update Metrics
-             const closed = myTrades.filter(t => t.status === 'closed');
-             const totalPnl = closed.reduce((a,t) => a + (t.pnl||0), 0);
-             const wins = closed.filter(t => (t.pnl||0) > 0).length;
-             const winRate = closed.length > 0 ? ((wins / closed.length) * 100).toFixed(0) : 0;
-             const activeCount = myTrades.filter(t => t.status === 'open' || t.status === 'running').length;
-             
-             document.getElementById('totalPnl').innerText = `$${totalPnl.toFixed(2)}`;
-             document.getElementById('totalPnl').className = `text-2xl font-black font-mono mt-1 ${totalPnl>=0?'profit-text':'loss-text'}`;
-             document.getElementById('winRate').innerText = `${winRate}%`;
-             document.getElementById('activeCount').innerText = activeCount;
-          });
-
-        } else {
-          document.getElementById('authContainer').classList.remove('hidden');
-          document.getElementById('appContent').classList.add('hidden');
-        }
-      });
-    });
-
-    function updateAdminNavVisibility() {
-        const btn = document.querySelector('nav button[data-tab="admin"]');
-        if(btn) btn.classList.toggle('hidden', !(isAdminVerified || hasAdminClaim));
-    }
-
-    // --- ADMIN LOGIC ---
-    function loadStudents() {
-        const list = document.getElementById('studentList');
-        list.innerHTML = '<p class="text-center text-slate-500 text-xs mt-4">Loading...</p>';
-        getDocs(collection(db, 'users')).then(snap => {
-            if(snap.empty) { list.innerHTML = '<p class="text-center text-slate-500 text-xs mt-4">No students found.</p>'; return; }
-            list.innerHTML = snap.docs.map(docItem => {
-                const data = docItem.data();
-                const email = data.email || 'Unknown';
-                const color = 'bg-blue-600'; 
-                return `
-                <div onclick="window.selectStudent('${docItem.id}', '${email}')" class="p-3 rounded-lg hover:bg-slate-800 cursor-pointer transition-colors border border-transparent hover:border-slate-700 group flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-full ${color} flex items-center justify-center text-xs font-bold text-white shadow-lg shrink-0">${email.substring(0,2).toUpperCase()}</div>
-                    <div class="overflow-hidden">
-                        <p class="text-xs font-bold text-slate-300 truncate group-hover:text-white transition-colors">${email}</p>
-                        <p class="text-[10px] text-slate-500 truncate font-mono">ID: ${docItem.id.slice(0,6)}</p>
+            <form id="tradeForm" class="p-6 space-y-5" novalidate>
+                <div>
+                    <label for="f-instrument" class="block text-[10px] font-bold text-slate-500 uppercase mb-2">Asset Selection</label>
+                    <div class="relative">
+                        <select id="f-instrument" name="instrument" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white font-bold outline-none focus:border-blue-500 appearance-none"></select>
+                        <i data-lucide="chevron-down" class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none"></i>
                     </div>
-                </div>`;
-            }).join('');
-        });
-    }
+                </div>
 
-    window.selectStudent = function(uid, email) {
-        selectedStudentId = uid;
-        // Show sections
-        document.getElementById('studentHeader').classList.remove('hidden');
-        document.getElementById('adminTradesContainer').classList.remove('hidden');
-        document.getElementById('feedbackSection').classList.remove('hidden');
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-2">Direction</label>
+                        <div class="flex bg-slate-950 p-1.5 rounded-xl border border-slate-800">
+                            <button type="button" onclick="setSide('buy')" id="btn-buy" class="flex-1 py-2.5 rounded-lg text-[10px] font-black uppercase bg-green-600 text-white shadow-lg">BUY</button>
+                            <button type="button" onclick="setSide('sell')" id="btn-sell" class="flex-1 py-2.5 rounded-lg text-[10px] font-black uppercase text-slate-500">SELL</button>
+                        </div>
+                    </div>
+                    <div>
+                        <label for="f-lots" class="block text-[10px] font-bold text-slate-500 uppercase mb-2">Lot Size</label>
+                        <input type="number" step="0.01" id="f-lots" name="lots" placeholder="0.01" required class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white font-bold outline-none focus:border-blue-500">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label for="f-entry" class="block text-[10px] font-bold text-slate-500 uppercase mb-2">Entry Price</label>
+                        <input type="number" step="any" id="f-entry" name="entryPrice" placeholder="0.0000" required class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white font-mono outline-none focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label for="f-sl" class="block text-[10px] font-bold text-slate-500 uppercase mb-2">Stop Loss</label>
+                        <input type="number" step="any" id="f-sl" name="stopLoss" placeholder="0.0000" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white font-mono outline-none focus:border-red-500">
+                    </div>
+                </div>
+
+                <div>
+                    <label for="f-setup" class="block text-[10px] font-bold text-slate-500 uppercase mb-2">Setup / Strategy</label>
+                    <input type="text" id="f-setup" name="setup" placeholder="e.g. Break and Retest" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white text-sm outline-none focus:border-blue-500">
+                </div>
+
+                <button type="submit" class="w-full btn-primary py-4 rounded-xl font-bold text-sm uppercase tracking-wider shadow-lg shadow-blue-900/20">
+                    Execute Trade
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit/Close Modal -->
+    <div id="editModal" class="modal fixed inset-0 z-[100] items-center justify-center p-4 bg-slate-950/90 backdrop-blur-md hidden" role="dialog" aria-modal="true">
+        <div class="glass w-full max-w-sm rounded-2xl overflow-hidden shadow-2xl border border-slate-700">
+            <div class="p-5 border-b border-slate-800 flex justify-between items-center bg-slate-900/50">
+                <h3 class="text-sm font-bold text-white uppercase tracking-wider">Manage Trade</h3>
+                <button onclick="closeEditModal()" class="text-slate-500 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div class="p-6 space-y-4">
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-500 uppercase mb-2">Close Price</label>
+                    <input type="number" step="any" id="e-closePrice" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white font-mono outline-none focus:border-blue-500">
+                </div>
+                <button onclick="confirmCloseTrade()" class="w-full py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-bold text-xs uppercase tracking-wider">
+                    Close Position
+                </button>
+                <div class="pt-4 border-t border-slate-800">
+                    <button onclick="deleteTrade()" class="w-full py-3 bg-red-900/20 hover:bg-red-900/40 text-red-500 border border-red-900/30 rounded-xl font-bold text-xs uppercase tracking-wider">
+                        Delete Record
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- CONFIGURATION ---
+        const ADMIN_PASSCODE = '#skillmindset#';
         
-        // Update Info
-        document.getElementById('studentEmail').innerText = email;
-        document.getElementById('studentId').innerText = uid;
-        
-        // Load Data
-        loadStudentTrades(uid);
-        loadStudentComments(uid);
-    };
-
-    function loadStudentTrades(uid) {
-        onSnapshot(query(collection(db, 'users', uid, 'trades'), orderBy('openTime', 'desc')), snap => {
-            const trades = snap.docs.map(d => d.data());
-            const totalPnl = trades.reduce((a,t) => a + (t.status==='closed'?(t.pnl||0):0), 0);
-            
-            const pnlEl = document.getElementById('adminTotalPnl');
-            pnlEl.innerText = `$${totalPnl.toFixed(2)}`;
-            pnlEl.className = `text-2xl font-black font-mono text-white ${totalPnl>=0?'profit-text':'loss-text'}`;
-            
-            const tbody = document.getElementById('adminTradeTable');
-            if(trades.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" class="p-8 text-center text-slate-500 text-sm">No trades found.</td></tr>';
-            } else {
-                tbody.innerHTML = trades.map(t => `
-                    <tr class="hover:bg-slate-800/30 border-b border-slate-800/50">
-                        <td class="p-4 text-xs text-slate-400">${t.openTime && t.openTime.seconds ? new Date(t.openTime.seconds*1000).toLocaleDateString() : '-'}</td>
-                        <td class="p-4 text-xs font-bold text-white">${t.instrument}</td>
-                        <td class="p-4"><span class="px-2 py-0.5 rounded text-[9px] font-black uppercase ${t.type==='buy'?'bg-green-500/20 text-green-400':'bg-red-500/20 text-red-400'}">${t.type}</span></td>
-                        <td class="p-4 text-xs font-mono text-slate-400">${t.lots||0}</td>
-                        <td class="p-4 text-xs font-mono font-bold ${t.pnl>=0?'profit-text':'loss-text'}">$${(t.pnl||0).toFixed(2)}</td>
-                        <td class="p-4 text-[10px] uppercase font-bold text-slate-500">${t.status}</td>
-                    </tr>
-                `).join('');
-            }
-        });
-    }
-
-    function loadStudentComments(uid) {
-        const list = document.getElementById('commentsList');
-        onSnapshot(query(collection(db, 'users', uid, 'comments'), orderBy('createdAt', 'desc')), snap => {
-            if(snap.empty) { list.innerHTML = '<p class="text-xs text-slate-500 italic">No feedback yet.</p>'; return; }
-            list.innerHTML = snap.docs.map(docItem => {
-                const c = docItem.data();
-                return `
-                <div class="bg-slate-900/50 p-3 rounded-lg border border-slate-800">
-                    <p class="text-xs text-slate-300">${c.text}</p>
-                    <p class="text-[9px] text-slate-600 mt-1 text-right">${c.createdAt && c.createdAt.seconds ? new Date(c.createdAt.seconds*1000).toLocaleString() : ''}</p>
-                </div>`;
-            }).join('');
-        });
-
-        // Setup Form
-        const form = document.getElementById('commentForm');
-        form.onsubmit = async (e) => {
-            e.preventDefault();
-            const input = document.getElementById('commentInput');
-            const text = input.value.trim();
-            if(!text || !selectedStudentId) return;
-            
-            await addDoc(collection(db, 'users', selectedStudentId, 'comments'), {
-                text, createdAt: serverTimestamp(), author: 'Admin'
-            });
-            input.value = '';
-            notify('Feedback sent', 'success');
+        // Use the Config provided in previous file
+        const firebaseConfig = {
+            apiKey: "AIzaSyA28jc1OxMfc33m7rk8fCrfgmnw_uLzc50",
+            authDomain: "trading-journal-914c4.firebaseapp.com",
+            projectId: "trading-journal-914c4",
+            storageBucket: "trading-journal-914c4.firebasestorage.app",
+            messagingSenderId: "504948935584",
+            appId: "1:504948935584:web:dbf3c74177c07941785f7c",
+            measurementId: "G-1234567890"
         };
-    }
 
-    // --- STUDENT LOGIC ---
-    function addTrade() {
-        if(!currentUserDocId) { notify('Login first', 'error'); return; }
-        const instrument = document.getElementById('tradeInstrument').value.trim();
-        const type = document.getElementById('tradeType').value;
-        const lots = parseFloat(document.getElementById('tradeLots').value || '0');
-        const pnl = parseFloat(document.getElementById('tradePnl').value || '0');
-        const status = document.getElementById('tradeStatus').value;
-        
-        if(!instrument) { notify('Enter instrument', 'error'); return; }
-        
-        addDoc(collection(db, 'users', currentUserDocId, 'trades'), {
-            instrument, type, lots, pnl, status, openTime: serverTimestamp()
-        }).then(() => {
-            document.getElementById('tradeInstrument').value = '';
-            document.getElementById('tradeLots').value = '';
-            document.getElementById('tradePnl').value = '';
-            notify('Trade added', 'success');
-        }).catch(e => notify(e.message, 'error'));
-    }
+        // --- APP LOGIC ---
+        let db, auth;
+        let marketData = [];
+        let trades = [];
+        let tradeSide = 'buy';
+        let currentTab = 'active';
+        let currentEditTradeId = null;
+        let derivWS = null;
+        let reconnectAttempts = 0;
+        let selectedStudentId = null; // For Admin
+        let currentChartSymbol = null;
+        let tvWidget = null;
 
-    function loadMyTrades() {
-        if(!currentUserDocId) return;
-        // This is handled by the onSnapshot in onAuthStateChanged
-    }
-
-    // --- LEADERBOARD LOGIC ---
-    async function publishLeaderboard() {
-        if(!isAdminVerified && !hasAdminClaim) { notify('Admin only', 'error'); return; }
-        
-        const usersSnap = await getDocs(collection(db, 'users'));
-        const entries = [];
-        
-        for(const uDoc of usersSnap.docs) {
-            const uid = uDoc.id;
-            const email = uDoc.data().email || 'Unknown';
-            const tradesSnap = await getDocs(collection(db, 'users', uid, 'trades'));
-            let total = 0;
-            tradesSnap.forEach(t => {
-                if(t.data().status === 'closed') total += (t.data().pnl || 0);
-            });
-            entries.push({ uid, email, totalPnl: total });
+        // Init Firebase
+        try {
+            if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+            db = firebase.firestore();
+            auth = firebase.auth();
+        } catch (e) {
+            console.error('Firebase Error:', e);
         }
-        
-        entries.sort((a,b) => b.totalPnl - a.totalPnl);
-        
-        await setDoc(doc(db, 'leaderboard', 'current'), { entries, publishedAt: serverTimestamp() }, { merge: true });
-        notify('Leaderboard published!', 'success');
-        loadJournalLeaderboard(); // refresh local view
-    }
 
-    async function loadJournalLeaderboard() {
-        const tbody = document.getElementById('leaderboardContent');
-        const snap = await getDoc(doc(db, 'leaderboard', 'current'));
-        
-        if(snap.exists() && snap.data().entries) {
-            const entries = snap.data().entries;
-            if(entries.length === 0) { tbody.innerHTML = '<tr><td class="p-4 text-center text-slate-500 text-xs">No entries.</td></tr>'; return; }
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('App Initializing...');
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+
+            setupUIListeners();
+            setupAuthListeners();
+            initDerivConnection();
+
+            // Network handling
+            window.addEventListener('online', () => {
+                showNotification('Network connected.', 'success');
+                initDerivConnection();
+            });
+            window.addEventListener('offline', () => showNotification('Network lost.', 'error'));
+        });
+
+        function setupUIListeners() {
+            // Auth Buttons
+            const bind = (id, fn) => { const el = document.getElementById(id); if(el) el.addEventListener('click', fn); };
             
-            tbody.innerHTML = entries.map((e, i) => `
-                <tr class="hover:bg-slate-800/30 border-b border-slate-800/50">
-                    <td class="p-4 text-xs font-mono text-slate-400">${i+1}</td>
-                    <td class="p-4 text-xs font-bold text-white">${e.email}</td>
-                    <td class="p-4 text-xs font-mono font-bold ${e.totalPnl>=0?'profit-text':'loss-text'}">$${e.totalPnl.toFixed(2)}</td>
+            bind('btn-show-login', () => showAuthForm('login'));
+            bind('btn-show-register', () => showAuthForm('register'));
+            bind('btn-show-admin', () => showAuthForm('admin'));
+            bind('btn-back-auth', resetAuthView);
+            
+            // Forms
+            document.getElementById('authForm').onsubmit = handleStudentAuth;
+            document.getElementById('adminForm').onsubmit = handleAdminAuth;
+            document.getElementById('tradeForm').onsubmit = handleTradeSubmit;
+            
+            // App Buttons
+            bind('btn-logout', logout);
+            bind('btn-admin-logout', logout); // Reuse logout for admin
+            bind('btn-new-trade', openModal);
+            bind('tradeModalClose', closeModal);
+            bind('btn-toggle-chart', toggleChart);
+            bind('btn-close-chart', toggleChart);
+            bind('btn-export-csv', exportCSV);
+
+            // Filters
+            ['filterInstrument', 'filterSide', 'filterTag', 'filterFrom', 'filterTo'].forEach(id => {
+                const el = document.getElementById(id);
+                if(el) {
+                    el.addEventListener('input', renderHistory);
+                    el.addEventListener('change', renderHistory);
+                }
+            });
+
+            // Admin Feedback
+            document.getElementById('commentForm').onsubmit = handleAdminComment;
+        }
+
+        // --- AUTH ---
+        function setupAuthListeners() {
+            auth.onAuthStateChanged(user => {
+                if (user) {
+                    console.log('User:', user.email);
+                    document.getElementById('authContainer').classList.add('hidden');
+                    
+                    // Note: Admin check is usually server-side or via claims, but here we assume 
+                    // if they passed the admin passcode check in handleAdminAuth, they are in "Admin Mode" UI.
+                    // However, auth state change triggers on page load too. 
+                    // Simple logic: If normal login, show Student App. If Admin, show Admin App.
+                    // But on refresh, how do we know? 
+                    // For now, default to Student App on refresh unless we store a flag.
+                    // Better: We'll default to Student App. Admin must re-enter code (security).
+                    
+                    document.getElementById('studentApp').classList.remove('hidden');
+                    loadUserTrades(user.uid);
+                    loadLeaderboard();
+                    loadFeedback();
+                    
+                    // Update user record
+                    db.collection('users').doc(user.uid).set({
+                        email: user.email,
+                        lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+                    }, { merge: true });
+
+                } else {
+                    document.getElementById('authContainer').classList.remove('hidden');
+                    document.getElementById('studentApp').classList.add('hidden');
+                    document.getElementById('adminApp').classList.add('hidden');
+                    resetAuthView();
+                }
+            });
+        }
+
+        function showAuthForm(type) {
+            document.getElementById('landing-options').classList.add('hidden');
+            document.getElementById('auth-forms').classList.remove('hidden');
+            document.getElementById('authForm').classList.add('hidden');
+            document.getElementById('adminForm').classList.add('hidden');
+            
+            if (type === 'admin') {
+                document.getElementById('adminForm').classList.remove('hidden');
+                document.getElementById('auth-title').innerText = 'Mentor Access';
+            } else {
+                document.getElementById('authForm').classList.remove('hidden');
+                document.getElementById('authForm').dataset.mode = type;
+                document.getElementById('auth-title').innerText = type === 'register' ? 'Student Registration' : 'Student Login';
+                document.getElementById('btn-auth-action').innerText = type === 'register' ? 'Create Account' : 'Access Journal';
+            }
+        }
+
+        function resetAuthView() {
+            document.getElementById('landing-options').classList.remove('hidden');
+            document.getElementById('auth-forms').classList.add('hidden');
+            document.getElementById('authForm').reset();
+            document.getElementById('adminForm').reset();
+        }
+
+        async function handleStudentAuth(e) {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const mode = e.target.dataset.mode;
+
+            try {
+                if (mode === 'register') {
+                    await auth.createUserWithEmailAndPassword(email, password);
+                    showNotification('Account created!', 'success');
+                } else {
+                    await auth.signInWithEmailAndPassword(email, password);
+                    showNotification('Welcome back!', 'success');
+                }
+            } catch (err) {
+                showNotification(err.message, 'error');
+            }
+        }
+
+        function handleAdminAuth(e) {
+            e.preventDefault();
+            const code = document.getElementById('adminPasscode').value;
+            if (code === ADMIN_PASSCODE) {
+                document.getElementById('authContainer').classList.add('hidden');
+                document.getElementById('studentApp').classList.add('hidden');
+                document.getElementById('adminApp').classList.remove('hidden');
+                loadStudents(); // Admin Init
+            } else {
+                showNotification('Invalid Passcode', 'error');
+            }
+        }
+
+        function logout() {
+            auth.signOut().then(() => {
+                showNotification('Logged out', 'success');
+                // UI reset handled by onAuthStateChanged
+            });
+        }
+
+        // --- DATA & FIRESTORE ---
+        function loadUserTrades(uid) {
+            db.collection('users').doc(uid).collection('trades')
+              .orderBy('openTime', 'desc')
+              .onSnapshot(snap => {
+                  trades = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                  updateStats();
+                  renderActiveTrades();
+                  renderHistory();
+              });
+        }
+
+        async function handleTradeSubmit(e) {
+            e.preventDefault();
+            const user = auth.currentUser;
+            if (!user) return;
+
+            const f = e.target;
+            const trade = {
+                instrument: f.instrument.value,
+                type: tradeSide,
+                lots: parseFloat(f.lots.value),
+                entryPrice: parseFloat(f.entryPrice.value),
+                stopLoss: f.stopLoss.value ? parseFloat(f.stopLoss.value) : null,
+                setup: f.setup.value,
+                openTime: firebase.firestore.FieldValue.serverTimestamp(),
+                status: 'open',
+                pnl: 0
+            };
+
+            try {
+                await db.collection('users').doc(user.uid).collection('trades').add(trade);
+                showNotification('Trade executed', 'success');
+                closeModal();
+                f.reset();
+            } catch (err) {
+                showNotification(err.message, 'error');
+            }
+        }
+
+        async function confirmCloseTrade() {
+            if (!currentEditTradeId) return;
+            const closePrice = parseFloat(document.getElementById('e-closePrice').value);
+            const user = auth.currentUser;
+            
+            // Calculate PnL locally for speed, but ideally server-side
+            const t = trades.find(tr => tr.id === currentEditTradeId);
+            if (!t) return;
+            
+            let pnl = 0;
+            if (t.type === 'buy') pnl = (closePrice - t.entryPrice) * t.lots * 10; // Simplified
+            else pnl = (t.entryPrice - closePrice) * t.lots * 10;
+
+            // Adjust multiplier based on asset type logic if needed (Forex vs Indices)
+            // For now, using simple multiplier. In production, need Pip Value logic.
+            // Using a generic multiplier for demo:
+            const multiplier = t.instrument.includes('Vol') ? 1 : 10; 
+            if (t.type === 'buy') pnl = (closePrice - t.entryPrice) * t.lots * multiplier;
+            else pnl = (t.entryPrice - closePrice) * t.lots * multiplier;
+
+            await db.collection('users').doc(user.uid).collection('trades').doc(currentEditTradeId).update({
+                status: 'closed',
+                closePrice: closePrice,
+                closeTime: firebase.firestore.FieldValue.serverTimestamp(),
+                pnl: pnl
+            });
+            
+            closeEditModal();
+            showNotification('Trade closed', 'success');
+        }
+
+        async function deleteTrade() {
+            if (!currentEditTradeId || !confirm('Delete this trade record?')) return;
+            await db.collection('users').doc(auth.currentUser.uid).collection('trades').doc(currentEditTradeId).delete();
+            closeEditModal();
+            showNotification('Trade deleted', 'success');
+        }
+
+        // --- DERIV WEBSOCKET ---
+        function initDerivConnection() {
+            if (derivWS && derivWS.readyState === 1) return;
+            
+            console.log('Connecting to Deriv...');
+            derivWS = new WebSocket('wss://ws.binaryws.com/websockets/v3?app_id=1089');
+            
+            derivWS.onopen = () => {
+                console.log('Deriv Connected');
+                setConnectionStatus(true);
+                derivWS.send(JSON.stringify({ active_symbols: "brief", product_type: "basic" }));
+                setInterval(() => { if(derivWS.readyState===1) derivWS.send(JSON.stringify({ ping: 1 })); }, 30000);
+            };
+
+            derivWS.onmessage = (msg) => {
+                const data = JSON.parse(msg.data);
+                if (data.msg_type === 'active_symbols') {
+                    marketData = data.active_symbols.map(s => ({
+                        symbol: s.display_name,
+                        deriv: s.symbol,
+                        market: s.market_display_name,
+                        price: 0
+                    }));
+                    populateInstruments();
+                    // Subscribe to top assets
+                    const ticks = marketData.slice(0, 50).map(m => m.deriv);
+                    derivWS.send(JSON.stringify({ ticks: ticks }));
+                } else if (data.msg_type === 'tick') {
+                    updatePrice(data.tick);
+                }
+            };
+
+            derivWS.onclose = () => {
+                setConnectionStatus(false);
+                setTimeout(initDerivConnection, 5000);
+            };
+        }
+
+        function updatePrice(tick) {
+            const m = marketData.find(x => x.deriv === tick.symbol);
+            if (m) {
+                m.price = tick.quote;
+                // Update live PnL for active trades
+                trades.forEach(t => {
+                    if (t.status === 'open' && t.instrument === m.symbol) {
+                        // Calc floating PnL logic here for UI updates if needed
+                    }
+                });
+                renderTicker(); // Throttle this in prod
+            }
+        }
+
+        function setConnectionStatus(online) {
+            const el = document.getElementById('connectionStatus');
+            if (online) {
+                el.className = "flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900 border border-slate-800 text-xs";
+                el.innerHTML = '<div class="live-indicator"></div><span class="text-slate-400 font-medium">LIVE DATA</span>';
+            } else {
+                el.className = "flex items-center gap-2 px-3 py-1.5 rounded-full bg-red-900/20 border border-red-900/50 text-xs";
+                el.innerHTML = '<div class="w-2 h-2 rounded-full bg-red-500"></div><span class="text-red-400 font-medium">OFFLINE</span>';
+            }
+        }
+
+        function populateInstruments() {
+            const s = document.getElementById('f-instrument');
+            const groups = {};
+            marketData.forEach(m => {
+                if (!groups[m.market]) groups[m.market] = [];
+                groups[m.market].push(m);
+            });
+            s.innerHTML = Object.keys(groups).sort().map(cat => `
+                <optgroup label="${cat}">
+                    ${groups[cat].map(m => `<option value="${m.symbol}">${m.symbol}</option>`).join('')}
+                </optgroup>
+            `).join('');
+            
+            // Pre-select first
+            if(marketData.length > 0) {
+                 // Trigger change if needed
+            }
+            
+            s.addEventListener('change', () => {
+                 const m = marketData.find(x => x.symbol === s.value);
+                 if(m && m.price) document.getElementById('f-entry').value = m.price;
+            });
+        }
+
+        function renderTicker() {
+            const c = document.getElementById('tickerContainer');
+            // Simple render of top movers or just random selection for demo
+            // In real app, optimize this to not re-render DOM on every tick
+            if (c.childElementCount === 0) {
+                c.innerHTML = marketData.slice(0, 10).map(m => `
+                    <div class="flex-shrink-0 px-3 py-1.5 bg-slate-900 rounded-lg border border-slate-800 flex items-center gap-2 min-w-[120px]">
+                        <span class="text-[10px] font-bold text-slate-400">${m.symbol}</span>
+                        <span class="text-xs font-mono font-bold text-white" id="price-${m.deriv}">${m.price}</span>
+                    </div>
+                `).join('');
+            } else {
+                marketData.slice(0, 10).forEach(m => {
+                    const el = document.getElementById(`price-${m.deriv}`);
+                    if(el) el.innerText = m.price;
+                });
+            }
+        }
+
+        // --- UI HELPERS ---
+        function switchTab(tab) {
+            currentTab = tab;
+            ['active', 'history', 'leaderboard', 'feedback'].forEach(t => {
+                const b = document.getElementById(`tab-${t}`);
+                if (t === tab) b.className = "px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all bg-slate-800 text-blue-400 shadow-lg border border-slate-700";
+                else b.className = "px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all text-slate-500 hover:text-slate-300";
+            });
+
+            document.getElementById('activeTradesList').classList.add('hidden');
+            document.getElementById('historyList').classList.add('hidden');
+            document.getElementById('leaderboardList').classList.add('hidden');
+            document.getElementById('feedbackList').classList.add('hidden');
+
+            if (tab === 'active') {
+                document.getElementById('activeTradesList').classList.remove('hidden');
+                renderActiveTrades();
+            } else if (tab === 'history') {
+                document.getElementById('historyList').classList.remove('hidden');
+                renderHistory();
+            } else if (tab === 'leaderboard') {
+                document.getElementById('leaderboardList').classList.remove('hidden');
+            } else if (tab === 'feedback') {
+                document.getElementById('feedbackList').classList.remove('hidden');
+            }
+        }
+
+        function renderActiveTrades() {
+            const list = document.getElementById('activeTradesList');
+            const active = trades.filter(t => t.status === 'open');
+            document.getElementById('activeCount').innerText = active.length;
+            
+            if (active.length === 0) {
+                list.innerHTML = '<div class="col-span-full text-center p-10 text-slate-500 text-sm">No active trades running.</div>';
+                return;
+            }
+
+            list.innerHTML = active.map(t => `
+                <div class="glass p-5 rounded-2xl border-l-4 ${t.type === 'buy' ? 'border-green-500' : 'border-red-500'} hover:bg-slate-900/60 transition-colors cursor-pointer" onclick="openEdit('${t.id}')">
+                    <div class="flex justify-between items-start mb-3">
+                        <div>
+                            <h3 class="font-bold text-white">${t.instrument}</h3>
+                            <span class="text-[10px] font-black uppercase ${t.type === 'buy' ? 'text-green-400 bg-green-500/10' : 'text-red-400 bg-red-500/10'} px-2 py-0.5 rounded">${t.type}</span>
+                        </div>
+                        <span class="text-xs font-mono text-slate-400">#${t.id.slice(0,4)}</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 text-xs text-slate-400 mb-3">
+                        <div>Entry: <span class="text-white font-mono">${t.entryPrice}</span></div>
+                        <div>Lots: <span class="text-white font-mono">${t.lots}</span></div>
+                    </div>
+                    <div class="flex justify-between items-center pt-3 border-t border-slate-800">
+                        <span class="text-[10px] uppercase font-bold text-slate-500">Running PnL</span>
+                        <span class="font-mono font-bold text-sm text-white">...</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderHistory() {
+            const tbody = document.getElementById('historyTableBody');
+            const history = trades.filter(t => t.status === 'closed');
+            
+            // Filter logic
+            const fInst = document.getElementById('filterInstrument').value.toLowerCase();
+            const fSide = document.getElementById('filterSide').value;
+            // Add more filter logic here
+            
+            const filtered = history.filter(t => 
+                (!fInst || t.instrument.toLowerCase().includes(fInst)) &&
+                (!fSide || t.type === fSide)
+            );
+
+            tbody.innerHTML = filtered.map(t => `
+                <tr class="hover:bg-slate-800/30 border-b border-slate-800/50 transition-colors">
+                    <td class="p-4">
+                        <div class="font-bold text-xs text-white">${t.instrument}</div>
+                        <div class="text-[10px] text-slate-500">${new Date(t.openTime.seconds*1000).toLocaleDateString()}</div>
+                    </td>
+                    <td class="p-4"><span class="px-2 py-0.5 rounded text-[9px] font-black uppercase ${t.type === 'buy' ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}">${t.type}</span></td>
+                    <td class="p-4 text-xs font-mono text-slate-400">${t.lots}</td>
+                    <td class="p-4">
+                        <div class="text-[10px] text-slate-400">In: ${t.entryPrice}</div>
+                        <div class="text-[10px] text-slate-400">Out: ${t.closePrice}</div>
+                    </td>
+                    <td class="p-4 text-xs font-mono text-slate-500">-</td>
+                    <td class="p-4 text-xs font-mono font-bold ${t.pnl >= 0 ? 'profit-text' : 'loss-text'} text-right">$${t.pnl.toFixed(2)}</td>
+                    <td class="p-4 text-right">
+                         <button class="text-slate-600 hover:text-white"><i data-lucide="more-horizontal" class="w-4 h-4"></i></button>
+                    </td>
                 </tr>
             `).join('');
-        } else {
-            tbody.innerHTML = '<tr><td class="p-4 text-center text-slate-500 text-xs">Leaderboard not published yet.</td></tr>';
+            
+            lucide.createIcons();
         }
-    }
 
-    function loadJournalFeedback() {
-        if(!currentUserDocId) return;
-        const container = document.getElementById('feedbackContent');
-        onSnapshot(query(collection(db, 'users', currentUserDocId, 'comments'), orderBy('createdAt', 'desc')), snap => {
-            if(snap.empty) { container.innerHTML = '<p class="text-center text-slate-500 text-xs">No feedback yet.</p>'; return; }
-            container.innerHTML = snap.docs.map(d => {
-                const c = d.data();
-                return `
-                <div class="bg-slate-900/50 p-4 rounded-2xl border border-slate-800 relative mb-3">
-                    <div class="absolute top-4 right-4 text-[9px] text-slate-600 font-mono">${c.createdAt ? new Date(c.createdAt.seconds*1000).toLocaleDateString() : 'Just now'}</div>
-                    <div class="flex items-start gap-3">
-                        <div class="bg-blue-900/30 p-2 rounded-lg"><i data-lucide="user-check" class="w-4 h-4 text-blue-400"></i></div>
-                        <div><h4 class="text-xs font-bold text-blue-200 mb-1">Mentor Feedback</h4><p class="text-sm text-slate-300 leading-relaxed">${c.text}</p></div>
-                    </div>
-                </div>`;
-            }).join('');
-        });
-    }
+        function updateStats() {
+            const closed = trades.filter(t => t.status === 'closed');
+            const totalPnl = closed.reduce((acc, t) => acc + t.pnl, 0);
+            const wins = closed.filter(t => t.pnl > 0).length;
+            const winRate = closed.length ? Math.round((wins / closed.length) * 100) : 0;
+            const totalLots = trades.reduce((acc, t) => acc + t.lots, 0);
 
-    // --- TABS & UI HELPERS ---
-    window.switchJournalTab = function(tab) {
-        journalTab = tab;
-        ['active', 'history', 'leaderboard', 'feedback'].forEach(t => {
-            const btn = document.getElementById(`tab-${t}`);
-            if(btn) btn.className = t===tab ? "px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all bg-slate-800 text-blue-400" : "px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all text-slate-500 hover:text-slate-300";
-        });
-        
-        document.getElementById('activeTradesList').classList.add('hidden');
-        document.getElementById('historyList').classList.add('hidden');
-        document.getElementById('leaderboardList').classList.add('hidden');
-        document.getElementById('feedbackList').classList.add('hidden');
-        
-        if(tab==='active') { document.getElementById('activeTradesList').classList.remove('hidden'); renderActiveTrades(); }
-        if(tab==='history') { document.getElementById('historyList').classList.remove('hidden'); renderClosedHistory(); }
-        if(tab==='leaderboard') { document.getElementById('leaderboardList').classList.remove('hidden'); loadJournalLeaderboard(); }
-        if(tab==='feedback') { document.getElementById('feedbackList').classList.remove('hidden'); loadJournalFeedback(); }
-    }
+            document.getElementById('totalPnl').innerText = `$${totalPnl.toFixed(2)}`;
+            document.getElementById('totalPnl').className = `text-2xl font-black font-mono mt-1 ${totalPnl >= 0 ? 'profit-text' : 'loss-text'}`;
+            document.getElementById('winRate').innerText = `${winRate}%`;
+            document.getElementById('totalLots').innerText = totalLots.toFixed(2);
+        }
 
-    function renderActiveTrades() {
-        const active = myTrades.filter(t => t.status==='open' || t.status==='running');
-        const container = document.getElementById('activeTradesList');
-        if(!container) return;
-        
-        if(active.length === 0) { container.innerHTML = '<div class="col-span-full py-16 text-center text-slate-500 text-sm font-bold uppercase tracking-wider opacity-50 border-2 border-dashed border-slate-800 rounded-2xl">No Active Positions</div>'; return; }
-        
-        container.innerHTML = active.map(t => {
-            const pnl = Number(t.pnl||0);
-            return `
-            <div class="glass p-5 rounded-2xl border border-slate-800 relative group hover:border-slate-600 transition-all ${pnl>=0?'shadow-green-900/10':'shadow-red-900/10'} shadow-xl">
-                <div class="flex justify-between items-start mb-4">
-                    <div>
-                        <div class="flex items-center gap-2 mb-1">
-                            <span class="text-xs font-black text-white bg-slate-800 px-2 py-0.5 rounded uppercase tracking-wider">${t.instrument}</span>
-                            <span class="text-[10px] font-bold ${t.type==='buy'?'text-green-500':'text-red-500'} bg-slate-950 px-2 py-0.5 rounded uppercase">${t.type}</span>
+        function openEdit(id) {
+            currentEditTradeId = id;
+            const t = trades.find(tr => tr.id === id);
+            if(t) {
+                document.getElementById('editModal').classList.remove('hidden');
+                document.getElementById('editModal').classList.add('active');
+                // Could populate current price
+            }
+        }
+        function closeEditModal() {
+            document.getElementById('editModal').classList.remove('active');
+            document.getElementById('editModal').classList.add('hidden');
+        }
+
+        function openModal() {
+            document.getElementById('tradeModal').classList.remove('hidden');
+            document.getElementById('tradeModal').classList.add('active');
+        }
+        function closeModal() {
+            document.getElementById('tradeModal').classList.remove('active');
+            document.getElementById('tradeModal').classList.add('hidden');
+        }
+
+        function toggleChart() {
+            const s = document.getElementById('chartSection');
+            s.classList.toggle('hidden');
+            if(!s.classList.contains('hidden') && !tvWidget) {
+                // Init TradingView
+                 new TradingView.widget({
+                    "width": "100%",
+                    "height": 500,
+                    "symbol": "DERIV:R_100",
+                    "interval": "D",
+                    "timezone": "Etc/UTC",
+                    "theme": "dark",
+                    "style": "1",
+                    "locale": "en",
+                    "toolbar_bg": "#f1f3f6",
+                    "enable_publishing": false,
+                    "allow_symbol_change": true,
+                    "container_id": "tv-container"
+                });
+                tvWidget = true;
+            }
+        }
+
+        function exportCSV() {
+            const closed = trades.filter(t => t.status === 'closed');
+            let csv = 'Time,Instrument,Type,Lots,Entry,Exit,PnL\n';
+            closed.forEach(t => {
+                csv += `${new Date(t.openTime.seconds*1000).toISOString()},${t.instrument},${t.type},${t.lots},${t.entryPrice},${t.closePrice},${t.pnl}\n`;
+            });
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'trading_journal.csv';
+            a.click();
+        }
+
+        // --- ADMIN FUNCTIONS ---
+        async function loadStudents() {
+            const list = document.getElementById('studentList');
+            try {
+                const snap = await db.collection('users').get();
+                if (snap.empty) {
+                    list.innerHTML = '<p class="text-center text-slate-500 text-xs mt-4">No students found.</p>';
+                    return;
+                }
+                list.innerHTML = snap.docs.map(doc => {
+                    const data = doc.data();
+                    const email = data.email || 'Unknown';
+                    const colors = ['bg-blue-600', 'bg-purple-600', 'bg-green-600', 'bg-yellow-600'];
+                    const bg = colors[email.charCodeAt(0) % colors.length];
+                    return `
+                        <div onclick="selectStudent('${doc.id}', '${email}')" class="p-3 rounded-lg hover:bg-slate-800 cursor-pointer transition-colors border border-transparent hover:border-slate-700 flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full ${bg} flex items-center justify-center text-xs font-bold text-white shadow-lg shrink-0">${email.substring(0,2).toUpperCase()}</div>
+                            <div class="overflow-hidden">
+                                <p class="text-xs font-bold text-slate-300 truncate">${email}</p>
+                                <p class="text-[10px] text-slate-500 truncate font-mono">${doc.id.slice(0,6)}</p>
+                            </div>
                         </div>
-                        <span class="text-[10px] text-slate-500 font-mono">${t.openTime && t.openTime.seconds ? new Date(t.openTime.seconds*1000).toLocaleDateString() : ''}</span>
-                    </div>
-                    <div class="text-right">
-                        <div class="text-xl font-black font-mono ${pnl>=0?'text-green-500':'text-red-500'}">${pnl>=0?'+':''}${pnl.toFixed(2)}</div>
-                        <div class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">PnL</div>
-                    </div>
-                </div>
-                <div class="grid grid-cols-2 gap-4 mb-4">
-                    <div class="bg-slate-900/50 p-2 rounded-lg"><p class="text-[10px] text-slate-500 uppercase mb-0.5">Lots</p><p class="font-mono text-xs text-white">${t.lots}</p></div>
-                    <div class="bg-slate-900/50 p-2 rounded-lg"><p class="text-[10px] text-slate-500 uppercase mb-0.5">Status</p><p class="font-mono text-xs text-white">${t.status}</p></div>
-                </div>
-            </div>`;
-        }).join('');
-    }
+                    `;
+                }).join('');
+            } catch (err) {
+                console.error(err);
+                showNotification('Error loading students', 'error');
+            }
+        }
 
-    function renderClosedHistory() {
-        const history = myTrades.filter(t => t.status==='closed');
-        const tbody = document.getElementById('historyTableBody');
-        if(!tbody) return;
-        
-        if(history.length === 0) { tbody.innerHTML = '<tr><td colspan="7" class="py-20 text-center text-slate-500 text-sm font-bold uppercase tracking-wider opacity-50">No History Records</td></tr>'; return; }
-        
-        tbody.innerHTML = history.map(t => {
-            const pnl = Number(t.pnl||0);
-            return `
-            <tr class="hover:bg-slate-800/30 transition-colors border-b border-slate-800/50 last:border-0">
-                <td class="p-5 font-bold text-white text-xs">${t.instrument}</td>
-                <td class="p-5"><span class="${t.type==='buy'?'text-green-500':'text-red-500'} font-bold text-[10px] uppercase bg-slate-900 px-2 py-1 rounded">${t.type}</span></td>
-                <td class="p-5 font-mono text-xs text-slate-300">${t.lots}</td>
-                <td class="p-5 text-[10px] font-mono text-slate-400">In: ${t.entryPrice||'-'} <br> Out: ${t.closePrice||'-'}</td>
-                <td class="p-5 font-mono text-xs ${Number(t.pips||0)>=0?'text-green-500':'text-red-500'}">${t.pips||0}</td>
-                <td class="p-5 text-right font-mono text-sm font-bold ${pnl>=0?'text-green-400':'text-red-400'}">${pnl>0?'+':''}${pnl.toFixed(2)}</td>
-                <td class="p-5 text-right text-[10px] text-slate-500">${t.closeTime && t.closeTime.seconds ? new Date(t.closeTime.seconds*1000).toLocaleDateString() : '-'}</td>
-            </tr>`;
-        }).join('');
-    }
-
-    // --- EXPORT CSV ---
-    function exportCSV() {
-        const rows = [['Time','Asset','Type','Lots','PnL','Status']];
-        myTrades.forEach(t => {
-            rows.push([
-                t.openTime && t.openTime.seconds ? new Date(t.openTime.seconds*1000).toISOString() : '',
-                t.instrument||'', t.type||'', t.lots||0, t.pnl||0, t.status||''
-            ]);
-        });
-        const csv = rows.map(r => r.map(x => `"${String(x).replace(/"/g,'""')}"`).join(',')).join('\n');
-        const blob = new Blob([csv], { type:'text/csv;charset=utf-8;' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a'); a.href = url; a.download = 'trades.csv';
-        document.body.appendChild(a); a.click(); document.body.removeChild(a);
-    }
-
-    // --- CHART & TICKERS (Simplified for clean integration) ---
-    function initActiveSymbols() {
-        // Simple websocket for ticker tape
-        const ws = new WebSocket(`wss://ws.binaryws.com/websockets/v3?app_id=${DERIV_APP_ID}`);
-        ws.onopen = () => ws.send(JSON.stringify({ active_symbols: 'brief', product_type: 'basic' }));
-        ws.onmessage = (msg) => {
-            const data = JSON.parse(msg.data);
-            if(data.active_symbols) {
-                const symbols = data.active_symbols.filter(s => s.is_trading === 1).slice(0, 30);
-                const container = document.getElementById('tickerContainer');
-                if(container) {
-                    container.innerHTML = symbols.map(s => `
-                        <div class="glass min-w-[120px] p-2 rounded-lg border border-slate-800 flex flex-col justify-center">
-                            <p class="text-[9px] font-bold text-slate-500 uppercase truncate">${s.display_name}</p>
-                            <p class="text-xs font-black text-blue-100 truncate">${s.symbol}</p>
-                        </div>
+        function selectStudent(uid, email) {
+            selectedStudentId = uid;
+            document.getElementById('studentHeader').classList.remove('hidden');
+            document.getElementById('feedbackSection').classList.remove('hidden');
+            document.getElementById('studentEmail').innerText = email;
+            document.getElementById('studentId').innerText = uid;
+            
+            // Load their trades
+            db.collection('users').doc(uid).collection('trades').orderBy('openTime', 'desc').onSnapshot(snap => {
+                const tList = snap.docs.map(d => d.data());
+                const total = tList.reduce((acc, t) => acc + (t.status === 'closed' ? t.pnl : 0), 0);
+                document.getElementById('adminTotalPnl').innerText = `$${total.toFixed(2)}`;
+                
+                const tbody = document.getElementById('adminTradeTable');
+                if(tList.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" class="p-8 text-center text-slate-500">No trades.</td></tr>';
+                } else {
+                    tbody.innerHTML = tList.map(t => `
+                        <tr class="hover:bg-slate-800/30 border-b border-slate-800/50">
+                            <td class="p-4 text-xs text-slate-400">${t.openTime ? new Date(t.openTime.seconds*1000).toLocaleDateString() : '-'}</td>
+                            <td class="p-4 text-xs font-bold text-white">${t.instrument}</td>
+                            <td class="p-4 text-xs uppercase ${t.type === 'buy' ? 'text-green-400' : 'text-red-400'}">${t.type}</td>
+                            <td class="p-4 text-xs font-mono">${t.lots}</td>
+                            <td class="p-4 text-xs font-mono font-bold ${t.pnl>=0?'profit-text':'loss-text'}">$${t.pnl.toFixed(2)}</td>
+                            <td class="p-4 text-[10px] uppercase font-bold text-slate-500">${t.status}</td>
+                        </tr>
                     `).join('');
                 }
-                const select = document.getElementById('liveSymbolSelect');
-                if(select) {
-                    select.innerHTML = symbols.map(s => `<option value="${s.symbol}">${s.display_name}</option>`).join('');
+            });
+
+            // Load comments
+            db.collection('users').doc(uid).collection('comments').orderBy('createdAt', 'desc').onSnapshot(snap => {
+                const list = document.getElementById('commentsList');
+                if(snap.empty) {
+                    list.innerHTML = '<p class="text-xs text-slate-500 italic">No feedback yet.</p>';
+                } else {
+                    list.innerHTML = snap.docs.map(d => {
+                        const c = d.data();
+                        return `<div class="bg-slate-900/50 p-3 rounded-lg border border-slate-800"><p class="text-xs text-slate-300">${c.text}</p><p class="text-[9px] text-slate-600 mt-1 text-right">${c.createdAt ? new Date(c.createdAt.seconds*1000).toLocaleString() : ''}</p></div>`;
+                    }).join('');
                 }
-            }
-        };
-    }
-    
-    // Chart toggling
-    function toggleChart() {
-        const s = document.getElementById('chartSection');
-        s.classList.toggle('hidden');
-        if(!s.classList.contains('hidden') && !chartInstance) {
-            initLightweightChart();
+            });
         }
-    }
 
-    function initLightweightChart() {
-        const container = document.getElementById('tv-container');
-        if(!container) return;
-        container.innerHTML = '';
-        chartInstance = LightweightCharts.createChart(container, {
-            width: container.clientWidth, height: 400,
-            layout: { backgroundColor: '#0f172a', textColor: '#94a3b8' },
-            grid: { vertLines: { color: '#1e293b' }, horzLines: { color: '#1e293b' } },
-            timeScale: { timeVisible: true, secondsVisible: false, borderColor: '#334155' }
-        });
-        candleSeries = chartInstance.addCandlestickSeries({
-            upColor: '#22c55e', downColor: '#ef4444', borderUpColor: '#22c55e', borderDownColor: '#ef4444', wickUpColor: '#22c55e', wickDownColor: '#ef4444'
-        });
-        // Dummy data for visual
-        const data = [];
-        let time = new Date().getTime() / 1000 - 86400;
-        let price = 100;
-        for(let i=0; i<100; i++) {
-            price += (Math.random() - 0.5) * 2;
-            data.push({ time: time + i*3600, open: price, high: price+1, low: price-1, close: price+(Math.random()-0.5) });
+        async function handleAdminComment(e) {
+            e.preventDefault();
+            if(!selectedStudentId) return;
+            const text = document.getElementById('commentInput').value.trim();
+            if(!text) return;
+            
+            await db.collection('users').doc(selectedStudentId).collection('comments').add({
+                text: text,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                author: 'Admin'
+            });
+            document.getElementById('commentInput').value = '';
+            showNotification('Feedback sent', 'success');
         }
-        candleSeries.setData(data);
-    }
-    
-    function drawEquityCurve(closedTrades) {
-        const canvas = document.getElementById('equityCurveCanvas');
-        if(!canvas) return;
-        const ctx = canvas.getContext('2d');
-        const w = canvas.width = canvas.clientWidth;
-        const h = canvas.height;
-        ctx.clearRect(0,0,w,h);
-        
-        let equity = 0;
-        const points = [0];
-        closedTrades.slice().reverse().forEach(t => { equity += (Number(t.pnl)||0); points.push(equity); });
-        
-        if(points.length < 2) return;
-        const min = Math.min(...points);
-        const max = Math.max(...points);
-        const range = Math.max(1e-8, max - min);
-        
-        ctx.strokeStyle = '#22c55e';
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        points.forEach((p, i) => {
-            const x = (i / (points.length - 1)) * (w - 10) + 5;
-            const y = h - ((p - min) / range) * (h - 10) - 5;
-            if(i===0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-        });
-        ctx.stroke();
-    }
 
-  </script>
+        function refreshTrades() {
+            if(selectedStudentId) selectStudent(selectedStudentId, document.getElementById('studentEmail').innerText);
+        }
+
+        function loadLeaderboard() {
+            // Demo implementation - in real app would query global collection or aggregation
+            const div = document.getElementById('leaderboardContent');
+            div.innerHTML = '<p class="text-center text-slate-500 text-xs">Leaderboard data not available in demo.</p>';
+        }
+
+        function loadFeedback() {
+             const user = auth.currentUser;
+             if(!user) return;
+             db.collection('users').doc(user.uid).collection('comments').orderBy('createdAt', 'desc').onSnapshot(snap => {
+                 const div = document.getElementById('feedbackContent');
+                 if(snap.empty) {
+                     div.innerHTML = '<p class="text-center text-slate-500 text-xs">No feedback from mentors yet.</p>';
+                 } else {
+                     div.innerHTML = snap.docs.map(d => {
+                         const c = d.data();
+                         return `<div class="bg-slate-900/50 p-4 rounded-xl border border-slate-800"><p class="text-sm text-slate-200">${c.text}</p><p class="text-[10px] text-slate-500 mt-2 text-right">MENTOR • ${c.createdAt ? new Date(c.createdAt.seconds*1000).toLocaleDateString() : ''}</p></div>`;
+                     }).join('');
+                 }
+             });
+        }
+        
+        // --- UTILS ---
+        function setSide(s) {
+            tradeSide = s;
+            document.getElementById('btn-buy').className = s === 'buy' ? "flex-1 py-2.5 rounded-lg text-[10px] font-black uppercase bg-green-600 text-white shadow-lg" : "flex-1 py-2.5 rounded-lg text-[10px] font-black uppercase text-slate-500";
+            document.getElementById('btn-sell').className = s === 'sell' ? "flex-1 py-2.5 rounded-lg text-[10px] font-black uppercase bg-red-600 text-white shadow-lg" : "flex-1 py-2.5 rounded-lg text-[10px] font-black uppercase text-slate-500";
+        }
+
+        function showNotification(msg, type) {
+            const c = document.getElementById('notification-container') || createNotifContainer();
+            const el = document.createElement('div');
+            el.className = `p-4 rounded-xl shadow-2xl mb-3 text-sm font-bold text-white transform transition-all translate-x-full ${type==='error'?'bg-red-600':type==='success'?'bg-green-600':'bg-blue-600'}`;
+            el.innerHTML = `<div class="flex items-center gap-3"><i data-lucide="${type==='error'?'alert-circle':'check-circle'}" class="w-5 h-5"></i><span>${msg}</span></div>`;
+            c.appendChild(el);
+            lucide.createIcons();
+            requestAnimationFrame(() => el.classList.remove('translate-x-full'));
+            setTimeout(() => { el.classList.add('translate-x-full', 'opacity-0'); setTimeout(()=>el.remove(), 300); }, 4000);
+        }
+
+        function createNotifContainer() {
+            const d = document.createElement('div');
+            d.id = 'notification-container';
+            d.className = 'fixed top-4 right-4 z-[300] flex flex-col items-end w-full max-w-sm pointer-events-none';
+            document.body.appendChild(d);
+            return d;
+        }
+    </script>
 </body>
 </html>
