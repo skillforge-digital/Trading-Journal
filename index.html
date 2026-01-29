@@ -819,6 +819,19 @@
 
                 // Check Alarms for Active Trades
                 checkPriceAlarms(m.symbol, tick.quote);
+                trades.forEach(trade => {
+    if (trade.status !== 'open') return;
+    if (trade.instrument !== m.symbol) return;
+
+    const direction = trade.type === 'buy' ? 1 : -1;
+    const pipSize = trade.instrument.includes('JPY') ? 0.01 : 0.1;
+
+    const pips = ((tick.quote - trade.entryPrice) * direction) / pipSize;
+    trade.pnl = Number((pips * trade.lots * 10).toFixed(2));
+});
+
+updateStats();
+
                 
                 renderTicker(); 
             }
@@ -1384,17 +1397,37 @@
         }
 
         function updateStats() {
-            const closed = trades.filter(t => t.status === 'closed');
-            const totalPnl = closed.reduce((acc, t) => acc + t.pnl, 0);
-            const wins = closed.filter(t => t.pnl > 0).length;
-            const winRate = closed.length ? Math.round((wins / closed.length) * 100) : 0;
-            const totalLots = trades.reduce((acc, t) => acc + t.lots, 0);
+    let realizedPnL = 0;
+    let floatingPnL = 0;
+    let totalLots = 0;
+    let wins = 0;
+    let closedCount = 0;
 
-            document.getElementById('totalPnl').innerText = `$${totalPnl.toFixed(2)}`;
-            document.getElementById('totalPnl').className = `text-2xl font-black font-mono mt-1 ${totalPnl >= 0 ? 'profit-text' : 'loss-text'}`;
-            document.getElementById('winRate').innerText = `${winRate}%`;
-            document.getElementById('totalLots').innerText = totalLots.toFixed(2);
+    trades.forEach(t => {
+        const lots = Number(t.lots) || 0;
+        totalLots += lots;
+
+        if (t.status === 'closed') {
+            closedCount++;
+            if (!isNaN(t.pnl)) realizedPnL += Number(t.pnl);
+            if (t.pnl > 0) wins++;
         }
+
+        if (t.status === 'open' && !isNaN(t.pnl)) {
+            floatingPnL += Number(t.pnl);
+        }
+    });
+
+    document.getElementById('totalPnl').innerText = `$${realizedPnL.toFixed(2)}`;
+    document.getElementById('totalPnl').className =
+        `text-2xl font-black font-mono mt-1 ${realizedPnL >= 0 ? 'profit-text' : 'loss-text'}`;
+
+    document.getElementById('winRate').innerText =
+        closedCount ? `${Math.round((wins / closedCount) * 100)}%` : '0%';
+
+    document.getElementById('totalLots').innerText = totalLots.toFixed(2);
+}
+
 
         function openEdit(id) {
             currentEditTradeId = id;
