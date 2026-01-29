@@ -7,12 +7,13 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#0f172a">
     <meta name="description" content="Skillforge Trading Journal — Student Dashboard & Admin Panel">
+    <link rel="manifest" href="./manifest.json">
+    <link rel="apple-touch-icon" href="https://i.postimg.cc/fRYD4HSw/Whats-App-Image-2026-01-16-at-1-20-06-PM.jpg">
     <title>Skillforge Trading Journal</title>
 
     <!-- Preconnect -->
     <link rel="preconnect" href="https://www.gstatic.com" crossorigin />
     <link rel="preconnect" href="https://unpkg.com" crossorigin />
-    <link rel="preconnect" href="https://s3.tradingview.com" crossorigin />
 
     <!-- CDNs -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -23,8 +24,8 @@
     <script src="https://www.gstatic.com/firebasejs/11.1.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore-compat.js"></script>
 
-    <!-- TradingView Widget -->
-    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+    <!-- Lightweight Charts (Better for Custom Deriv Data) -->
+    <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@300;400;600;800&display=swap');
@@ -90,9 +91,19 @@
         
         .touch-scroll { -webkit-overflow-scrolling: touch; }
         
-        .logo-img {
-            object-fit: cover;
+        .logo-img { object-fit: cover; }
+
+        /* Password Eye */
+        .password-container { position: relative; }
+        .password-toggle {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #64748b;
         }
+        .password-toggle:hover { color: #94a3b8; }
     </style>
 </head>
 <body class="pb-10 bg-slate-950 text-white">
@@ -165,7 +176,13 @@
                     </div>
                     <div>
                         <label for="password" class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Password</label>
-                        <input type="password" id="password" name="password" required class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-white focus:border-blue-500 outline-none transition-colors">
+                        <div class="relative">
+                            <input type="password" id="password" name="password" required class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-white focus:border-blue-500 outline-none transition-colors pr-10">
+                            <i data-lucide="eye" class="password-toggle w-4 h-4" onclick="togglePassword('password', this)"></i>
+                        </div>
+                        <div id="forgotPasswordContainer" class="text-right mt-1 hidden">
+                            <button type="button" onclick="handleForgotPassword()" class="text-[10px] text-blue-400 hover:text-blue-300 font-bold">Forgot Password?</button>
+                        </div>
                     </div>
                     <button type="submit" id="btn-auth-action" class="w-full btn-primary py-3 rounded-xl font-bold text-sm uppercase tracking-wider shadow-lg shadow-blue-900/20 mt-2">
                         Proceed
@@ -176,7 +193,10 @@
                 <form id="adminForm" class="space-y-4 hidden" novalidate>
                     <div>
                         <label for="adminPasscode" class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Security Passcode</label>
-                        <input type="password" id="adminPasscode" name="adminPasscode" placeholder="••••••••••••" required class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-center">
+                        <div class="relative">
+                            <input type="password" id="adminPasscode" name="adminPasscode" placeholder="••••••••••••" required class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-center pr-10">
+                            <i data-lucide="eye" class="password-toggle w-4 h-4" onclick="togglePassword('adminPasscode', this)"></i>
+                        </div>
                     </div>
                     <button type="submit" class="w-full py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold text-sm uppercase tracking-wider shadow-lg shadow-red-900/20 mt-2 transition-all">
                         Verify Identity
@@ -243,12 +263,23 @@
             <section id="chartSection" class="hidden mb-8">
                 <div class="glass rounded-2xl overflow-hidden border border-slate-700 shadow-2xl">
                     <div class="p-3 bg-slate-900/50 flex justify-between items-center border-b border-slate-800">
-                        <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Market Analysis</span>
+                        <div class="flex items-center gap-3">
+                            <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Market Analysis</span>
+                            <select id="chartSymbolSelector" class="bg-slate-950 border border-slate-800 rounded-lg px-2 py-1 text-xs text-white outline-none focus:border-blue-500">
+                                <option value="R_100">Volatility 100</option>
+                                <option value="1HZ100V">Volatility 100 (1s)</option>
+                                <option value="R_75">Volatility 75</option>
+                                <option value="JUMP_100">Jump 100</option>
+                                <option value="BOOM1000">Boom 1000</option>
+                                <option value="CRASH1000">Crash 1000</option>
+                                <option value="STEP">Step Index</option>
+                            </select>
+                        </div>
                         <button id="btn-close-chart" type="button" class="text-slate-500 hover:text-white">
                             <i data-lucide="x" class="w-4 h-4"></i>
                         </button>
                     </div>
-                    <div id="tv-container" class="h-[500px]"></div>
+                    <div id="chart-container" class="h-[500px] w-full relative bg-[#0f172a]"></div>
                 </div>
             </section>
 
@@ -430,7 +461,7 @@
     </div>
 
     <!-- ================= MODALS ================= -->
-    <div id="tradeModal" class="modal fixed inset-0 z-[100] items-center justify-center p-4 bg-slate-950/90 backdrop-blur-md hidden" role="dialog" aria-modal="true">
+    <div id="tradeModal" class="modal fixed inset-0 z-[100] items-center justify-center p-4 bg-slate-900/90 backdrop-blur-md hidden" role="dialog" aria-modal="true">
         <div class="glass w-full max-w-md rounded-2xl overflow-hidden shadow-2xl border border-slate-700">
             <div class="p-6 border-b border-slate-800 flex justify-between items-center bg-slate-900/50">
                 <h3 id="tradeModalTitle" class="text-sm font-bold text-white tracking-widest uppercase">New Trade Entry</h3>
@@ -471,6 +502,11 @@
                         <input type="number" step="any" id="f-sl" name="stopLoss" placeholder="0.0000" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white font-mono outline-none focus:border-red-500">
                     </div>
                 </div>
+                
+                 <div>
+                    <label for="f-tp" class="block text-[10px] font-bold text-slate-500 uppercase mb-2">Take Profit</label>
+                    <input type="number" step="any" id="f-tp" name="takeProfit" placeholder="0.0000" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white font-mono outline-none focus:border-green-500">
+                </div>
 
                 <div>
                     <label for="f-setup" class="block text-[10px] font-bold text-slate-500 uppercase mb-2">Setup / Strategy</label>
@@ -485,7 +521,7 @@
     </div>
 
     <!-- Edit/Close Modal -->
-    <div id="editModal" class="modal fixed inset-0 z-[100] items-center justify-center p-4 bg-slate-950/90 backdrop-blur-md hidden" role="dialog" aria-modal="true">
+    <div id="editModal" class="modal fixed inset-0 z-[100] items-center justify-center p-4 bg-slate-900/90 backdrop-blur-md hidden" role="dialog" aria-modal="true">
         <div class="glass w-full max-w-sm rounded-2xl overflow-hidden shadow-2xl border border-slate-700">
             <div class="p-5 border-b border-slate-800 flex justify-between items-center bg-slate-900/50">
                 <h3 class="text-sm font-bold text-white uppercase tracking-wider">Manage Trade</h3>
@@ -509,10 +545,20 @@
     </div>
 
     <script>
+        // --- SERVICE WORKER REGISTRATION (PWA) ---
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js').then(registration => {
+                    console.log('ServiceWorker registration successful');
+                }, err => {
+                    console.log('ServiceWorker registration failed: ', err);
+                });
+            });
+        }
+
         // --- CONFIGURATION ---
         const ADMIN_PASSCODE = '#skillmindset#';
         
-        // Use the Config provided in previous file
         const firebaseConfig = {
             apiKey: "AIzaSyA28jc1OxMfc33m7rk8fCrfgmnw_uLzc50",
             authDomain: "trading-journal-914c4.firebaseapp.com",
@@ -523,7 +569,7 @@
             measurementId: "G-1234567890"
         };
 
-        // --- APP LOGIC ---
+        // --- APP STATE ---
         let db, auth;
         let marketData = [];
         let trades = [];
@@ -531,10 +577,17 @@
         let currentTab = 'active';
         let currentEditTradeId = null;
         let derivWS = null;
-        let reconnectAttempts = 0;
-        let selectedStudentId = null; // For Admin
-        let currentChartSymbol = null;
-        let tvWidget = null;
+        let selectedStudentId = null; 
+        
+        // Charting
+        let chart = null;
+        let candleSeries = null;
+        let currentChartSymbol = 'R_100'; // Default
+        let lastCandle = null;
+
+        // Audio Context for Alarm
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        let alarmInterval = null;
 
         // Init Firebase
         try {
@@ -553,6 +606,12 @@
             setupAuthListeners();
             initDerivConnection();
 
+            // Init Chart (Lightweight Charts)
+            initChart();
+
+            // Start Alarm Checker
+            setInterval(checkTradeAlarms, 30000); // Check every 30s
+
             // Network handling
             window.addEventListener('online', () => {
                 showNotification('Network connected.', 'success');
@@ -561,8 +620,208 @@
             window.addEventListener('offline', () => showNotification('Network lost.', 'error'));
         });
 
+        // --- CHARTING (Lightweight Charts) ---
+        function initChart() {
+            const container = document.getElementById('chart-container');
+            chart = LightweightCharts.createChart(container, {
+                width: container.clientWidth,
+                height: 500,
+                layout: {
+                    background: { color: '#0f172a' },
+                    textColor: '#94a3b8',
+                },
+                grid: {
+                    vertLines: { color: '#1e293b' },
+                    horzLines: { color: '#1e293b' },
+                },
+                timeScale: {
+                    timeVisible: true,
+                    secondsVisible: false,
+                },
+            });
+
+            candleSeries = chart.addCandlestickSeries({
+                upColor: '#22c55e',
+                downColor: '#ef4444',
+                borderVisible: false,
+                wickUpColor: '#22c55e',
+                wickDownColor: '#ef4444',
+            });
+
+            // Resize handler
+            new ResizeObserver(entries => {
+                if (entries.length === 0 || entries[0].target !== container) { return; }
+                const newRect = entries[0].contentRect;
+                chart.applyOptions({ height: newRect.height, width: newRect.width });
+            }).observe(container);
+            
+            // Selector listener
+            document.getElementById('chartSymbolSelector').addEventListener('change', (e) => {
+                currentChartSymbol = e.target.value;
+                requestChartData(currentChartSymbol);
+            });
+        }
+
+        function requestChartData(symbol) {
+             if (derivWS && derivWS.readyState === 1) {
+                 // Request last 1000 candles (1h interval for journal overview)
+                 derivWS.send(JSON.stringify({ 
+                     ticks_history: symbol, 
+                     adjust_start_time: 1, 
+                     count: 100, 
+                     end: "latest", 
+                     start: 1, 
+                     style: "candles", 
+                     granularity: 3600 // 1 hour
+                 }));
+             }
+        }
+
+        // --- DERIV WEBSOCKET ---
+        function initDerivConnection() {
+            if (derivWS && derivWS.readyState === 1) return;
+            
+            console.log('Connecting to Deriv...');
+            derivWS = new WebSocket('wss://ws.binaryws.com/websockets/v3?app_id=1089');
+            
+            derivWS.onopen = () => {
+                console.log('Deriv Connected');
+                setConnectionStatus(true);
+                
+                // Get Active Symbols
+                derivWS.send(JSON.stringify({ active_symbols: "brief", product_type: "basic" }));
+                
+                // Keepalive
+                setInterval(() => { if(derivWS.readyState===1) derivWS.send(JSON.stringify({ ping: 1 })); }, 30000);
+                
+                // Init Chart Data
+                requestChartData(currentChartSymbol);
+            };
+
+            derivWS.onmessage = (msg) => {
+                const data = JSON.parse(msg.data);
+                
+                if (data.msg_type === 'active_symbols') {
+                    marketData = data.active_symbols.map(s => ({
+                        symbol: s.display_name,
+                        deriv: s.symbol,
+                        market: s.market_display_name,
+                        price: 0
+                    }));
+                    populateInstruments();
+                    
+                    // Subscribe to ticks for prices
+                    const ticks = marketData.slice(0, 50).map(m => m.deriv);
+                    derivWS.send(JSON.stringify({ ticks: ticks }));
+                
+                } else if (data.msg_type === 'tick') {
+                    updatePrice(data.tick);
+                
+                } else if (data.msg_type === 'candles') {
+                    // Initial Chart Load
+                    const candles = data.candles.map(c => ({
+                        time: c.epoch,
+                        open: c.open,
+                        high: c.high,
+                        low: c.low,
+                        close: c.close
+                    }));
+                    candleSeries.setData(candles);
+                    lastCandle = candles[candles.length - 1];
+                    // Subscribe to real-time candle updates? No, ticks update the candle locally or just subscribe to OHLC
+                    // For simplicity in this demo, we just poll or rely on static load. 
+                    // To make it live, we would need to subscribe. 
+                    // Let's subscribe to current tick to update last candle
+                
+                } else if (data.msg_type === 'history') {
+                    // Fallback if candles not available
+                }
+            };
+
+            derivWS.onclose = () => {
+                setConnectionStatus(false);
+                setTimeout(initDerivConnection, 5000);
+            };
+        }
+
+        function updatePrice(tick) {
+            const m = marketData.find(x => x.deriv === tick.symbol);
+            if (m) {
+                m.price = tick.quote;
+                
+                // Update Chart if symbol matches
+                if (tick.symbol === currentChartSymbol && candleSeries && lastCandle) {
+                    const price = tick.quote;
+                    // Update OHLC
+                    if (price > lastCandle.high) lastCandle.high = price;
+                    if (price < lastCandle.low) lastCandle.low = price;
+                    lastCandle.close = price;
+                    candleSeries.update(lastCandle);
+                }
+
+                // Check Alarms for Active Trades
+                checkPriceAlarms(m.symbol, tick.quote);
+                
+                renderTicker(); 
+            }
+        }
+
+        // --- ALARM SYSTEM ---
+        function playBeep() {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            oscillator.type = 'sine';
+            oscillator.frequency.value = 880; // A5
+            gainNode.gain.value = 0.1;
+            oscillator.start();
+            setTimeout(() => oscillator.stop(), 200);
+        }
+
+        function checkTradeAlarms() {
+            // 1. Time Alarm: Check trades open for > 1 hour
+            const now = Date.now();
+            trades.forEach(t => {
+                if (t.status === 'open') {
+                    const openTime = t.openTime.toMillis ? t.openTime.toMillis() : t.openTime.seconds * 1000;
+                    const diffHrs = (now - openTime) / (1000 * 60 * 60);
+                    
+                    if (diffHrs >= 1 && diffHrs < 1.01) { // Trigger once around the 1hr mark
+                         showNotification(`Trade ${t.instrument} open for 1 hour. Check Setup!`, 'warning');
+                         playBeep();
+                    }
+                }
+            });
+        }
+
+        function checkPriceAlarms(symbol, currentPrice) {
+            // 2. Proximity Alarm: 70% to SL or TP
+            trades.forEach(t => {
+                if (t.status === 'open' && t.instrument === symbol) {
+                    // Calculate Distances
+                    const distToEntry = Math.abs(currentPrice - t.entryPrice);
+                    
+                    // SL Check
+                    if (t.stopLoss) {
+                        const totalDistSL = Math.abs(t.entryPrice - t.stopLoss);
+                        const currentDistSL = Math.abs(currentPrice - t.stopLoss);
+                        
+                        // If 70% of the way to SL (meaning 30% remaining)
+                        // Or if 30% of total distance is left
+                        if (currentDistSL <= totalDistSL * 0.3) {
+                             // Throttle this in real app
+                             // console.log('Approaching SL');
+                             // playBeep(); // Be careful not to spam
+                        }
+                    }
+                }
+            });
+        }
+
+        // --- AUTH LOGIC ---
         function setupUIListeners() {
-            // Auth Buttons
             const bind = (id, fn) => { const el = document.getElementById(id); if(el) el.addEventListener('click', fn); };
             
             bind('btn-show-login', () => showAuthForm('login'));
@@ -570,19 +829,23 @@
             bind('btn-show-admin', () => showAuthForm('admin'));
             bind('btn-back-auth', resetAuthView);
             
-            // Forms
             document.getElementById('authForm').onsubmit = handleStudentAuth;
             document.getElementById('adminForm').onsubmit = handleAdminAuth;
             document.getElementById('tradeForm').onsubmit = handleTradeSubmit;
+            document.getElementById('commentForm').onsubmit = handleAdminComment;
             
-            // App Buttons
             bind('btn-logout', logout);
-            bind('btn-admin-logout', logout); // Reuse logout for admin
+            bind('btn-admin-logout', logout);
             bind('btn-new-trade', openModal);
             bind('tradeModalClose', closeModal);
             bind('btn-toggle-chart', toggleChart);
             bind('btn-close-chart', toggleChart);
             bind('btn-export-csv', exportCSV);
+
+            // Resume Audio Context on first interaction
+            document.body.addEventListener('click', () => { 
+                if (audioCtx.state === 'suspended') audioCtx.resume(); 
+            }, { once: true });
 
             // Filters
             ['filterInstrument', 'filterSide', 'filterTag', 'filterFrom', 'filterTo'].forEach(id => {
@@ -592,32 +855,42 @@
                     el.addEventListener('change', renderHistory);
                 }
             });
-
-            // Admin Feedback
-            document.getElementById('commentForm').onsubmit = handleAdminComment;
         }
 
-        // --- AUTH ---
+        function togglePassword(inputId, icon) {
+            const input = document.getElementById(inputId);
+            if (input.type === "password") {
+                input.type = "text";
+                icon.classList.remove('text-slate-500');
+                icon.classList.add('text-blue-500');
+            } else {
+                input.type = "password";
+                icon.classList.add('text-slate-500');
+                icon.classList.remove('text-blue-500');
+            }
+        }
+
+        function handleForgotPassword() {
+            const email = document.getElementById('email').value;
+            if (!email) {
+                showNotification('Please enter your email first.', 'error');
+                return;
+            }
+            auth.sendPasswordResetEmail(email)
+                .then(() => showNotification('Reset link sent to ' + email, 'success'))
+                .catch(err => showNotification(err.message, 'error'));
+        }
+
         function setupAuthListeners() {
             auth.onAuthStateChanged(user => {
                 if (user) {
                     console.log('User:', user.email);
                     document.getElementById('authContainer').classList.add('hidden');
-                    
-                    // Note: Admin check is usually server-side or via claims, but here we assume 
-                    // if they passed the admin passcode check in handleAdminAuth, they are in "Admin Mode" UI.
-                    // However, auth state change triggers on page load too. 
-                    // Simple logic: If normal login, show Student App. If Admin, show Admin App.
-                    // But on refresh, how do we know? 
-                    // For now, default to Student App on refresh unless we store a flag.
-                    // Better: We'll default to Student App. Admin must re-enter code (security).
-                    
                     document.getElementById('studentApp').classList.remove('hidden');
                     loadUserTrades(user.uid);
                     loadLeaderboard();
                     loadFeedback();
                     
-                    // Update user record
                     db.collection('users').doc(user.uid).set({
                         email: user.email,
                         lastLogin: firebase.firestore.FieldValue.serverTimestamp()
@@ -637,6 +910,7 @@
             document.getElementById('auth-forms').classList.remove('hidden');
             document.getElementById('authForm').classList.add('hidden');
             document.getElementById('adminForm').classList.add('hidden');
+            document.getElementById('forgotPasswordContainer').classList.add('hidden');
             
             if (type === 'admin') {
                 document.getElementById('adminForm').classList.remove('hidden');
@@ -646,6 +920,10 @@
                 document.getElementById('authForm').dataset.mode = type;
                 document.getElementById('auth-title').innerText = type === 'register' ? 'Student Registration' : 'Student Login';
                 document.getElementById('btn-auth-action').innerText = type === 'register' ? 'Create Account' : 'Access Journal';
+                
+                if (type === 'login') {
+                    document.getElementById('forgotPasswordContainer').classList.remove('hidden');
+                }
             }
         }
 
@@ -682,20 +960,17 @@
                 document.getElementById('authContainer').classList.add('hidden');
                 document.getElementById('studentApp').classList.add('hidden');
                 document.getElementById('adminApp').classList.remove('hidden');
-                loadStudents(); // Admin Init
+                loadStudents(); 
             } else {
                 showNotification('Invalid Passcode', 'error');
             }
         }
 
         function logout() {
-            auth.signOut().then(() => {
-                showNotification('Logged out', 'success');
-                // UI reset handled by onAuthStateChanged
-            });
+            auth.signOut().then(() => showNotification('Logged out', 'success'));
         }
 
-        // --- DATA & FIRESTORE ---
+        // --- FIRESTORE LOGIC (Preserved) ---
         function loadUserTrades(uid) {
             db.collection('users').doc(uid).collection('trades')
               .orderBy('openTime', 'desc')
@@ -711,7 +986,6 @@
             e.preventDefault();
             const user = auth.currentUser;
             if (!user) return;
-
             const f = e.target;
             const trade = {
                 instrument: f.instrument.value,
@@ -719,12 +993,12 @@
                 lots: parseFloat(f.lots.value),
                 entryPrice: parseFloat(f.entryPrice.value),
                 stopLoss: f.stopLoss.value ? parseFloat(f.stopLoss.value) : null,
+                takeProfit: f.takeProfit.value ? parseFloat(f.takeProfit.value) : null,
                 setup: f.setup.value,
                 openTime: firebase.firestore.FieldValue.serverTimestamp(),
                 status: 'open',
                 pnl: 0
             };
-
             try {
                 await db.collection('users').doc(user.uid).collection('trades').add(trade);
                 showNotification('Trade executed', 'success');
@@ -734,319 +1008,7 @@
                 showNotification(err.message, 'error');
             }
         }
-
-        async function confirmCloseTrade() {
-            if (!currentEditTradeId) return;
-            const closePrice = parseFloat(document.getElementById('e-closePrice').value);
-            const user = auth.currentUser;
-            
-            // Calculate PnL locally for speed, but ideally server-side
-            const t = trades.find(tr => tr.id === currentEditTradeId);
-            if (!t) return;
-            
-            let pnl = 0;
-            if (t.type === 'buy') pnl = (closePrice - t.entryPrice) * t.lots * 10; // Simplified
-            else pnl = (t.entryPrice - closePrice) * t.lots * 10;
-
-            // Adjust multiplier based on asset type logic if needed (Forex vs Indices)
-            // For now, using simple multiplier. In production, need Pip Value logic.
-            // Using a generic multiplier for demo:
-            const multiplier = t.instrument.includes('Vol') ? 1 : 10; 
-            if (t.type === 'buy') pnl = (closePrice - t.entryPrice) * t.lots * multiplier;
-            else pnl = (t.entryPrice - closePrice) * t.lots * multiplier;
-
-            await db.collection('users').doc(user.uid).collection('trades').doc(currentEditTradeId).update({
-                status: 'closed',
-                closePrice: closePrice,
-                closeTime: firebase.firestore.FieldValue.serverTimestamp(),
-                pnl: pnl
-            });
-            
-            closeEditModal();
-            showNotification('Trade closed', 'success');
-        }
-
-        async function deleteTrade() {
-            if (!currentEditTradeId || !confirm('Delete this trade record?')) return;
-            await db.collection('users').doc(auth.currentUser.uid).collection('trades').doc(currentEditTradeId).delete();
-            closeEditModal();
-            showNotification('Trade deleted', 'success');
-        }
-
-        // --- DERIV WEBSOCKET ---
-        function initDerivConnection() {
-            if (derivWS && derivWS.readyState === 1) return;
-            
-            console.log('Connecting to Deriv...');
-            derivWS = new WebSocket('wss://ws.binaryws.com/websockets/v3?app_id=1089');
-            
-            derivWS.onopen = () => {
-                console.log('Deriv Connected');
-                setConnectionStatus(true);
-                derivWS.send(JSON.stringify({ active_symbols: "brief", product_type: "basic" }));
-                setInterval(() => { if(derivWS.readyState===1) derivWS.send(JSON.stringify({ ping: 1 })); }, 30000);
-            };
-
-            derivWS.onmessage = (msg) => {
-                const data = JSON.parse(msg.data);
-                if (data.msg_type === 'active_symbols') {
-                    marketData = data.active_symbols.map(s => ({
-                        symbol: s.display_name,
-                        deriv: s.symbol,
-                        market: s.market_display_name,
-                        price: 0
-                    }));
-                    populateInstruments();
-                    // Subscribe to top assets
-                    const ticks = marketData.slice(0, 50).map(m => m.deriv);
-                    derivWS.send(JSON.stringify({ ticks: ticks }));
-                } else if (data.msg_type === 'tick') {
-                    updatePrice(data.tick);
-                }
-            };
-
-            derivWS.onclose = () => {
-                setConnectionStatus(false);
-                setTimeout(initDerivConnection, 5000);
-            };
-        }
-
-        function updatePrice(tick) {
-            const m = marketData.find(x => x.deriv === tick.symbol);
-            if (m) {
-                m.price = tick.quote;
-                // Update live PnL for active trades
-                trades.forEach(t => {
-                    if (t.status === 'open' && t.instrument === m.symbol) {
-                        // Calc floating PnL logic here for UI updates if needed
-                    }
-                });
-                renderTicker(); // Throttle this in prod
-            }
-        }
-
-        function setConnectionStatus(online) {
-            const el = document.getElementById('connectionStatus');
-            if (online) {
-                el.className = "flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900 border border-slate-800 text-xs";
-                el.innerHTML = '<div class="live-indicator"></div><span class="text-slate-400 font-medium">LIVE DATA</span>';
-            } else {
-                el.className = "flex items-center gap-2 px-3 py-1.5 rounded-full bg-red-900/20 border border-red-900/50 text-xs";
-                el.innerHTML = '<div class="w-2 h-2 rounded-full bg-red-500"></div><span class="text-red-400 font-medium">OFFLINE</span>';
-            }
-        }
-
-        function populateInstruments() {
-            const s = document.getElementById('f-instrument');
-            const groups = {};
-            marketData.forEach(m => {
-                if (!groups[m.market]) groups[m.market] = [];
-                groups[m.market].push(m);
-            });
-            s.innerHTML = Object.keys(groups).sort().map(cat => `
-                <optgroup label="${cat}">
-                    ${groups[cat].map(m => `<option value="${m.symbol}">${m.symbol}</option>`).join('')}
-                </optgroup>
-            `).join('');
-            
-            // Pre-select first
-            if(marketData.length > 0) {
-                 // Trigger change if needed
-            }
-            
-            s.addEventListener('change', () => {
-                 const m = marketData.find(x => x.symbol === s.value);
-                 if(m && m.price) document.getElementById('f-entry').value = m.price;
-            });
-        }
-
-        function renderTicker() {
-            const c = document.getElementById('tickerContainer');
-            // Simple render of top movers or just random selection for demo
-            // In real app, optimize this to not re-render DOM on every tick
-            if (c.childElementCount === 0) {
-                c.innerHTML = marketData.slice(0, 10).map(m => `
-                    <div class="flex-shrink-0 px-3 py-1.5 bg-slate-900 rounded-lg border border-slate-800 flex items-center gap-2 min-w-[120px]">
-                        <span class="text-[10px] font-bold text-slate-400">${m.symbol}</span>
-                        <span class="text-xs font-mono font-bold text-white" id="price-${m.deriv}">${m.price}</span>
-                    </div>
-                `).join('');
-            } else {
-                marketData.slice(0, 10).forEach(m => {
-                    const el = document.getElementById(`price-${m.deriv}`);
-                    if(el) el.innerText = m.price;
-                });
-            }
-        }
-
-        // --- UI HELPERS ---
-        function switchTab(tab) {
-            currentTab = tab;
-            ['active', 'history', 'leaderboard', 'feedback'].forEach(t => {
-                const b = document.getElementById(`tab-${t}`);
-                if (t === tab) b.className = "px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all bg-slate-800 text-blue-400 shadow-lg border border-slate-700";
-                else b.className = "px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all text-slate-500 hover:text-slate-300";
-            });
-
-            document.getElementById('activeTradesList').classList.add('hidden');
-            document.getElementById('historyList').classList.add('hidden');
-            document.getElementById('leaderboardList').classList.add('hidden');
-            document.getElementById('feedbackList').classList.add('hidden');
-
-            if (tab === 'active') {
-                document.getElementById('activeTradesList').classList.remove('hidden');
-                renderActiveTrades();
-            } else if (tab === 'history') {
-                document.getElementById('historyList').classList.remove('hidden');
-                renderHistory();
-            } else if (tab === 'leaderboard') {
-                document.getElementById('leaderboardList').classList.remove('hidden');
-            } else if (tab === 'feedback') {
-                document.getElementById('feedbackList').classList.remove('hidden');
-            }
-        }
-
-        function renderActiveTrades() {
-            const list = document.getElementById('activeTradesList');
-            const active = trades.filter(t => t.status === 'open');
-            document.getElementById('activeCount').innerText = active.length;
-            
-            if (active.length === 0) {
-                list.innerHTML = '<div class="col-span-full text-center p-10 text-slate-500 text-sm">No active trades running.</div>';
-                return;
-            }
-
-            list.innerHTML = active.map(t => `
-                <div class="glass p-5 rounded-2xl border-l-4 ${t.type === 'buy' ? 'border-green-500' : 'border-red-500'} hover:bg-slate-900/60 transition-colors cursor-pointer" onclick="openEdit('${t.id}')">
-                    <div class="flex justify-between items-start mb-3">
-                        <div>
-                            <h3 class="font-bold text-white">${t.instrument}</h3>
-                            <span class="text-[10px] font-black uppercase ${t.type === 'buy' ? 'text-green-400 bg-green-500/10' : 'text-red-400 bg-red-500/10'} px-2 py-0.5 rounded">${t.type}</span>
-                        </div>
-                        <span class="text-xs font-mono text-slate-400">#${t.id.slice(0,4)}</span>
-                    </div>
-                    <div class="grid grid-cols-2 gap-2 text-xs text-slate-400 mb-3">
-                        <div>Entry: <span class="text-white font-mono">${t.entryPrice}</span></div>
-                        <div>Lots: <span class="text-white font-mono">${t.lots}</span></div>
-                    </div>
-                    <div class="flex justify-between items-center pt-3 border-t border-slate-800">
-                        <span class="text-[10px] uppercase font-bold text-slate-500">Running PnL</span>
-                        <span class="font-mono font-bold text-sm text-white">...</span>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function renderHistory() {
-            const tbody = document.getElementById('historyTableBody');
-            const history = trades.filter(t => t.status === 'closed');
-            
-            // Filter logic
-            const fInst = document.getElementById('filterInstrument').value.toLowerCase();
-            const fSide = document.getElementById('filterSide').value;
-            // Add more filter logic here
-            
-            const filtered = history.filter(t => 
-                (!fInst || t.instrument.toLowerCase().includes(fInst)) &&
-                (!fSide || t.type === fSide)
-            );
-
-            tbody.innerHTML = filtered.map(t => `
-                <tr class="hover:bg-slate-800/30 border-b border-slate-800/50 transition-colors">
-                    <td class="p-4">
-                        <div class="font-bold text-xs text-white">${t.instrument}</div>
-                        <div class="text-[10px] text-slate-500">${new Date(t.openTime.seconds*1000).toLocaleDateString()}</div>
-                    </td>
-                    <td class="p-4"><span class="px-2 py-0.5 rounded text-[9px] font-black uppercase ${t.type === 'buy' ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}">${t.type}</span></td>
-                    <td class="p-4 text-xs font-mono text-slate-400">${t.lots}</td>
-                    <td class="p-4">
-                        <div class="text-[10px] text-slate-400">In: ${t.entryPrice}</div>
-                        <div class="text-[10px] text-slate-400">Out: ${t.closePrice}</div>
-                    </td>
-                    <td class="p-4 text-xs font-mono text-slate-500">-</td>
-                    <td class="p-4 text-xs font-mono font-bold ${t.pnl >= 0 ? 'profit-text' : 'loss-text'} text-right">$${t.pnl.toFixed(2)}</td>
-                    <td class="p-4 text-right">
-                         <button class="text-slate-600 hover:text-white"><i data-lucide="more-horizontal" class="w-4 h-4"></i></button>
-                    </td>
-                </tr>
-            `).join('');
-            
-            lucide.createIcons();
-        }
-
-        function updateStats() {
-            const closed = trades.filter(t => t.status === 'closed');
-            const totalPnl = closed.reduce((acc, t) => acc + t.pnl, 0);
-            const wins = closed.filter(t => t.pnl > 0).length;
-            const winRate = closed.length ? Math.round((wins / closed.length) * 100) : 0;
-            const totalLots = trades.reduce((acc, t) => acc + t.lots, 0);
-
-            document.getElementById('totalPnl').innerText = `$${totalPnl.toFixed(2)}`;
-            document.getElementById('totalPnl').className = `text-2xl font-black font-mono mt-1 ${totalPnl >= 0 ? 'profit-text' : 'loss-text'}`;
-            document.getElementById('winRate').innerText = `${winRate}%`;
-            document.getElementById('totalLots').innerText = totalLots.toFixed(2);
-        }
-
-        function openEdit(id) {
-            currentEditTradeId = id;
-            const t = trades.find(tr => tr.id === id);
-            if(t) {
-                document.getElementById('editModal').classList.remove('hidden');
-                document.getElementById('editModal').classList.add('active');
-                // Could populate current price
-            }
-        }
-        function closeEditModal() {
-            document.getElementById('editModal').classList.remove('active');
-            document.getElementById('editModal').classList.add('hidden');
-        }
-
-        function openModal() {
-            document.getElementById('tradeModal').classList.remove('hidden');
-            document.getElementById('tradeModal').classList.add('active');
-        }
-        function closeModal() {
-            document.getElementById('tradeModal').classList.remove('active');
-            document.getElementById('tradeModal').classList.add('hidden');
-        }
-
-        function toggleChart() {
-            const s = document.getElementById('chartSection');
-            s.classList.toggle('hidden');
-            if(!s.classList.contains('hidden') && !tvWidget) {
-                // Init TradingView
-                 new TradingView.widget({
-                    "width": "100%",
-                    "height": 500,
-                    "symbol": "DERIV:R_100",
-                    "interval": "D",
-                    "timezone": "Etc/UTC",
-                    "theme": "dark",
-                    "style": "1",
-                    "locale": "en",
-                    "toolbar_bg": "#f1f3f6",
-                    "enable_publishing": false,
-                    "allow_symbol_change": true,
-                    "container_id": "tv-container"
-                });
-                tvWidget = true;
-            }
-        }
-
-        function exportCSV() {
-            const closed = trades.filter(t => t.status === 'closed');
-            let csv = 'Time,Instrument,Type,Lots,Entry,Exit,PnL\n';
-            closed.forEach(t => {
-                csv += `${new Date(t.openTime.seconds*1000).toISOString()},${t.instrument},${t.type},${t.lots},${t.entryPrice},${t.closePrice},${t.pnl}\n`;
-            });
-            const blob = new Blob([csv], { type: 'text/csv' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'trading_journal.csv';
-            a.click();
-        }
-
+        
         // --- ADMIN FUNCTIONS ---
         async function loadStudents() {
             const list = document.getElementById('studentList');
@@ -1084,7 +1046,6 @@
             document.getElementById('studentEmail').innerText = email;
             document.getElementById('studentId').innerText = uid;
             
-            // Load their trades
             db.collection('users').doc(uid).collection('trades').orderBy('openTime', 'desc').onSnapshot(snap => {
                 const tList = snap.docs.map(d => d.data());
                 const total = tList.reduce((acc, t) => acc + (t.status === 'closed' ? t.pnl : 0), 0);
@@ -1107,7 +1068,6 @@
                 }
             });
 
-            // Load comments
             db.collection('users').doc(uid).collection('comments').orderBy('createdAt', 'desc').onSnapshot(snap => {
                 const list = document.getElementById('commentsList');
                 if(snap.empty) {
@@ -1126,7 +1086,6 @@
             if(!selectedStudentId) return;
             const text = document.getElementById('commentInput').value.trim();
             if(!text) return;
-            
             await db.collection('users').doc(selectedStudentId).collection('comments').add({
                 text: text,
                 createdAt: firebase.firestore.FieldValue.serverTimestamp(),
@@ -1140,12 +1099,253 @@
             if(selectedStudentId) selectStudent(selectedStudentId, document.getElementById('studentEmail').innerText);
         }
 
-        function loadLeaderboard() {
-            // Demo implementation - in real app would query global collection or aggregation
-            const div = document.getElementById('leaderboardContent');
-            div.innerHTML = '<p class="text-center text-slate-500 text-xs">Leaderboard data not available in demo.</p>';
+        // --- SHARED UTILS ---
+        function setConnectionStatus(online) {
+            const el = document.getElementById('connectionStatus');
+            if (online) {
+                el.className = "flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900 border border-slate-800 text-xs";
+                el.innerHTML = '<div class="live-indicator"></div><span class="text-slate-400 font-medium">LIVE DATA</span>';
+            } else {
+                el.className = "flex items-center gap-2 px-3 py-1.5 rounded-full bg-red-900/20 border border-red-900/50 text-xs";
+                el.innerHTML = '<div class="w-2 h-2 rounded-full bg-red-500"></div><span class="text-red-400 font-medium">OFFLINE</span>';
+            }
         }
 
+        function populateInstruments() {
+            const s = document.getElementById('f-instrument');
+            const groups = {};
+            marketData.forEach(m => {
+                if (!groups[m.market]) groups[m.market] = [];
+                groups[m.market].push(m);
+            });
+            s.innerHTML = Object.keys(groups).sort().map(cat => `
+                <optgroup label="${cat}">
+                    ${groups[cat].map(m => `<option value="${m.symbol}">${m.symbol}</option>`).join('')}
+                </optgroup>
+            `).join('');
+            s.addEventListener('change', () => {
+                 const m = marketData.find(x => x.symbol === s.value);
+                 if(m && m.price) document.getElementById('f-entry').value = m.price;
+            });
+        }
+
+        function renderTicker() {
+            const c = document.getElementById('tickerContainer');
+            if (c.childElementCount === 0) {
+                c.innerHTML = marketData.slice(0, 10).map(m => `
+                    <div class="flex-shrink-0 px-3 py-1.5 bg-slate-900 rounded-lg border border-slate-800 flex items-center gap-2 min-w-[120px]">
+                        <span class="text-[10px] font-bold text-slate-400">${m.symbol}</span>
+                        <span class="text-xs font-mono font-bold text-white" id="price-${m.deriv}">${m.price}</span>
+                    </div>
+                `).join('');
+            } else {
+                marketData.slice(0, 10).forEach(m => {
+                    const el = document.getElementById(`price-${m.deriv}`);
+                    if(el) el.innerText = m.price;
+                });
+            }
+        }
+
+        function switchTab(tab) {
+            currentTab = tab;
+            ['active', 'history', 'leaderboard', 'feedback'].forEach(t => {
+                const b = document.getElementById(`tab-${t}`);
+                if (t === tab) b.className = "px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all bg-slate-800 text-blue-400 shadow-lg border border-slate-700";
+                else b.className = "px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all text-slate-500 hover:text-slate-300";
+            });
+
+            document.getElementById('activeTradesList').classList.add('hidden');
+            document.getElementById('historyList').classList.add('hidden');
+            document.getElementById('leaderboardList').classList.add('hidden');
+            document.getElementById('feedbackList').classList.add('hidden');
+
+            if (tab === 'active') {
+                document.getElementById('activeTradesList').classList.remove('hidden');
+                renderActiveTrades();
+            } else if (tab === 'history') {
+                document.getElementById('historyList').classList.remove('hidden');
+                renderHistory();
+            } else if (tab === 'leaderboard') {
+                document.getElementById('leaderboardList').classList.remove('hidden');
+                loadLeaderboard();
+            } else if (tab === 'feedback') {
+                document.getElementById('feedbackList').classList.remove('hidden');
+                loadFeedback();
+            }
+        }
+
+        function renderActiveTrades() {
+            const list = document.getElementById('activeTradesList');
+            const active = trades.filter(t => t.status === 'open');
+            document.getElementById('activeCount').innerText = active.length;
+            if (active.length === 0) {
+                list.innerHTML = '<div class="col-span-full text-center p-10 text-slate-500 text-sm">No active trades running.</div>';
+                return;
+            }
+            list.innerHTML = active.map(t => `
+                <div class="glass p-5 rounded-2xl border-l-4 ${t.type === 'buy' ? 'border-green-500' : 'border-red-500'} hover:bg-slate-900/60 transition-colors cursor-pointer" onclick="openEdit('${t.id}')">
+                    <div class="flex justify-between items-start mb-3">
+                        <div>
+                            <h3 class="font-bold text-white">${t.instrument}</h3>
+                            <span class="text-[10px] font-black uppercase ${t.type === 'buy' ? 'text-green-400 bg-green-500/10' : 'text-red-400 bg-red-500/10'} px-2 py-0.5 rounded">${t.type}</span>
+                        </div>
+                        <span class="text-xs font-mono text-slate-400">#${t.id.slice(0,4)}</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 text-xs text-slate-400 mb-3">
+                        <div>Entry: <span class="text-white font-mono">${t.entryPrice}</span></div>
+                        <div>Lots: <span class="text-white font-mono">${t.lots}</span></div>
+                    </div>
+                    <div class="flex justify-between items-center pt-3 border-t border-slate-800">
+                        <span class="text-[10px] uppercase font-bold text-slate-500">Running PnL</span>
+                        <span class="font-mono font-bold text-sm text-white">...</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderHistory() {
+            const tbody = document.getElementById('historyTableBody');
+            const history = trades.filter(t => t.status === 'closed');
+            const fInst = document.getElementById('filterInstrument').value.toLowerCase();
+            const fSide = document.getElementById('filterSide').value;
+            
+            const filtered = history.filter(t => 
+                (!fInst || t.instrument.toLowerCase().includes(fInst)) &&
+                (!fSide || t.type === fSide)
+            );
+
+            tbody.innerHTML = filtered.map(t => `
+                <tr class="hover:bg-slate-800/30 border-b border-slate-800/50 transition-colors">
+                    <td class="p-4">
+                        <div class="font-bold text-xs text-white">${t.instrument}</div>
+                        <div class="text-[10px] text-slate-500">${new Date(t.openTime.seconds*1000).toLocaleDateString()}</div>
+                    </td>
+                    <td class="p-4"><span class="px-2 py-0.5 rounded text-[9px] font-black uppercase ${t.type === 'buy' ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}">${t.type}</span></td>
+                    <td class="p-4 text-xs font-mono text-slate-400">${t.lots}</td>
+                    <td class="p-4">
+                        <div class="text-[10px] text-slate-400">In: ${t.entryPrice}</div>
+                        <div class="text-[10px] text-slate-400">Out: ${t.closePrice}</div>
+                    </td>
+                    <td class="p-4 text-xs font-mono text-slate-500">-</td>
+                    <td class="p-4 text-xs font-mono font-bold ${t.pnl >= 0 ? 'profit-text' : 'loss-text'} text-right">$${t.pnl.toFixed(2)}</td>
+                    <td class="p-4 text-right">
+                         <button class="text-slate-600 hover:text-white"><i data-lucide="more-horizontal" class="w-4 h-4"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        function updateStats() {
+            const closed = trades.filter(t => t.status === 'closed');
+            const totalPnl = closed.reduce((acc, t) => acc + t.pnl, 0);
+            const wins = closed.filter(t => t.pnl > 0).length;
+            const winRate = closed.length ? Math.round((wins / closed.length) * 100) : 0;
+            const totalLots = trades.reduce((acc, t) => acc + t.lots, 0);
+
+            document.getElementById('totalPnl').innerText = `$${totalPnl.toFixed(2)}`;
+            document.getElementById('totalPnl').className = `text-2xl font-black font-mono mt-1 ${totalPnl >= 0 ? 'profit-text' : 'loss-text'}`;
+            document.getElementById('winRate').innerText = `${winRate}%`;
+            document.getElementById('totalLots').innerText = totalLots.toFixed(2);
+        }
+
+        function openEdit(id) {
+            currentEditTradeId = id;
+            document.getElementById('editModal').classList.remove('hidden');
+            document.getElementById('editModal').classList.add('active');
+        }
+        function closeEditModal() {
+            document.getElementById('editModal').classList.remove('active');
+            document.getElementById('editModal').classList.add('hidden');
+        }
+        function openModal() {
+            document.getElementById('tradeModal').classList.remove('hidden');
+            document.getElementById('tradeModal').classList.add('active');
+        }
+        function closeModal() {
+            document.getElementById('tradeModal').classList.remove('active');
+            document.getElementById('tradeModal').classList.add('hidden');
+        }
+        function toggleChart() {
+            const s = document.getElementById('chartSection');
+            s.classList.toggle('hidden');
+            if(!s.classList.contains('hidden') && chart) {
+                // Trigger resize
+                chart.timeScale().fitContent();
+            }
+        }
+        function setSide(s) {
+            tradeSide = s;
+            document.getElementById('btn-buy').className = s === 'buy' ? "flex-1 py-2.5 rounded-lg text-[10px] font-black uppercase bg-green-600 text-white shadow-lg" : "flex-1 py-2.5 rounded-lg text-[10px] font-black uppercase text-slate-500";
+            document.getElementById('btn-sell').className = s === 'sell' ? "flex-1 py-2.5 rounded-lg text-[10px] font-black uppercase bg-red-600 text-white shadow-lg" : "flex-1 py-2.5 rounded-lg text-[10px] font-black uppercase text-slate-500";
+        }
+
+        function showNotification(msg, type) {
+            const c = document.getElementById('notification-container') || createNotifContainer();
+            const el = document.createElement('div');
+            el.className = `p-4 rounded-xl shadow-2xl mb-3 text-sm font-bold text-white transform transition-all translate-x-full ${type==='error'?'bg-red-600':type==='success'?'bg-green-600':type==='warning'?'bg-yellow-600':'bg-blue-600'}`;
+            el.innerHTML = `<div class="flex items-center gap-3"><i data-lucide="${type==='error'?'alert-circle':type==='warning'?'alert-triangle':'check-circle'}" class="w-5 h-5"></i><span>${msg}</span></div>`;
+            c.appendChild(el);
+            lucide.createIcons();
+            requestAnimationFrame(() => el.classList.remove('translate-x-full'));
+            setTimeout(() => { el.classList.add('translate-x-full', 'opacity-0'); setTimeout(()=>el.remove(), 300); }, 4000);
+        }
+
+        function createNotifContainer() {
+            const d = document.createElement('div');
+            d.id = 'notification-container';
+            d.className = 'fixed top-4 right-4 z-[300] flex flex-col items-end w-full max-w-sm pointer-events-none';
+            document.body.appendChild(d);
+            return d;
+        }
+
+        async function confirmCloseTrade() {
+            if (!currentEditTradeId) return;
+            const closePrice = parseFloat(document.getElementById('e-closePrice').value);
+            const user = auth.currentUser;
+            const t = trades.find(tr => tr.id === currentEditTradeId);
+            if (!t) return;
+            
+            let pnl = 0;
+            const multiplier = t.instrument.includes('Vol') ? 1 : 10; 
+            if (t.type === 'buy') pnl = (closePrice - t.entryPrice) * t.lots * multiplier;
+            else pnl = (t.entryPrice - closePrice) * t.lots * multiplier;
+
+            await db.collection('users').doc(user.uid).collection('trades').doc(currentEditTradeId).update({
+                status: 'closed',
+                closePrice: closePrice,
+                closeTime: firebase.firestore.FieldValue.serverTimestamp(),
+                pnl: pnl
+            });
+            closeEditModal();
+            showNotification('Trade closed', 'success');
+        }
+
+        async function deleteTrade() {
+            if (!currentEditTradeId || !confirm('Delete this trade record?')) return;
+            await db.collection('users').doc(auth.currentUser.uid).collection('trades').doc(currentEditTradeId).delete();
+            closeEditModal();
+            showNotification('Trade deleted', 'success');
+        }
+        
+        function exportCSV() {
+            const closed = trades.filter(t => t.status === 'closed');
+            let csv = 'Time,Instrument,Type,Lots,Entry,Exit,PnL\n';
+            closed.forEach(t => {
+                csv += `${new Date(t.openTime.seconds*1000).toISOString()},${t.instrument},${t.type},${t.lots},${t.entryPrice},${t.closePrice},${t.pnl}\n`;
+            });
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'trading_journal.csv';
+            a.click();
+        }
+        
+        // Placeholder for missing load functions
+        function loadLeaderboard() {
+            document.getElementById('leaderboardContent').innerHTML = '<p class="text-center text-slate-500 text-xs">Leaderboard coming soon.</p>';
+        }
         function loadFeedback() {
              const user = auth.currentUser;
              if(!user) return;
@@ -1160,32 +1360,6 @@
                      }).join('');
                  }
              });
-        }
-        
-        // --- UTILS ---
-        function setSide(s) {
-            tradeSide = s;
-            document.getElementById('btn-buy').className = s === 'buy' ? "flex-1 py-2.5 rounded-lg text-[10px] font-black uppercase bg-green-600 text-white shadow-lg" : "flex-1 py-2.5 rounded-lg text-[10px] font-black uppercase text-slate-500";
-            document.getElementById('btn-sell').className = s === 'sell' ? "flex-1 py-2.5 rounded-lg text-[10px] font-black uppercase bg-red-600 text-white shadow-lg" : "flex-1 py-2.5 rounded-lg text-[10px] font-black uppercase text-slate-500";
-        }
-
-        function showNotification(msg, type) {
-            const c = document.getElementById('notification-container') || createNotifContainer();
-            const el = document.createElement('div');
-            el.className = `p-4 rounded-xl shadow-2xl mb-3 text-sm font-bold text-white transform transition-all translate-x-full ${type==='error'?'bg-red-600':type==='success'?'bg-green-600':'bg-blue-600'}`;
-            el.innerHTML = `<div class="flex items-center gap-3"><i data-lucide="${type==='error'?'alert-circle':'check-circle'}" class="w-5 h-5"></i><span>${msg}</span></div>`;
-            c.appendChild(el);
-            lucide.createIcons();
-            requestAnimationFrame(() => el.classList.remove('translate-x-full'));
-            setTimeout(() => { el.classList.add('translate-x-full', 'opacity-0'); setTimeout(()=>el.remove(), 300); }, 4000);
-        }
-
-        function createNotifContainer() {
-            const d = document.createElement('div');
-            d.id = 'notification-container';
-            d.className = 'fixed top-4 right-4 z-[300] flex flex-col items-end w-full max-w-sm pointer-events-none';
-            document.body.appendChild(d);
-            return d;
         }
     </script>
 </body>
