@@ -1220,6 +1220,14 @@
         function selectTickerInstrument(symbol) {
             const c = document.getElementById('chartSymbolSelector');
             if(c) {
+                // Ensure option exists for old-style selector
+                if (!Array.from(c.options).some(o => o.value === symbol)) {
+                     const m = marketData.find(x => x.deriv === symbol);
+                     const opt = document.createElement('option');
+                     opt.value = symbol;
+                     opt.text = m ? m.symbol : symbol;
+                     c.add(opt);
+                }
                 c.value = symbol;
                 c.dispatchEvent(new Event('change'));
                 document.getElementById('chartSection').classList.remove('hidden');
