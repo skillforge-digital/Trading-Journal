@@ -185,19 +185,28 @@
         </div>
       </div>
       
-      <div class="glass rounded-2xl overflow-hidden">
-        <div class="p-4 border-b border-slate-800 bg-slate-900/50 flex justify-between items-center"><h3 class="text-sm font-bold text-white uppercase">My Trades</h3><div class="flex items-center gap-3"><button id="refreshMyTrades" class="text-slate-400 hover:text-white"><i data-lucide="refresh-cw" class="w-4 h-4"></i></button></div></div>
-        <div class="overflow-x-auto"><table class="w-full text-left border-collapse"><thead class="bg-slate-900/80 text-[10px] uppercase text-slate-400 font-bold border-b border-slate-800"><tr><th class="p-5">Time</th><th class="p-5">Asset</th><th class="p-5">Type</th><th class="p-5">Lots</th><th class="p-5">PnL</th><th class="p-5">Status</th></tr></thead><tbody id="myTradeTable" class="divide-y divide-slate-800/50"><tr><td colspan="6" class="p-8 text-center text-slate-500 text-sm font-bold uppercase tracking-wider opacity-50">No trades yet.</td></tr></tbody></table></div>
-        <div class="p-6 flex justify-end"><div class="text-right"><p class="text-[10px] font-bold text-slate-500 uppercase">Total Profit</p><h3 id="myTotalPnl" class="text-2xl font-black font-mono text-white">$0.00</h3></div></div>
-      </div>
     </section>
 
     <section id="admin" class="section grid grid-cols-1 md:grid-cols-4 gap-6">
       <aside class="glass rounded-2xl overflow-hidden h-[70vh] flex flex-col"><div class="p-4 border-b border-slate-800 bg-slate-900/50"><h3 class="text-sm font-bold text-white uppercase">Students</h3></div><div id="studentList" class="flex-1 overflow-y-auto p-2 space-y-2 custom-scrollbar"><p class="text-center text-slate-500 text-xs mt-4">Loading students...</p></div></aside>
       <section class="md:col-span-3 space-y-6">
         <div id="studentHeader" class="glass p-6 rounded-2xl border-l-4 border-blue-500 hidden"><div class="flex justify-between items-start"><div><h2 id="studentEmail" class="text-2xl font-bold text-white">Select a Student</h2><p class="text-slate-500 text-xs uppercase tracking-widest mt-1">Student ID: <span id="studentId">---</span></p></div><div class="text-right"><p class="text-[10px] font-bold text-slate-500 uppercase">Total Profit</p><h3 id="adminTotalPnl" class="text-2xl font-black font-mono text-white">$0.00</h3></div></div></div>
-        <div class="glass rounded-2xl overflow-hidden min-h-[300px]"><div class="p-4 border-b border-slate-800 bg-slate-900/50 flex justify-between items-center"><h3 class="text-sm font-bold text-white uppercase">Trade Log</h3><div class="flex items-center gap-3"><button id="refreshTradesBtn" class="text-slate-400 hover:text-white"><i data-lucide="refresh-cw" class="w-4 h-4"></i></button><button id="publishLeaderboard2" class="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-[10px] font-bold uppercase tracking-wider hidden">Publish Leaderboard</button></div></div><div class="overflow-x-auto"><table class="w-full text-left border-collapse"><thead class="bg-slate-900/80 text-[10px] uppercase text-slate-400 font-bold border-b border-slate-800"><tr><th class="p-5">Time</th><th class="p-5">Asset</th><th class="p-5">Type</th><th class="p-5">Lots</th><th class="p-5">PnL</th><th class="p-5">Status</th></tr></thead><tbody id="adminTradeTable" class="divide-y divide-slate-800/50"><tr><td colspan="6" class="p-8 text-center text-slate-500 text-sm font-bold uppercase tracking-wider opacity-50">Select a student to view trades.</td></tr></tbody></table></div></div>
-        <div id="feedbackSection" class="glass p-6 rounded-2xl hidden border border-slate-700"><div class="flex items-center gap-2 mb-4"><i data-lucide="message-square" class="text-blue-500 w-5 h-5"></i><h3 class="text-sm font-bold text-white uppercase tracking-wider">Mentor Feedback &amp; Notes</h3></div><div id="commentsList" class="space-y-3 mb-6 max-h-60 overflow-y-auto pr-2 custom-scrollbar"></div><form id="commentForm" class="flex gap-3"><input type="text" id="commentInput" placeholder="Write a constructive comment..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl p-4 text-white focus:border-blue-500 outline-none text-sm transition-colors"><button type="submit" class="px-8 rounded-xl bg-blue-600 text-white font-bold text-xs uppercase tracking-wider">Send</button></form></div>
+        
+        <div id="adminTradesContainer" class="glass rounded-2xl overflow-hidden border border-slate-800 hidden">
+            <div class="p-4 border-b border-slate-800 bg-slate-900/50"><h3 class="text-sm font-bold text-white uppercase">Student Trades</h3></div>
+            <div class="overflow-x-auto"><table class="w-full text-left border-collapse"><thead class="bg-slate-900/80 text-[10px] uppercase text-slate-400 font-bold border-b border-slate-800"><tr><th class="p-5">Time</th><th class="p-5">Instrument</th><th class="p-5">Side</th><th class="p-5">Lots</th><th class="p-5">PnL</th><th class="p-5">Status</th></tr></thead><tbody id="adminTradeTable" class="divide-y divide-slate-800/50"></tbody></table></div>
+        </div>
+
+        <div id="feedbackSection" class="glass rounded-2xl overflow-hidden border border-slate-800 hidden">
+            <div class="p-4 border-b border-slate-800 bg-slate-900/50 flex items-center gap-3"><i data-lucide="message-circle" class="text-blue-500 w-5 h-5"></i><h3 class="text-sm font-bold text-white uppercase tracking-wider">Instructor Feedback</h3></div>
+            <div class="p-6 space-y-4">
+                <div id="commentsList" class="space-y-3 max-h-60 overflow-y-auto custom-scrollbar"></div>
+                <form id="commentForm" class="flex gap-2">
+                    <input id="commentInput" type="text" placeholder="Write feedback..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl p-3 text-white text-sm outline-none focus:border-blue-500">
+                    <button type="submit" class="p-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white"><i data-lucide="send" class="w-5 h-5"></i></button>
+                </form>
+            </div>
+        </div>
       </section>
     </section>
 
@@ -233,7 +242,7 @@
     
     // --- CONSTANTS ---
     const DERIV_APP_ID = 123621;
-    const ADMIN_PASSCODE = '#journal_admin_2026#';
+    const ADMIN_PASSCODE = '#skillmindset#';
     
     // --- INIT ---
     const app = initializeApp(firebaseConfig);
@@ -703,7 +712,9 @@
         const trades=snap.docs.map(d=>d.data());
         const totalPnl=trades.reduce((a,t)=>a+(t.status==='closed'?(t.pnl||0):0),0);
         const tbody=document.getElementById('myTradeTable');
-        if(trades.length===0){tbody.innerHTML='<tr><td colspan="6" class="p-8 text-center text-slate-500 text-sm">No trades yet.</td></tr>'}else{tbody.innerHTML=trades.map(t=>`<tr class="hover:bg-slate-800/30 border-b border-slate-800/50"><td class="p-4 text-xs text-slate-400">${t.openTime&&t.openTime.seconds?new Date(t.openTime.seconds*1000).toLocaleString():'-'}</td><td class="p-4 text-xs font-bold text-white">${t.instrument}</td><td class="p-4"><span class="px-2 py-0.5 rounded text-[9px] font-black uppercase ${t.type==='buy'?'bg-green-500/20 text-green-400':'bg-red-500/20 text-red-400'}">${t.type}</span></td><td class="p-4 text-xs font-mono text-slate-400">${t.lots||0}</td><td class="p-4 text-xs font-mono font-bold ${t.pnl>=0?'profit-text':'loss-text'}">$${(t.pnl||0).toFixed(2)}</td><td class="p-4 text-[10px] uppercase font-bold text-slate-500">${t.status}</td></tr>`).join('')}
+        if(tbody){
+          if(trades.length===0){tbody.innerHTML='<tr><td colspan="6" class="p-8 text-center text-slate-500 text-sm">No trades yet.</td></tr>'}else{tbody.innerHTML=trades.map(t=>`<tr class="hover:bg-slate-800/30 border-b border-slate-800/50"><td class="p-4 text-xs text-slate-400">${t.openTime&&t.openTime.seconds?new Date(t.openTime.seconds*1000).toLocaleString():'-'}</td><td class="p-4 text-xs font-bold text-white">${t.instrument}</td><td class="p-4"><span class="px-2 py-0.5 rounded text-[9px] font-black uppercase ${t.type==='buy'?'bg-green-500/20 text-green-400':'bg-red-500/20 text-red-400'}">${t.type}</span></td><td class="p-4 text-xs font-mono text-slate-400">${t.lots||0}</td><td class="p-4 text-xs font-mono font-bold ${t.pnl>=0?'profit-text':'loss-text'}">$${(t.pnl||0).toFixed(2)}</td><td class="p-4 text-[10px] uppercase font-bold text-slate-500">${t.status}</td></tr>`).join('')}
+        }
         document.getElementById('myTotalPnl').innerText=`$${totalPnl.toFixed(2)}`;
         document.getElementById('myTotalPnl').className=`text-2xl font-black font-mono ${totalPnl>=0?'profit-text':'loss-text'}`;
       });
@@ -720,6 +731,7 @@
       selectedStudentId=uid;
       document.getElementById('studentHeader').classList.remove('hidden');
       document.getElementById('feedbackSection').classList.remove('hidden');
+      document.getElementById('adminTradesContainer').classList.remove('hidden');
       document.getElementById('studentEmail').innerText=email;
       document.getElementById('studentId').innerText=uid;
       loadStudentTrades(uid);
@@ -805,7 +817,7 @@
     function exportCSV(){
       const rows=[['Time','Asset','Type','Lots','PnL','Status']];
       myTrades.forEach(t=>{rows.push([t.openTime&&t.openTime.seconds?new Date(t.openTime.seconds*1000).toISOString():'',t.instrument||'',t.type||'',t.lots||0,t.pnl||0,t.status||''])});
-      const csv=rows.map(r=>r.map(x=>`"${String(x).replace(/"/g,'""')}"`).join(',')).join('\\n');
+      const csv=rows.map(r=>r.map(x=>`"${String(x).replace(/"/g,'""')}"`).join(',')).join('\n');
       const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
       const url=URL.createObjectURL(blob);
       const a=document.createElement('a');a.href=url;a.download='trades.csv';document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
@@ -891,28 +903,28 @@
         const sl=Number(t.stopLoss||0);
         const tp=Number(t.takeProfit||0);
         const pipsNow=(pip&&entry&&live)?formatPips((live-entry)/pip):0;
-        return `<div class=\"glass p-5 rounded-2xl border border-slate-800 relative group hover:border-slate-600 transition-all ${isProfit?'shadow-green-900/10':'shadow-red-900/10'} shadow-xl\">
-          <div class=\"flex justify-between items-start mb-4\">
+        return `<div class="glass p-5 rounded-2xl border border-slate-800 relative group hover:border-slate-600 transition-all ${isProfit?'shadow-green-900/10':'shadow-red-900/10'} shadow-xl">
+          <div class="flex justify-between items-start mb-4">
             <div>
-              <div class=\"flex items-center gap-2 mb-1\">
-                <span class=\"text-xs font-black text-white bg-slate-800 px-2 py-0.5 rounded uppercase tracking-wider\">${t.instrument||'Instrument'}</span>
-                <span class=\"text-[10px] font-bold ${t.type==='buy'?'text-green-500':'text-red-500'} bg-slate-950 px-2 py-0.5 rounded uppercase\">${t.type}</span>
+              <div class="flex items-center gap-2 mb-1">
+                <span class="text-xs font-black text-white bg-slate-800 px-2 py-0.5 rounded uppercase tracking-wider">${t.instrument||'Instrument'}</span>
+                <span class="text-[10px] font-bold ${t.type==='buy'?'text-green-500':'text-red-500'} bg-slate-950 px-2 py-0.5 rounded uppercase">${t.type}</span>
               </div>
-              <span class=\"text-[10px] text-slate-500 font-mono\">${t.openTime&&t.openTime.seconds?new Date(t.openTime.seconds*1000).toLocaleDateString():''}</span>
+              <span class="text-[10px] text-slate-500 font-mono">${t.openTime&&t.openTime.seconds?new Date(t.openTime.seconds*1000).toLocaleDateString():''}</span>
             </div>
-            <div class=\"text-right\">
-              <div class=\"text-xl font-black font-mono ${isProfit?'text-green-500':'text-red-500'}\">${isProfit?'+':''}${pnl.toFixed(2)}</div>
-              <div class=\"text-[10px] text-slate-500 font-bold uppercase tracking-wider\">PnL</div>
+            <div class="text-right">
+              <div class="text-xl font-black font-mono ${isProfit?'text-green-500':'text-red-500'}">${isProfit?'+':''}${pnl.toFixed(2)}</div>
+              <div class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">PnL</div>
             </div>
           </div>
-          <div class=\"grid grid-cols-2 gap-4 mb-4\">
-            <div class=\"bg-slate-900/50 p-2 rounded-lg\">
-              <p class=\"text-[10px] text-slate-500 uppercase mb-0.5\">Lots</p>
-              <p class=\"font-mono text-xs text-white\">${t.lots||0}</p>
+          <div class="grid grid-cols-2 gap-4 mb-4">
+            <div class="bg-slate-900/50 p-2 rounded-lg">
+              <p class="text-[10px] text-slate-500 uppercase mb-0.5">Lots</p>
+              <p class="font-mono text-xs text-white">${t.lots||0}</p>
             </div>
-            <div class=\"bg-slate-900/50 p-2 rounded-lg\">
-              <p class=\"text-[10px] text-slate-500 uppercase mb-0.5\">Status</p>
-              <p class=\"font-mono text-xs text-white\">${t.status}</p>
+            <div class="bg-slate-900/50 p-2 rounded-lg">
+              <p class="text-[10px] text-slate-500 uppercase mb-0.5">Status</p>
+              <p class="font-mono text-xs text-white">${t.status}</p>
             </div>
           </div>
         </div>`;
@@ -922,25 +934,25 @@
       let history=myTrades.filter(t=>t.status==='closed');
       const tbody=document.getElementById('historyTableBody');
       if(!tbody)return;
-      if(history.length===0){tbody.innerHTML='<tr><td colspan=\"7\" class=\"py-20 text-center text-slate-500 text-sm font-bold uppercase tracking-wider opacity-50\">No History Records</td></tr>';return}
+      if(history.length===0){tbody.innerHTML='<tr><td colspan="7" class="py-20 text-center text-slate-500 text-sm font-bold uppercase tracking-wider opacity-50">No History Records</td></tr>';return}
       tbody.innerHTML=history.map(t=>{
         const pnl=Number(t.pnl||0);
         const isWin=pnl>=0;
-        return `<tr class=\"hover:bg-slate-800/30 transition-colors border-b border-slate-800/50 last:border-0\"><td class=\"p-5 font-bold text-white text-xs\">${t.instrument||''}</td><td class=\"p-5\"><span class=\"${t.type==='buy'?'text-green-500':'text-red-500'} font-bold text-[10px] uppercase bg-slate-900 px-2 py-1 rounded\">${t.type||''}</span></td><td class=\"p-5 font-mono text-xs text-slate-300\">${t.lots||0}</td><td class=\"p-5\"><div class=\"flex flex-col gap-1\"><span class=\"font-mono text-[10px] text-slate-400\">In: ${t.entryPrice||'-'}</span><span class=\"font-mono text-[10px] text-slate-400\">Out: ${t.closePrice||'-'}</span></div></td><td class=\"p-5 font-mono text-xs ${Number(t.pips||0)>=0?'text-green-500':'text-red-500'}\">${t.pips||0}</td><td class=\"p-5 text-right font-mono text-sm font-bold ${isWin?'text-green-400':'text-red-400'}\">${pnl>0?'+':''}${pnl.toFixed(2)}</td><td class=\"p-5 text-right\"><span class=\"text-[10px] text-slate-500\">${t.closeTime&&t.closeTime.seconds?new Date(t.closeTime.seconds*1000).toLocaleDateString():'-'}</span></td></tr>`;
+        return `<tr class="hover:bg-slate-800/30 transition-colors border-b border-slate-800/50 last:border-0"><td class="p-5 font-bold text-white text-xs">${t.instrument||''}</td><td class="p-5"><span class="${t.type==='buy'?'text-green-500':'text-red-500'} font-bold text-[10px] uppercase bg-slate-900 px-2 py-1 rounded">${t.type||''}</span></td><td class="p-5 font-mono text-xs text-slate-300">${t.lots||0}</td><td class="p-5"><div class="flex flex-col gap-1"><span class="font-mono text-[10px] text-slate-400">In: ${t.entryPrice||'-'}</span><span class="font-mono text-[10px] text-slate-400">Out: ${t.closePrice||'-'}</span></div></td><td class="p-5 font-mono text-xs ${Number(t.pips||0)>=0?'text-green-500':'text-red-500'}">${t.pips||0}</td><td class="p-5 text-right font-mono text-sm font-bold ${isWin?'text-green-400':'text-red-400'}">${pnl>0?'+':''}${pnl.toFixed(2)}</td><td class="p-5 text-right"><span class="text-[10px] text-slate-500">${t.closeTime&&t.closeTime.seconds?new Date(t.closeTime.seconds*1000).toLocaleDateString():'-'}</span></td></tr>`;
       }).join('');
     }
     function loadJournalLeaderboard(){
       const container=document.getElementById('leaderboardContent');
       if(!container)return;
       // Simple stub:
-      container.innerHTML='<p class=\"text-center text-slate-500 text-xs py-10\">Leaderboard not published yet.</p>';
+      container.innerHTML='<p class="text-center text-slate-500 text-xs py-10">Leaderboard not published yet.</p>';
     }
     function loadJournalFeedback(){
       const u=auth.currentUser; if(!u)return;
       const container=document.getElementById('feedbackContent');
       onSnapshot(query(collection(db,'users',u.uid,'comments'),orderBy('createdAt','desc')),snap=>{
-        if(snap.empty){container.innerHTML='<div class=\"text-center py-10\"><div class=\"inline-flex p-4 rounded-full bg-slate-900 mb-3\"><i data-lucide=\"message-square\" class=\"text-slate-600\"></i></div><p class=\"text-slate-500 text-xs\">No feedback from mentors yet.</p></div>';if(window.lucide&&window.lucide.createIcons)window.lucide.createIcons();return}
-        container.innerHTML=snap.docs.map(docItem=>{const c=docItem.data();return `<div class=\"bg-slate-900/50 p-4 rounded-2xl border border-slate-800 relative\"><div class=\"absolute top-4 right-4 text-[9px] text-slate-600 font-mono\">${c.createdAt?new Date(c.createdAt.seconds*1000).toLocaleDateString():'Just now'}</div><div class=\"flex items-start gap-3\"><div class=\"bg-blue-900/30 p-2 rounded-lg\"><i data-lucide=\"user-check\" class=\"w-4 h-4 text-blue-400\"></i></div><div><h4 class=\"text-xs font-bold text-blue-200 mb-1\">Mentor Feedback</h4><p class=\"text-sm text-slate-300 leading-relaxed\">${c.text}</p></div></div></div>`}).join('');
+        if(snap.empty){container.innerHTML='<div class="text-center py-10"><div class="inline-flex p-4 rounded-full bg-slate-900 mb-3"><i data-lucide="message-square" class="text-slate-600"></i></div><p class="text-slate-500 text-xs">No feedback from mentors yet.</p></div>';if(window.lucide&&window.lucide.createIcons)window.lucide.createIcons();return}
+        container.innerHTML=snap.docs.map(docItem=>{const c=docItem.data();return `<div class="bg-slate-900/50 p-4 rounded-2xl border border-slate-800 relative"><div class="absolute top-4 right-4 text-[9px] text-slate-600 font-mono">${c.createdAt?new Date(c.createdAt.seconds*1000).toLocaleDateString():'Just now'}</div><div class="flex items-start gap-3"><div class="bg-blue-900/30 p-2 rounded-lg"><i data-lucide="user-check" class="w-4 h-4 text-blue-400"></i></div><div><h4 class="text-xs font-bold text-blue-200 mb-1">Mentor Feedback</h4><p class="text-sm text-slate-300 leading-relaxed">${c.text}</p></div></div></div>`}).join('');
         if(window.lucide&&window.lucide.createIcons)window.lucide.createIcons();
       });
     }
