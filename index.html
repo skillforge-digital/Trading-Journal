@@ -1516,5 +1516,157 @@
              });
         }
     </script>
+    <!-- =========================================================
+ SKILLFORGE LIVE TRADING EXTENSIONS (SAFE PATCH)
+ DO NOT MOVE – DO NOT EDIT EXISTING CODE
+========================================================= -->
+<script>
+/* ===========================
+   GLOBAL STATE EXTENSIONS
+=========================== */
+let ACCOUNT_BALANCE = 10000;
+let RISK_PERCENT = 1;
+let dailyStartBalance = ACCOUNT_BALANCE;
+const MAX_DAILY_LOSS_PCT = 3;
+let equityHistory = [];
+let liveCandles = {};
+let priceMap = {};
+let currentSession = 'Asia';
+
+/* ===========================
+   SESSION TRACKING
+=========================== */
+function getTradingSession() {
+    const h = new Date().getUTCHours();
+    if (h >= 7 && h < 16) return 'London';
+    if (h >= 13 && h < 22) return 'New York';
+    return 'Asia';
+}
+
+/* ===========================
+   RISK & LOT CALCULATION
+=========================== */
+function calculateRiskLot(entry, stop) {
+    const riskAmount = ACCOUNT_BALANCE * (RISK_PERCENT / 100);
+    const distance = Math.abs(entry - stop);
+    if (!distance) return 0;
+    return Number((riskAmount / (distance * 10)).toFixed(2));
+}
+
+/* ===========================
+   DAILY LOSS LOCKOUT
+=========================== */
+function checkDailyLoss() {
+    const lossPct = ((ACCOUNT_BALANCE - dailyStartBalance) / dailyStartBalance) * 100;
+    if (lossPct <= -MAX_DAILY_LOSS_PCT) {
+        const btn = document.getElementById('btn-new-trade');
+        if (btn) btn.disabled = true;
+        showNotification('Max daily loss reached. Trading locked.', 'error');
+    }
+}
+
+/* ===========================
+   LIVE PIP & PNL CALC
+=========================== */
+function getPipSize(symbol) {
+    if (symbol.includes('JPY')) return 0.01;
+    if (symbol.includes('XAU')) return 0.1;
+    if (symbol.includes('BTC')) return 1;
+    return 0.0001;
+}
+
+function updateLiveTrades(symbol, price) {
+    trades.forEach(t => {
+        if (t.status !== 'open' || t.instrument !== symbol) return;
+
+        const pip = getPipSize(symbol);
+        const dir = t.type === 'buy' ? 1 : -1;
+        const pips = ((price - t.entryPrice) * dir) / pip;
+        const pnl = pips * t.lots * 10;
+
+        t.livePrice = price;
+        t.pips = Number(pips.toFixed(1));
+        t.pnl = Number(pnl.toFixed(2));
+    });
+
+    renderActiveTrades();
+    updateStats();
+}
+
+/* ===========================
+   REAL CANDLES FROM TICKS
+=========================== */
+const CANDLE_INTERVAL = 60;
+
+function updateCandle(symbol, price, epoch) {
+    if (!chart || symbol !== currentChartSymbol) return;
+
+    const t = epoch - (epoch % CANDLE_INTERVAL);
+    if (!liveCandles[symbol]) {
+        liveCandles[symbol] = { time: t, open: price, high: price, low: price, close: price };
+        candleSeries.setData([liveCandles[symbol]]);
+        return;
+    }
+
+    const c = liveCandles[symbol];
+    if (t > c.time) {
+        c.time = t;
+        c.open = c.close;
+        c.high = c.close;
+        c.low = c.close;
+    }
+
+    c.high = Math.max(c.high, price);
+    c.low = Math.min(c.low, price);
+    c.close = price;
+
+    candleSeries.update(c);
+}
+
+/* ===========================
+   DERIV WS EXTENSION
+=========================== */
+const _oldUpdatePrice = updatePrice;
+updatePrice = function (tick) {
+    _oldUpdatePrice(tick);
+    priceMap[tick.symbol] = tick.quote;
+    updateLiveTrades(tick.symbol, tick.quote);
+    updateCandle(tick.symbol, tick.quote, tick.epoch);
+};
+
+/* ===========================
+   EQUITY & EXPECTANCY
+=========================== */
+function updateEquity(pnl) {
+    ACCOUNT_BALANCE += pnl;
+    equityHistory.push({ time: Date.now() / 1000, value: ACCOUNT_BALANCE });
+    checkDailyLoss();
+}
+
+function calculateExpectancy() {
+    const closed = trades.filter(t => t.status === 'closed');
+    if (!closed.length) return 0;
+
+    const wins = closed.filter(t => t.pnl > 0);
+    const losses = closed.filter(t => t.pnl < 0);
+
+    const winRate = wins.length / closed.length;
+    const avgWin = wins.reduce((a, t) => a + t.pnl, 0) / (wins.length || 1);
+    const avgLoss = Math.abs(losses.reduce((a, t) => a + t.pnl, 0) / (losses.length || 1));
+
+    return (winRate * avgWin) - ((1 - winRate) * avgLoss);
+}
+
+/* ===========================
+   TRADE CLOSE HOOK
+=========================== */
+const _oldConfirmCloseTrade = confirmCloseTrade;
+confirmCloseTrade = async function () {
+    const t = trades.find(tr => tr.id === currentEditTradeId);
+    await _oldConfirmCloseTrade();
+    if (t && t.pnl) updateEquity(t.pnl);
+};
+</script>
+
 </body>
 </html>
