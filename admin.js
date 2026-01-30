@@ -12,48 +12,12 @@ if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
 }
 const db = firebase.firestore();
-const auth = firebase.auth();
 
 let selectedStudentId = null;
 
 document.addEventListener('DOMContentLoaded', () => {
     lucide.createIcons();
-    
-    // Wait for Auth to be ready
-    auth.onAuthStateChanged(async (user) => {
-        if (user) {
-            console.log('User authenticated:', user.email);
-            
-            try {
-                // FORCE Token Refresh to ensure claims (like admin) are up-to-date
-                const token = await user.getIdTokenResult(true);
-                
-                // Strict check to match Firestore Rules
-                // We only check email because we removed the admin claim check from rules
-                const isAdmin = ['admin@skillforge.com', 'admin@gmail.com'].includes(user.email);
-
-                if (isAdmin) {
-                    loadStudents();
-                } else {
-                    showNotification('Access Denied: Admin privileges required.', 'error');
-                    // Add debug info to UI before redirecting
-                    document.body.innerHTML = `<div class="p-10 text-center text-white">
-                        <h1 class="text-2xl font-bold text-red-500 mb-4">Access Denied</h1>
-                        <p class="mb-4">User: ${user.email}</p>
-                        <p class="text-slate-400 text-sm">Redirecting...</p>
-                    </div>`;
-                    setTimeout(() => window.location.href = 'index.html?error=admin_privilege_required', 3000);
-                }
-            } catch (err) {
-                console.error('Token refresh failed:', err);
-                // Try loading anyway if token refresh fails (offline mode?)
-                loadStudents(); 
-            }
-        } else {
-            console.warn('No user logged in. Redirecting to login...');
-            window.location.href = 'index.html?error=admin_login_required';
-        }
-    });
+    loadStudents();
 });
 
 // --- Notifications ---
@@ -107,9 +71,9 @@ async function loadStudents() {
                     <div class="w-10 h-10 rounded-full ${bgClass} flex items-center justify-center text-xs font-bold text-white shadow-lg shrink-0">
                         ${email.substring(0, 2).toUpperCase()}
                     </div>
-                    <div class="overflow-hidden w-full">
-                        <p class="text-xs font-bold text-slate-300 break-words group-hover:text-white transition-colors leading-tight">${email}</p>
-                        <p class="text-[10px] text-slate-500 font-mono mt-0.5">ID: ${doc.id.slice(0,6)}</p>
+                    <div class="overflow-hidden">
+                        <p class="text-xs font-bold text-slate-300 truncate group-hover:text-white transition-colors">${email}</p>
+                        <p class="text-[10px] text-slate-500 truncate font-mono">ID: ${doc.id.slice(0,6)}</p>
                     </div>
                     <i data-lucide="chevron-right" class="w-4 h-4 text-slate-600 group-hover:text-slate-400 ml-auto opacity-0 group-hover:opacity-100 transition-all"></i>
                 </div>
@@ -203,55 +167,4 @@ document.getElementById('commentForm').onsubmit = async (e) => {
 
 function refreshTrades() {
     if (selectedStudentId) loadStudentTrades(selectedStudentId);
-}
-
-async function publishLeaderboard() {
-    try {
-        showNotification('Calculating leaderboard...', 'info');
-        const usersSnap = await db.collection('users').get();
-        const leaderboard = [];
-
-        for (const doc of usersSnap.docs) {
-            const userData = doc.data();
-            const tradesSnap = await db.collection('users').doc(doc.id).collection('trades')
-                .where('status', '==', 'closed')
-                .get();
-
-            let totalPnL = 0;
-            let wins = 0;
-            const totalTrades = tradesSnap.size;
-
-            tradesSnap.forEach(t => {
-                const data = t.data();
-                const pnl = data.pnl || 0;
-                totalPnL += pnl;
-                if(pnl > 0) wins++;
-            });
-
-            if (totalTrades > 0) {
-                leaderboard.push({
-                    uid: doc.id,
-                    email: userData.email,
-                    pnl: totalPnL,
-                    winRate: (wins / totalTrades) * 100,
-                    trades: totalTrades
-                });
-            }
-        }
-
-        // Sort by PnL
-        leaderboard.sort((a, b) => b.pnl - a.pnl);
-
-        // Save to public collection
-        await db.collection('public').doc('leaderboard').set({
-            entries: leaderboard,
-            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
-
-        showNotification('Leaderboard published successfully!', 'success');
-        
-    } catch (error) {
-        console.error('Error publishing leaderboard:', error);
-        showNotification('Failed to publish leaderboard: ' + error.message, 'error');
-    }
 }

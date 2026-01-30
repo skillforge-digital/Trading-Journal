@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="description" content="Skillforge Trading Journal — student trading journal and dashboard" />
@@ -20,9 +20,6 @@
   <!-- Tailwind (CDN) -->
   <script src="https://cdn.tailwindcss.com" defer></script>
 
-  <!-- Lightweight Charts -->
-  <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
-
   <!-- Lucide icons — we'll ask it to create icons after load -->
   <script src="https://unpkg.com/lucide@latest" defer></script>
 
@@ -32,7 +29,7 @@
   <script src="https://www.gstatic.com/firebasejs/11.1.0/firebase-auth-compat.js" defer></script>
   <script src="https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore-compat.js" defer></script>
 
-  <link rel="stylesheet" href="styles.css?v=3" />
+  <link rel="stylesheet" href="styles.css" />
 </head>
 
 <body class="pb-10 text-white bg-transparent">
@@ -53,8 +50,11 @@
        role="dialog" aria-modal="true" aria-labelledby="authTitle">
     <div class="glass w-full max-w-lg rounded-3xl overflow-hidden shadow-2xl flex flex-col relative border border-slate-700 max-h-[90vh] overflow-y-auto">
       <div class="p-8 pb-0 text-center">
-        <div class="inline-flex items-center justify-center w-24 h-24 bg-transparent rounded-full mb-5 shadow-2xl ring-4 ring-blue-500/20 overflow-hidden">
-          <img src="https://i.postimg.cc/fRYD4HSw/Whats-App-Image-2026-01-16-at-1-20-06-PM.jpg" alt="Skillforge Logo" class="w-full h-full object-cover">
+        <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl mb-5 shadow-2xl shadow-blue-900/50 ring-1 ring-white/10">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" aria-hidden="true" class="text-white w-10 h-10">
+            <path d="M3 3v18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="m19 9-5 5-4-4-3 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
         </div>
         <h1 id="authTitle" class="text-2xl md:text-3xl font-black tracking-tight mb-1">SKILLFORGE <span class="text-blue-500">DIGITAL</span> &amp; CO. LTD</h1>
         <p class="text-blue-400 text-xs font-bold uppercase tracking-[0.2em]">Official Company</p>
@@ -108,40 +108,10 @@
           </div>
           <div>
             <label for="password" class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Password</label>
-            <div class="relative">
-              <input type="password" id="password" name="password" required aria-required="true" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 pr-12 text-white focus:border-blue-500 outline-none transition-colors">
-              <button type="button" id="btn-toggle-password" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white transition-colors" tabindex="-1">
-                <i data-lucide="eye" class="w-5 h-5"></i>
-              </button>
-            </div>
-            <div class="flex justify-end mt-1">
-              <button type="button" id="btn-forgot-password" class="text-[10px] text-slate-500 hover:text-blue-400 font-bold uppercase tracking-wider transition-colors">
-                Forgot Password?
-              </button>
-            </div>
+            <input type="password" id="password" name="password" required aria-required="true" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-white focus:border-blue-500 outline-none transition-colors">
           </div>
           <button type="submit" id="btn-auth-action" class="w-full btn-primary py-3 rounded-xl font-bold text-sm uppercase tracking-wider shadow-lg shadow-blue-900/20 mt-2">
             Proceed
-          </button>
-        </form>
-
-        <!-- Reset Password Form -->
-        <form id="resetForm" class="space-y-4 hidden" novalidate>
-          <div class="text-center mb-4">
-            <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-blue-900/30 text-blue-400 mb-3">
-              <i data-lucide="key-round" class="w-6 h-6"></i>
-            </div>
-            <p class="text-sm text-slate-400">Enter your email address and we'll send you a link to reset your password.</p>
-          </div>
-          <div>
-            <label for="resetEmail" class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Email Address</label>
-            <input type="email" id="resetEmail" name="resetEmail" required class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-white focus:border-blue-500 outline-none transition-colors">
-          </div>
-          <button type="submit" class="w-full btn-primary py-3 rounded-xl font-bold text-sm uppercase tracking-wider shadow-lg shadow-blue-900/20 mt-2">
-            Send Reset Link
-          </button>
-          <button type="button" id="btn-cancel-reset" class="w-full py-3 text-slate-500 hover:text-white text-sm font-bold transition-colors">
-            Back to Login
           </button>
         </form>
 
@@ -166,13 +136,14 @@
       <div class="max-w-7xl mx-auto px-4 py-4">
         <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
           <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-full overflow-hidden ring-2 ring-blue-500/50">
-              <img src="https://i.postimg.cc/fRYD4HSw/Whats-App-Image-2026-01-16-at-1-20-06-PM.jpg" alt="Logo" class="w-full h-full object-cover">
+            <div class="bg-blue-600 p-2 rounded-lg">
+              <i data-lucide="building-2" class="text-white w-6 h-6" aria-hidden="true"></i>
             </div>
             <div>
-              <h1 class="text-lg font-black tracking-tight text-white leading-none">
-                SKILL<span class="text-blue-500">FORGE</span>
+              <h1 class="text-xl md:text-2xl font-extrabold tracking-tight flex items-center gap-2">
+                SKILLFORGE <span class="text-blue-500">DIGITAL</span> &amp; CO. LTD
               </h1>
+              <p class="text-[10px] uppercase tracking-[0.2em] text-slate-500 font-bold">Student Dashboard</p>
             </div>
           </div>
 
@@ -181,10 +152,6 @@
               <div class="live-indicator" aria-hidden="true"></div>
               <span class="text-slate-400 font-medium">LIVE DATA</span>
             </div>
-
-            <button id="btn-toggle-orientation" type="button" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition-colors" title="Toggle Orientation/Fullscreen">
-              <i data-lucide="smartphone" class="w-5 h-5" aria-hidden="true"></i>
-            </button>
 
             <button id="btn-toggle-chart" type="button" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition-colors" title="Toggle Chart" aria-pressed="false">
               <i data-lucide="layout-grid" class="w-5 h-5" aria-hidden="true"></i>
@@ -457,7 +424,7 @@
   </div>
 
   <!-- Application JS (deferred). All DOM-dependent initialization should be in app.js -->
-  <script src="app.js?v=3" defer></script>
+  <script src="app.js" defer></script>
   <!-- Boot monitor: if app.js fails to load (e.g., wrong folder), show a visible banner -->
   <script>
     (function () {

@@ -44,20 +44,6 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log('App Initialization Started');
 
     try {
-        // Check for admin redirect errors
-        const urlParams = new URLSearchParams(window.location.search);
-        const error = urlParams.get('error');
-        if (error) {
-             if (error === 'admin_login_required') {
-                setTimeout(() => showNotification('Please login with an admin account first.', 'error'), 500);
-                setTimeout(() => showAuthForm('login'), 800);
-             } else if (error === 'admin_privilege_required') {
-                setTimeout(() => showNotification('Access Denied: You do not have admin privileges.', 'error'), 500);
-             }
-             // Clean URL
-             window.history.replaceState({}, document.title, window.location.pathname);
-        }
-
         // 1. Setup UI Event Listeners (CRITICAL: Do this first!)
         // This ensures buttons work even if other things fail
         setupUIListeners();
@@ -109,7 +95,6 @@ function setupUIListeners() {
     const btnNewTrade = document.getElementById('btn-new-trade');
     const btnLogout = document.getElementById('btn-logout');
     const btnToggleChart = document.getElementById('btn-toggle-chart');
-    const btnToggleOrientation = document.getElementById('btn-toggle-orientation');
     const btnCloseChart = document.getElementById('btn-close-chart');
     const tradeModalClose = document.getElementById('tradeModalClose');
 
@@ -126,49 +111,11 @@ function setupUIListeners() {
     if(tradeModalClose) tradeModalClose.addEventListener('click', closeModal);
     if(btnLogout) btnLogout.addEventListener('click', logout);
     if(btnToggleChart) btnToggleChart.addEventListener('click', toggleChart);
-    if(btnToggleOrientation) btnToggleOrientation.addEventListener('click', toggleOrientationFullscreen);
     if(btnCloseChart) btnCloseChart.addEventListener('click', toggleChart);
 
-    // --- Password Toggle ---
-    const btnTogglePassword = document.getElementById('btn-toggle-password');
-    const passwordInput = document.getElementById('password');
-    if (btnTogglePassword && passwordInput) {
-        btnTogglePassword.addEventListener('click', () => {
-            const isPassword = passwordInput.getAttribute('type') === 'password';
-            passwordInput.setAttribute('type', isPassword ? 'text' : 'password');
-            btnTogglePassword.classList.toggle('text-blue-500'); // Highlight when visible
-        });
-    }
-
-    // --- Forgot Password ---
-    const btnForgotPassword = document.getElementById('btn-forgot-password');
-    const btnCancelReset = document.getElementById('btn-cancel-reset');
-    const resetForm = document.getElementById('resetForm');
     const authForm = document.getElementById('authForm');
-    const authTitle = document.getElementById('auth-title');
-
-    if (btnForgotPassword) {
-        btnForgotPassword.addEventListener('click', () => {
-            if(authForm) authForm.classList.add('hidden');
-            if(resetForm) resetForm.classList.remove('hidden');
-            if(authTitle) authTitle.textContent = 'Reset Password';
-        });
-    }
-
-    if (btnCancelReset) {
-        btnCancelReset.addEventListener('click', () => {
-            if(resetForm) resetForm.classList.add('hidden');
-            if(authForm) authForm.classList.remove('hidden');
-            if(authTitle) authTitle.textContent = 'Student Login';
-        });
-    }
-
-    if (resetForm) {
-        resetForm.onsubmit = handlePasswordReset;
-    }
-
-    // Auth Forms
     const adminForm = document.getElementById('adminForm');
+
     if(authForm) authForm.onsubmit = handleStudentAuth;
     if(adminForm) adminForm.onsubmit = handleAdminAuth;
 
@@ -198,11 +145,6 @@ function setupAuthListeners() {
                 console.log('User Logged In:', user.email);
                 document.getElementById('authContainer').classList.add('hidden');
                 document.getElementById('appContent').classList.remove('hidden');
-                
-                // Restore last page/tab
-                const lastTab = localStorage.getItem('skillforge_last_tab') || 'active';
-                switchTab(lastTab);
-
                 loadUserTrades(user.uid);
                 loadLeaderboard();
                 if(typeof loadFeedback === 'function') loadFeedback();
@@ -275,10 +217,6 @@ function initDerivConnection() {
                 processActiveSymbols(data.active_symbols);
             } else if (data.msg_type === 'tick') {
                 updatePrice(data.tick);
-            } else if (data.msg_type === 'candles') {
-                handleChartHistory(data.candles);
-            } else if (data.msg_type === 'ohlc') {
-                handleChartUpdate(data.ohlc);
             } else if (data.error) {
                 console.warn('Deriv API Error:', data.error.message);
                 // Don't disconnect on API errors, just log (unless critical)
@@ -480,46 +418,6 @@ function createNotificationContainer() {
     return div;
 }
 
-// --- Export CSV ---
-function exportCSV() {
-    if (!trades || trades.length === 0) {
-        showNotification('No trades to export.', 'info');
-        return;
-    }
-
-    const headers = ['ID', 'Instrument', 'Type', 'Lots', 'Entry', 'Exit', 'SL', 'TP', 'PnL', 'Status', 'Strategy', 'Setup', 'Date'];
-    const rows = trades.map(t => [
-        t.id,
-        t.instrument,
-        t.type,
-        t.lots,
-        t.entryPrice,
-        t.closePrice || '',
-        t.stopLoss,
-        t.takeProfit,
-        (t.pnl || 0).toFixed(2),
-        t.status,
-        `"${t.strategy || ''}"`, // Quote strings to handle commas
-        `"${t.setup || ''}"`,
-        t.openTime ? new Date(t.openTime.seconds * 1000).toISOString().split('T')[0] : ''
-    ]);
-
-    const csvContent = [
-        headers.join(','),
-        ...rows.map(row => row.join(','))
-    ].join('\n');
-
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-    link.setAttribute('href', url);
-    link.setAttribute('download', `skillforge_journal_${new Date().toISOString().split('T')[0]}.csv`);
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-}
-
 // --- Auth Logic ---
 function showAuthForm(type) {
     document.getElementById('landing-options').classList.add('hidden');
@@ -546,44 +444,6 @@ function resetAuthView() {
     document.getElementById('auth-forms').classList.add('hidden');
 }
 
-async function handlePasswordReset(e) {
-    e.preventDefault();
-    const email = document.getElementById('resetEmail').value;
-    const btn = e.target.querySelector('button[type="submit"]');
-    const originalText = btn.innerHTML;
-    
-    if(!email) {
-        showNotification('Please enter your email address', 'error');
-        return;
-    }
-
-    try {
-        btn.innerHTML = 'Sending...';
-        btn.disabled = true;
-        
-        await auth.sendPasswordResetEmail(email);
-        
-        showNotification('Password reset email sent! Check your inbox.', 'success');
-        
-        // Return to login after short delay
-        setTimeout(() => {
-            document.getElementById('resetForm').classList.add('hidden');
-            document.getElementById('authForm').classList.remove('hidden');
-            const t = document.getElementById('auth-title');
-            if(t) t.textContent = 'Student Login';
-        }, 2000);
-        
-    } catch (error) {
-        console.error('Reset Error:', error);
-        let msg = error.message;
-        if(error.code === 'auth/user-not-found') msg = 'No account found with this email.';
-        showNotification(msg, 'error');
-    } finally {
-        btn.innerHTML = originalText;
-        btn.disabled = false;
-    }
-}
-
 async function handleStudentAuth(e) {
     e.preventDefault();
     const email = document.getElementById('email').value;
@@ -603,97 +463,18 @@ async function handleStudentAuth(e) {
     }
 }
 
-async function handleAdminAuth(e) {
+function handleAdminAuth(e) {
     e.preventDefault();
     const code = document.getElementById('adminPasscode').value;
-    const btn = e.target.querySelector('button');
-    const originalText = btn.innerText;
-
-    if (!code) return;
-
-    try {
-        btn.innerText = 'Verifying...';
-        btn.disabled = true;
-
-        // 1. Try to login as the system admin
-        // We map the "Passcode" to the password for 'admin@skillforge.com'
-        try {
-            await auth.signInWithEmailAndPassword('admin@skillforge.com', code);
-            showNotification('Admin Verified. Accessing Panel...', 'success');
-            setTimeout(() => window.location.href = 'admin.html', 1000);
-            return;
-        } catch (authError) {
-            // If login failed, check if it's the correct hardcoded passcode
-            // If so, we might need to CREATE the admin account for them
-            if (code === '#skillmindset#') {
-                if (authError.code === 'auth/user-not-found') {
-                    console.log('Admin account not found. Creating it...');
-                    await auth.createUserWithEmailAndPassword('admin@skillforge.com', code);
-                    showNotification('Admin Setup Complete. Entering...', 'success');
-                    setTimeout(() => window.location.href = 'admin.html', 1000);
-                    return;
-                } else if (authError.code === 'auth/wrong-password') {
-                     // This means the account exists but they changed the password or used a different one.
-                     // But since the code matches the hardcoded secret, we technically trust them...
-                     // However, we can't force login without the real password.
-                     showNotification('Incorrect Admin Password (Firebase).', 'error');
-                     return;
-                }
-            }
-            throw authError; // Rethrow if not handled above
-        }
-
-    } catch (error) {
-        console.error('Admin Auth Error:', error);
-        // Legacy fallback: If all else fails but passcode is correct, let them in (read-only likely)
-        if (code === '#skillmindset#') {
-             showNotification('Offline Access Granted (Limited Features)', 'warning');
-             setTimeout(() => window.location.href = 'admin.html', 1000);
-        } else {
-            showNotification('Access Denied: Invalid Passcode', 'error');
-        }
-    } finally {
-        btn.innerText = originalText;
-        btn.disabled = false;
+    if (code === '#skillmindset#') {
+        window.location.href = 'admin.html';
+    } else {
+        showNotification('Access Denied: Invalid Mentor Passcode', 'error');
     }
 }
 
 
-async function toggleOrientationFullscreen() {
-    try {
-        if (!document.fullscreenElement) {
-            if(document.documentElement.requestFullscreen) {
-                await document.documentElement.requestFullscreen();
-            } else if(document.documentElement.webkitRequestFullscreen) {
-                await document.documentElement.webkitRequestFullscreen();
-            }
-            
-            if (screen.orientation && screen.orientation.lock) {
-                try {
-                    await screen.orientation.lock('landscape');
-                    showNotification('Landscape Mode Locked', 'success');
-                } catch (e) {
-                    console.warn('Orientation lock failed:', e);
-                    showNotification('Please rotate your device', 'info');
-                }
-            }
-        } else {
-            if (document.exitFullscreen) {
-                await document.exitFullscreen();
-            } else if (document.webkitExitFullscreen) {
-                await document.webkitExitFullscreen();
-            }
-            
-            if (screen.orientation && screen.orientation.unlock) {
-                screen.orientation.unlock();
-            }
-        }
-    } catch (err) {
-        console.error('Fullscreen/Orientation Error:', err);
-        showNotification('Rotate device manually', 'info');
-    }
-}
-
+let tvWidget = null;
 async function toggleChart() {
     const s = document.getElementById('chartSection');
     s.classList.toggle('hidden');
@@ -706,7 +487,6 @@ async function toggleChart() {
 }
 
 function switchTab(tab) {
-    localStorage.setItem('skillforge_last_tab', tab);
     currentTab = tab;
     // Reset classes
     ['active', 'history', 'leaderboard', 'feedback'].forEach(t => {
@@ -835,29 +615,6 @@ async function showChartForSymbol(symbol) {
 function updateChartOnTick(tick) {
     // Deprecated for chart, handled by ohlc
 }
-
-function handleChartHistory(candles) {
-    if(!lwSeries) return;
-    const data = candles.map(c => ({
-        time: c.epoch,
-        open: parseFloat(c.open),
-        high: parseFloat(c.high),
-        low: parseFloat(c.low),
-        close: parseFloat(c.close)
-    }));
-    lwSeries.setData(data);
-}
-
-function handleChartUpdate(ohlc) {
-    if(!lwSeries) return;
-    lwSeries.update({
-        time: parseInt(ohlc.open_time),
-        open: parseFloat(ohlc.open),
-        high: parseFloat(ohlc.high),
-        low: parseFloat(ohlc.low),
-        close: parseFloat(ohlc.close)
-    });
-}
 // --- Trade Logic ---
 
 function loadUserTrades(uid) {
@@ -971,9 +728,9 @@ function renderActiveTrades() {
         return `
             <div class="glass p-5 rounded-2xl border border-slate-800 relative group hover:border-slate-600 transition-all ${isProfit ? 'shadow-green-900/10' : 'shadow-red-900/10'} shadow-xl">
                 <div class="flex justify-between items-start mb-4">
-                    <div class="flex-1 mr-2">
-                        <div class="flex flex-wrap items-center gap-2 mb-1">
-                            <span class="text-xs font-black text-white bg-slate-800 px-2 py-0.5 rounded uppercase tracking-wider break-words text-left">${t.instrument}</span>
+                    <div>
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="text-xs font-black text-white bg-slate-800 px-2 py-0.5 rounded uppercase tracking-wider">${t.instrument}</span>
                             <span class="text-[10px] font-bold ${t.type === 'buy' ? 'text-green-500' : 'text-red-500'} bg-slate-950 px-2 py-0.5 rounded uppercase">${t.type}</span>
                         </div>
                         <span class="text-[10px] text-slate-500 font-mono">#${t.id.slice(0,6)}</span>
@@ -1027,16 +784,16 @@ async function loadLeaderboard() {
             }
             container.innerHTML = entries.slice(0, 10).map((u, i) => `
                 <div class="flex items-center justify-between p-4 bg-slate-900/30 rounded-xl border border-slate-800 ${i === 0 ? 'border-yellow-500/50 bg-yellow-900/10' : ''}">
-                    <div class="flex items-center gap-4 min-w-0">
-                        <div class="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center font-bold text-xs ${i === 0 ? 'bg-yellow-500 text-black' : 'bg-slate-800 text-slate-400'}">
+                    <div class="flex items-center gap-4">
+                        <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs ${i === 0 ? 'bg-yellow-500 text-black' : 'bg-slate-800 text-slate-400'}">
                             ${i + 1}
                         </div>
-                        <div class="min-w-0">
-                            <p class="text-sm font-bold text-white break-words">${(u.name || u.email || '').toString().split('@')[0]}</p>
+                        <div>
+                            <p class="text-sm font-bold text-white">${(u.name || u.email || '').toString().split('@')[0]}</p>
                             <p class="text-[10px] text-slate-500">${(u.winRate || 0).toFixed(1)}% Win Rate</p>
                         </div>
                     </div>
-                    <div class="text-right flex-shrink-0 ml-2">
+                    <div class="text-right">
                         <p class="font-mono font-bold ${u.pnl >= 0 ? 'text-green-400' : 'text-red-400'}">${u.pnl >= 0 ? '+' : ''}${(u.pnl || 0).toFixed(2)}</p>
                     </div>
                 </div>
@@ -1057,9 +814,438 @@ async function loadLeaderboard() {
                 totalPnL += pnl;
                 if(pnl > 0) wins++;
             });
-            // ... (legacy calculation fallback)
+            if (totalTrades > 0) {
+                leaderboard.push({
+                    email: doc.data().email,
+                    pnl: totalPnL,
+                    winRate: (wins / totalTrades) * 100
+                });
+            }
         }
+        leaderboard.sort((a, b) => b.pnl - a.pnl);
+        if (leaderboard.length === 0) {
+            container.innerHTML = '<p class="text-center text-slate-500 text-xs py-10">No active traders yet.</p>';
+            return;
+        }
+        container.innerHTML = leaderboard.slice(0, 10).map((u, i) => `
+            <div class="flex items-center justify-between p-4 bg-slate-900/30 rounded-xl border border-slate-800 ${i === 0 ? 'border-yellow-500/50 bg-yellow-900/10' : ''}">
+                <div class="flex items-center gap-4">
+                    <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs ${i === 0 ? 'bg-yellow-500 text-black' : 'bg-slate-800 text-slate-400'}">
+                        ${i + 1}
+                    </div>
+                    <div>
+                        <p class="text-sm font-bold text-white">${u.email.split('@')[0]}</p>
+                        <p class="text-[10px] text-slate-500">${u.winRate.toFixed(1)}% Win Rate</p>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <p class="font-mono font-bold ${u.pnl >= 0 ? 'text-green-400' : 'text-red-400'}">${u.pnl >= 0 ? '+' : ''}${u.pnl.toFixed(2)}</p>
+                </div>
+            </div>
+        `).join('');
     } catch (e) {
-        console.error('Leaderboard error', e);
+        const container = document.getElementById('leaderboardContent');
+        try {
+            const user = auth.currentUser;
+            if(!user) throw e;
+            const tradesSnap = await db.collection('users').doc(user.uid).collection('trades').where('status', '==', 'closed').get();
+            let totalPnL = 0;
+            let wins = 0;
+            const totalTrades = tradesSnap.size;
+            tradesSnap.forEach(t => {
+                const data = t.data();
+                const pnl = data.pnl || 0;
+                totalPnL += pnl;
+                if(pnl > 0) wins++;
+            });
+            const winRate = totalTrades > 0 ? (wins / totalTrades) * 100 : 0;
+            container.innerHTML = `
+                <div class="p-4 bg-slate-900/30 rounded-xl border border-slate-800">
+                    <div class="flex items-center gap-3">
+                        <i data-lucide="user" class="text-slate-400 w-4 h-4"></i>
+                        <h4 class="text-sm font-bold text-white">Your Performance</h4>
+                    </div>
+                    <div class="flex justify-between mt-3">
+                        <span class="font-mono font-bold ${totalPnL >= 0 ? 'text-green-400' : 'text-red-400'}">${totalPnL >= 0 ? '+' : ''}${totalPnL.toFixed(2)}</span>
+                        <span class="text-[10px] text-slate-500">${winRate.toFixed(1)}% Win Rate</span>
+                    </div>
+                </div>
+                <p class="text-[10px] text-slate-500 mt-2">Full leaderboard requires admin-backed aggregation.</p>
+            `;
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        } catch (err) {
+            console.error("Leaderboard error:", e);
+            container.innerHTML = '<p class="text-center text-red-500 text-xs">Leaderboard unavailable (permissions).</p>';
+        }
+    }
+}
+
+function loadFeedback() {
+    const user = auth.currentUser;
+    if(!user) return;
+    const container = document.getElementById('feedbackContent');
+
+    db.collection('users').doc(user.uid).collection('comments')
+        .orderBy('createdAt', 'desc')
+        .onSnapshot(snap => {
+            if (snap.empty) {
+                container.innerHTML = '<div class="text-center py-10"><div class="inline-flex p-4 rounded-full bg-slate-900 mb-3"><i data-lucide="message-square" class="text-slate-600"></i></div><p class="text-slate-500 text-xs">No feedback from mentors yet.</p></div>';
+                lucide.createIcons();
+                return;
+            }
+
+            container.innerHTML = snap.docs.map(doc => {
+                const c = doc.data();
+                return `
+                    <div class="bg-slate-900/50 p-4 rounded-xl border border-slate-800 relative">
+                        <div class="absolute top-4 right-4 text-[9px] text-slate-600 font-mono">
+                            ${c.createdAt ? new Date(c.createdAt.seconds * 1000).toLocaleDateString() : 'Just now'}
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <div class="bg-blue-900/30 p-2 rounded-lg">
+                                <i data-lucide="user-check" class="w-4 h-4 text-blue-400"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-xs font-bold text-blue-200 mb-1">Mentor Feedback</h4>
+                                <p class="text-sm text-slate-300 leading-relaxed">${c.text}</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            lucide.createIcons();
+        });
+}
+
+function renderHistory() {
+    let history = trades.filter(t => t.status === 'closed');
+    const qInst = (document.getElementById('filterInstrument')?.value || '').toLowerCase();
+    const qSide = document.getElementById('filterSide')?.value || '';
+    const qTag = (document.getElementById('filterTag')?.value || '').toLowerCase();
+    const qFrom = document.getElementById('filterFrom')?.value || '';
+    const qTo = document.getElementById('filterTo')?.value || '';
+    if(qInst) history = history.filter(t => (t.instrument || '').toLowerCase().includes(qInst));
+    if(qSide) history = history.filter(t => (t.type || '') === qSide);
+    if(qTag) history = history.filter(t => Array.isArray(t.tags) && t.tags.some(tag => tag.toLowerCase().includes(qTag)));
+    if(qFrom) history = history.filter(t => t.closeTime && new Date(t.closeTime.seconds * 1000) >= new Date(qFrom));
+    if(qTo) history = history.filter(t => t.closeTime && new Date(t.closeTime.seconds * 1000) <= new Date(qTo));
+    const tbody = document.getElementById('historyTableBody');
+    
+    if (history.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="py-20 text-center text-slate-500 text-sm font-bold uppercase tracking-wider opacity-50">No History Records</td></tr>`;
+        return;
+    }
+
+    tbody.innerHTML = history.map(t => {
+        const pnl = t.pnl || 0;
+        const isWin = pnl >= 0;
+        return `
+            <tr class="hover:bg-slate-800/30 transition-colors border-b border-slate-800/50 last:border-0">
+                <td class="p-5 font-bold text-white text-xs">${t.instrument}</td>
+                <td class="p-5"><span class="${t.type === 'buy' ? 'text-green-500' : 'text-red-500'} font-bold text-[10px] uppercase bg-slate-900 px-2 py-1 rounded">${t.type}</span></td>
+                <td class="p-5 font-mono text-xs text-slate-300">${t.lots}</td>
+                <td class="p-5">
+                    <div class="flex flex-col gap-1">
+                        <span class="font-mono text-[10px] text-slate-400">In: ${t.entryPrice}</span>
+                        <span class="font-mono text-[10px] text-slate-400">Out: ${t.closePrice || '---'}</span>
+                    </div>
+                </td>
+                <td class="p-5 font-mono text-xs ${t.pips >= 0 ? 'text-green-500' : 'text-red-500'}">${t.pips || 0}</td>
+                <td class="p-5 text-right font-mono text-sm font-bold ${isWin ? 'text-green-400' : 'text-red-400'}">${pnl > 0 ? '+' : ''}${pnl.toFixed(2)}</td>
+                <td class="p-5 text-right">
+                    <span class="text-[10px] text-slate-500">${t.closeTime ? new Date(t.closeTime.seconds * 1000).toLocaleDateString() : '-'}</span>
+                </td>
+            </tr>
+        `;
+    }).join('');
+    lucide.createIcons();
+}
+
+function openEditModal(id) {
+    const t = trades.find(tr => tr.id === id);
+    if(!t) return;
+    currentEditTradeId = id;
+    
+    const inst = marketData.find(m => m.symbol === t.instrument);
+    const currentPrice = inst && inst.price > 0 ? inst.price : t.entryPrice;
+
+    document.getElementById('edit-id').value = id;
+    document.getElementById('e-sl').value = t.stopLoss || '';
+    document.getElementById('e-current-price').value = currentPrice;
+    const s = trailingSettings[id] || { enabled: false, distancePips: 10 };
+    const eEnable = document.getElementById('e-trailing-enable');
+    const ePips = document.getElementById('e-trailing-pips');
+    if(eEnable) eEnable.checked = !!s.enabled;
+    if(ePips) ePips.value = s.distancePips;
+    if(eEnable) eEnable.onchange = () => setTrailingEnabled(id, eEnable.checked);
+    if(ePips) ePips.oninput = () => setTrailingPips(id, parseFloat(ePips.value) || 0);
+    
+    const m = document.getElementById('editModal');
+    m.classList.remove('hidden');
+    m.classList.add('active');
+}
+
+function moveToBE() {
+    const id = currentEditTradeId;
+    const t = trades.find(tr => tr.id === id);
+    if(t) document.getElementById('e-sl').value = t.entryPrice;
+}
+
+async function updateTrade() {
+    const id = currentEditTradeId;
+    const sl = parseFloat(document.getElementById('e-sl').value) || 0;
+    
+    await db.collection('users').doc(auth.currentUser.uid).collection('trades').doc(id).update({
+        stopLoss: sl
+    });
+    closeEditModal();
+}
+
+async function confirmCloseTrade() {
+    const id = currentEditTradeId;
+    const t = trades.find(tr => tr.id === id);
+    const closePrice = parseFloat(document.getElementById('e-current-price').value) || t.entryPrice;
+    const closeNote = document.getElementById('e-note')?.value || '';
+    
+    const { profit, pips } = calculateMetrics(t, closePrice);
+    
+    await db.collection('users').doc(auth.currentUser.uid).collection('trades').doc(id).update({
+        status: 'closed',
+        closePrice: closePrice,
+        pnl: parseFloat(profit),
+        pips: parseFloat(pips),
+        closeTime: firebase.firestore.FieldValue.serverTimestamp(),
+        closeNote: closeNote
+    });
+    closeEditModal();
+}
+
+function updateStats() {
+    const closed = trades.filter(t => t.status === 'closed');
+    const totalPnl = closed.reduce((acc, curr) => acc + (curr.pnl || 0), 0);
+    const totalLots = trades.reduce((acc, curr) => acc + (curr.lots || 0), 0);
+    const wins = closed.filter(t => (t.pnl || 0) > 0).length;
+    const winRateNum = closed.length > 0 ? (wins / closed.length * 100) : 0;
+    const active = trades.filter(t => t.status === 'running').length;
+    document.getElementById('totalPnl').innerText = `$${totalPnl.toFixed(2)}`;
+    document.getElementById('totalPnl').className = `text-xl font-bold font-mono ${totalPnl >= 0 ? 'profit-text' : 'loss-text'}`;
+    document.getElementById('totalLots').innerText = totalLots.toFixed(2);
+    document.getElementById('winRate').innerText = `${winRateNum.toFixed(0)}%`;
+    document.getElementById('activeCount').innerText = active;
+    renderEquityCurve(closed);
+}
+
+// --- Leaderboard ---
+async function loadLeaderboard() {
+    // This is a simplified leaderboard that requires reading all users. 
+    // In production, you'd use a cloud function to aggregate this.
+    // Assuming read access to 'users' collection for now.
+    
+    try {
+        const snap = await db.collection('users').get();
+        const leaderboardData = [];
+        
+        for (const userDoc of snap.docs) {
+            const userData = userDoc.data();
+            const tradesSnap = await userDoc.ref.collection('trades').where('status', '==', 'closed').get();
+            let totalPnl = 0;
+            tradesSnap.forEach(t => totalPnl += (t.data().pnl || 0));
+            
+            leaderboardData.push({
+                email: userData.email,
+                pnl: totalPnl
+            });
+        }
+        
+        leaderboardData.sort((a,b) => b.pnl - a.pnl);
+        
+        document.getElementById('leaderboardContent').innerHTML = leaderboardData.map((u, index) => `
+            <div class="flex items-center justify-between p-3 bg-slate-800/50 rounded-lg">
+                <div class="flex items-center gap-3">
+                    <div class="w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center text-[10px] font-bold">
+                        ${index + 1}
+                    </div>
+                    <span class="text-sm text-slate-300 font-bold">${u.email.split('@')[0]}</span>
+                </div>
+                <span class="font-mono font-bold ${u.pnl >= 0 ? 'profit-text' : 'loss-text'}">$${u.pnl.toFixed(2)}</span>
+            </div>
+        `).join('');
+        
+    } catch (e) {
+        console.error("Leaderboard error:", e);
+        document.getElementById('leaderboardContent').innerHTML = `<p class="text-slate-500 text-xs text-center">Leaderboard unavailable (requires admin/public permissions)</p>`;
+    }
+}
+
+function loadFeedback() {
+    const user = auth.currentUser;
+    if (!user) return;
+    
+    db.collection('users').doc(user.uid).collection('comments')
+        .orderBy('createdAt', 'desc')
+        .onSnapshot(snap => {
+            const container = document.getElementById('feedbackContent');
+            if (snap.empty) {
+                container.innerHTML = `<p class="text-slate-500 text-sm text-center">No feedback yet.</p>`;
+                return;
+            }
+            
+            container.innerHTML = snap.docs.map(doc => {
+                const c = doc.data();
+                return `
+                    <div class="bg-slate-800/50 p-4 rounded-xl border border-slate-700">
+                        <div class="flex items-center gap-2 mb-2">
+                            <div class="w-2 h-2 rounded-full bg-blue-500"></div>
+                            <span class="text-xs font-bold text-blue-400 uppercase">Instructor Feedback</span>
+                            <span class="text-[10px] text-slate-500 ml-auto">${c.createdAt ? new Date(c.createdAt.seconds * 1000).toLocaleString() : ''}</span>
+                        </div>
+                        <p class="text-sm text-slate-300">${c.text}</p>
+                    </div>
+                `;
+            }).join('');
+        });
+}
+
+function addTradeNote() {
+    const id = currentEditTradeId;
+    const text = document.getElementById('e-note')?.value || '';
+    if(!id || !text.trim()) return;
+    db.collection('users').doc(auth.currentUser.uid).collection('trades').doc(id)
+      .collection('journal').add({
+        text,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      }).then(() => {
+        document.getElementById('e-note').value = '';
+        showNotification('Note added', 'success');
+      }).catch(() => showNotification('Failed to add note', 'error'));
+}
+
+function setTrailingEnabled(id, enabled) {
+    trailingSettings[id] = trailingSettings[id] || { enabled: false, distancePips: 10 };
+    trailingSettings[id].enabled = enabled;
+}
+
+function setTrailingPips(id, pips) {
+    trailingSettings[id] = trailingSettings[id] || { enabled: false, distancePips: 10 };
+    trailingSettings[id].distancePips = pips;
+}
+
+function computePipMultiplier(inst) {
+    if (inst.cat === 'FX') {
+        if (inst.symbol.includes('JPY')) return 100;
+        return 10000;
+    } else if (inst.cat === 'COM' && (inst.symbol.includes('Gold') || inst.symbol.includes('XAU'))) {
+        return 10;
+    } else if (inst.cat === 'CRY') {
+        return 1;
+    } else {
+        return 1;
+    }
+}
+
+function applyTrailingStop(t, inst, currentPrice, distancePips) {
+    const mult = computePipMultiplier(inst);
+    const delta = distancePips / mult;
+    let newSL = t.stopLoss || 0;
+    if(t.type === 'buy') {
+        if(currentPrice > t.entryPrice) {
+            const candidate = currentPrice - delta;
+            if(candidate > newSL) newSL = candidate;
+        }
+    } else {
+        if(currentPrice < t.entryPrice) {
+            const candidate = currentPrice + delta;
+            if(newSL === 0 || candidate < newSL) newSL = candidate;
+        }
+    }
+    const minStep = 1 / mult;
+    const last = lastSLWriteTime[t.id] || 0;
+    if(Math.abs(newSL - (t.stopLoss || 0)) > minStep && Date.now() - last > 4000) {
+        lastSLWriteTime[t.id] = Date.now();
+        db.collection('users').doc(auth.currentUser.uid).collection('trades').doc(t.id).update({
+            stopLoss: newSL
+        }).catch(() => {});
+    }
+}
+function renderEquityCurve(closed) {
+    const container = document.getElementById('equityCurve');
+    if(!container) return;
+    const sorted = closed.slice().sort((a,b) => {
+        const ta = a.closeTime ? a.closeTime.seconds : 0;
+        const tb = b.closeTime ? b.closeTime.seconds : 0;
+        return ta - tb;
+    });
+    let points = [];
+    let cum = 0;
+    sorted.forEach((t, i) => {
+        cum += t.pnl || 0;
+        points.push({ x: i, y: cum });
+    });
+    const w = container.clientWidth || 800;
+    const h = container.clientHeight || 220;
+    const maxY = points.length ? Math.max(...points.map(p => p.y)) : 1;
+    const minY = points.length ? Math.min(...points.map(p => p.y)) : -1;
+    const spanY = maxY - minY || 1;
+    const scaleX = points.length > 1 ? (w - 20) / (points.length - 1) : 1;
+    const path = points.map((p, i) => {
+        const x = 10 + i * scaleX;
+        const y = 10 + (h - 20) - ((p.y - minY) / spanY) * (h - 20);
+        return `${i === 0 ? 'M' : 'L'}${x},${y}`;
+    }).join(' ');
+    const color = (points.length && points[points.length - 1].y >= 0) ? '#4ade80' : '#f87171';
+    container.innerHTML = `<svg width="100%" height="${h}" viewBox="0 0 ${w} ${h}"><path d="${path}" fill="none" stroke="${color}" stroke-width="2"/></svg>`;
+}
+
+function exportCSV() {
+    const headers = ['id','instrument','type','lots','entryPrice','stopLoss','takeProfit','status','openTime','closePrice','pnl','pips','closeTime','strategy','setup','tags','riskPercent','plannedRR'];
+    const rows = trades.map(t => {
+        const open = t.openTime ? new Date(t.openTime.seconds * 1000).toISOString() : '';
+        const close = t.closeTime ? new Date(t.closeTime.seconds * 1000).toISOString() : '';
+        const tags = Array.isArray(t.tags) ? t.tags.join('|') : '';
+        return [
+            t.id,
+            t.instrument || '',
+            t.type || '',
+            t.lots || '',
+            t.entryPrice || '',
+            t.stopLoss || '',
+            t.takeProfit || '',
+            t.status || '',
+            open,
+            t.closePrice || '',
+            t.pnl || '',
+            t.pips || '',
+            close,
+            t.strategy || '',
+            t.setup || '',
+            tags,
+            t.riskPercent || '',
+            t.plannedRR || ''
+        ].map(v => (typeof v === 'string' && v.includes(',')) ? `"${v}"` : v).join(',');
+    });
+    const csv = [headers.join(','), ...rows].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'trades.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+function computePlannedRR(side, entry, sl, tp) {
+    if(!entry || !sl || !tp) return 0;
+    if(side === 'buy') {
+        const risk = entry - sl;
+        const reward = tp - entry;
+        if(risk <= 0) return 0;
+        return parseFloat((reward / risk).toFixed(2));
+    } else {
+        const risk = sl - entry;
+        const reward = entry - tp;
+        if(risk <= 0) return 0;
+        return parseFloat((reward / risk).toFixed(2));
     }
 }
