@@ -28,14 +28,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 // FORCE Token Refresh to ensure claims (like admin) are up-to-date
                 const token = await user.getIdTokenResult(true);
                 
-                const isAdmin = token.claims.admin === true || 
-                              ['admin@skillforge.com', 'admin@gmail.com'].includes(user.email);
+                // Strict check to match Firestore Rules
+                // We only check email because we removed the admin claim check from rules
+                const isAdmin = ['admin@skillforge.com', 'admin@gmail.com'].includes(user.email);
 
                 if (isAdmin) {
                     loadStudents();
                 } else {
                     showNotification('Access Denied: Admin privileges required.', 'error');
-                    setTimeout(() => window.location.href = 'index.html?error=admin_privilege_required', 2000);
+                    // Add debug info to UI before redirecting
+                    document.body.innerHTML = `<div class="p-10 text-center text-white">
+                        <h1 class="text-2xl font-bold text-red-500 mb-4">Access Denied</h1>
+                        <p class="mb-4">User: ${user.email}</p>
+                        <p class="text-slate-400 text-sm">Redirecting...</p>
+                    </div>`;
+                    setTimeout(() => window.location.href = 'index.html?error=admin_privilege_required', 3000);
                 }
             } catch (err) {
                 console.error('Token refresh failed:', err);
