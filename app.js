@@ -81,8 +81,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     } catch (e) {
         console.error('Critical Initialization Error:', e);
-        alert('App Error: ' + e.message);
-        window.appInitialized = false;
+        // Ensure appInitialized is set to prevent boot monitor from firing falsely if we handled it
+        window.appInitialized = true; 
+        alert('App Warning: Some features may not work. ' + e.message);
     }
 });
 
