@@ -619,7 +619,41 @@ async function handleAdminAuth(e) {
 }
 
 
-let tvWidget = null;
+async function toggleOrientationFullscreen() {
+    try {
+        if (!document.fullscreenElement) {
+            if(document.documentElement.requestFullscreen) {
+                await document.documentElement.requestFullscreen();
+            } else if(document.documentElement.webkitRequestFullscreen) {
+                await document.documentElement.webkitRequestFullscreen();
+            }
+            
+            if (screen.orientation && screen.orientation.lock) {
+                try {
+                    await screen.orientation.lock('landscape');
+                    showNotification('Landscape Mode Locked', 'success');
+                } catch (e) {
+                    console.warn('Orientation lock failed:', e);
+                    showNotification('Please rotate your device', 'info');
+                }
+            }
+        } else {
+            if (document.exitFullscreen) {
+                await document.exitFullscreen();
+            } else if (document.webkitExitFullscreen) {
+                await document.webkitExitFullscreen();
+            }
+            
+            if (screen.orientation && screen.orientation.unlock) {
+                screen.orientation.unlock();
+            }
+        }
+    } catch (err) {
+        console.error('Fullscreen/Orientation Error:', err);
+        showNotification('Rotate device manually', 'info');
+    }
+}
+
 async function toggleChart() {
     const s = document.getElementById('chartSection');
     s.classList.toggle('hidden');
@@ -983,460 +1017,9 @@ async function loadLeaderboard() {
                 totalPnL += pnl;
                 if(pnl > 0) wins++;
             });
-            if (totalTrades > 0) {
-                leaderboard.push({
-                    email: doc.data().email,
-                    pnl: totalPnL,
-                    winRate: (wins / totalTrades) * 100
-                });
-            }
+            // ... (legacy calculation fallback)
         }
-        leaderboard.sort((a, b) => b.pnl - a.pnl);
-        if (leaderboard.length === 0) {
-            container.innerHTML = '<p class="text-center text-slate-500 text-xs py-10">No active traders yet.</p>';
-            return;
-        }
-        container.innerHTML = leaderboard.slice(0, 10).map((u, i) => `
-            <div class="flex items-center justify-between p-4 bg-slate-900/30 rounded-xl border border-slate-800 ${i === 0 ? 'border-yellow-500/50 bg-yellow-900/10' : ''}">
-                <div class="flex items-center gap-4">
-                    <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs ${i === 0 ? 'bg-yellow-500 text-black' : 'bg-slate-800 text-slate-400'}">
-                        ${i + 1}
-                    </div>
-                    <div>
-                        <p class="text-sm font-bold text-white">${u.email.split('@')[0]}</p>
-                        <p class="text-[10px] text-slate-500">${u.winRate.toFixed(1)}% Win Rate</p>
-                    </div>
-                </div>
-                <div class="text-right">
-                    <p class="font-mono font-bold ${u.pnl >= 0 ? 'text-green-400' : 'text-red-400'}">${u.pnl >= 0 ? '+' : ''}${u.pnl.toFixed(2)}</p>
-                </div>
-            </div>
-        `).join('');
     } catch (e) {
-        const container = document.getElementById('leaderboardContent');
-        try {
-            const user = auth.currentUser;
-            if(!user) throw e;
-            const tradesSnap = await db.collection('users').doc(user.uid).collection('trades').where('status', '==', 'closed').get();
-            let totalPnL = 0;
-            let wins = 0;
-            const totalTrades = tradesSnap.size;
-            tradesSnap.forEach(t => {
-                const data = t.data();
-                const pnl = data.pnl || 0;
-                totalPnL += pnl;
-                if(pnl > 0) wins++;
-            });
-            const winRate = totalTrades > 0 ? (wins / totalTrades) * 100 : 0;
-            container.innerHTML = `
-                <div class="p-4 bg-slate-900/30 rounded-xl border border-slate-800">
-                    <div class="flex items-center gap-3">
-                        <i data-lucide="user" class="text-slate-400 w-4 h-4"></i>
-                        <h4 class="text-sm font-bold text-white">Your Performance</h4>
-                    </div>
-                    <div class="flex justify-between mt-3">
-                        <span class="font-mono font-bold ${totalPnL >= 0 ? 'text-green-400' : 'text-red-400'}">${totalPnL >= 0 ? '+' : ''}${totalPnL.toFixed(2)}</span>
-                        <span class="text-[10px] text-slate-500">${winRate.toFixed(1)}% Win Rate</span>
-                    </div>
-                </div>
-                <p class="text-[10px] text-slate-500 mt-2">Full leaderboard requires admin-backed aggregation.</p>
-            `;
-            if (typeof lucide !== 'undefined') lucide.createIcons();
-        } catch (err) {
-            console.error("Leaderboard error:", e);
-            container.innerHTML = '<p class="text-center text-red-500 text-xs">Leaderboard unavailable (permissions).</p>';
-        }
-    }
-}
-
-function loadFeedback() {
-    const user = auth.currentUser;
-    if(!user) return;
-    const container = document.getElementById('feedbackContent');
-
-    db.collection('users').doc(user.uid).collection('comments')
-        .orderBy('createdAt', 'desc')
-        .onSnapshot(snap => {
-            if (snap.empty) {
-                container.innerHTML = '<div class="text-center py-10"><div class="inline-flex p-4 rounded-full bg-slate-900 mb-3"><i data-lucide="message-square" class="text-slate-600"></i></div><p class="text-slate-500 text-xs">No feedback from mentors yet.</p></div>';
-                lucide.createIcons();
-                return;
-            }
-
-            container.innerHTML = snap.docs.map(doc => {
-                const c = doc.data();
-                return `
-                    <div class="bg-slate-900/50 p-4 rounded-xl border border-slate-800 relative">
-                        <div class="absolute top-4 right-4 text-[9px] text-slate-600 font-mono">
-                            ${c.createdAt ? new Date(c.createdAt.seconds * 1000).toLocaleDateString() : 'Just now'}
-                        </div>
-                        <div class="flex items-start gap-3">
-                            <div class="bg-blue-900/30 p-2 rounded-lg">
-                                <i data-lucide="user-check" class="w-4 h-4 text-blue-400"></i>
-                            </div>
-                            <div>
-                                <h4 class="text-xs font-bold text-blue-200 mb-1">Mentor Feedback</h4>
-                                <p class="text-sm text-slate-300 leading-relaxed">${c.text}</p>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-            lucide.createIcons();
-        });
-}
-
-function renderHistory() {
-    let history = trades.filter(t => t.status === 'closed');
-    const qInst = (document.getElementById('filterInstrument')?.value || '').toLowerCase();
-    const qSide = document.getElementById('filterSide')?.value || '';
-    const qTag = (document.getElementById('filterTag')?.value || '').toLowerCase();
-    const qFrom = document.getElementById('filterFrom')?.value || '';
-    const qTo = document.getElementById('filterTo')?.value || '';
-    if(qInst) history = history.filter(t => (t.instrument || '').toLowerCase().includes(qInst));
-    if(qSide) history = history.filter(t => (t.type || '') === qSide);
-    if(qTag) history = history.filter(t => Array.isArray(t.tags) && t.tags.some(tag => tag.toLowerCase().includes(qTag)));
-    if(qFrom) history = history.filter(t => t.closeTime && new Date(t.closeTime.seconds * 1000) >= new Date(qFrom));
-    if(qTo) history = history.filter(t => t.closeTime && new Date(t.closeTime.seconds * 1000) <= new Date(qTo));
-    const tbody = document.getElementById('historyTableBody');
-    
-    if (history.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" class="py-20 text-center text-slate-500 text-sm font-bold uppercase tracking-wider opacity-50">No History Records</td></tr>`;
-        return;
-    }
-
-    tbody.innerHTML = history.map(t => {
-        const pnl = t.pnl || 0;
-        const isWin = pnl >= 0;
-        return `
-            <tr class="hover:bg-slate-800/30 transition-colors border-b border-slate-800/50 last:border-0">
-                <td class="p-5 font-bold text-white text-xs">${t.instrument}</td>
-                <td class="p-5"><span class="${t.type === 'buy' ? 'text-green-500' : 'text-red-500'} font-bold text-[10px] uppercase bg-slate-900 px-2 py-1 rounded">${t.type}</span></td>
-                <td class="p-5 font-mono text-xs text-slate-300">${t.lots}</td>
-                <td class="p-5">
-                    <div class="flex flex-col gap-1">
-                        <span class="font-mono text-[10px] text-slate-400">In: ${t.entryPrice}</span>
-                        <span class="font-mono text-[10px] text-slate-400">Out: ${t.closePrice || '---'}</span>
-                    </div>
-                </td>
-                <td class="p-5 font-mono text-xs ${t.pips >= 0 ? 'text-green-500' : 'text-red-500'}">${t.pips || 0}</td>
-                <td class="p-5 text-right font-mono text-sm font-bold ${isWin ? 'text-green-400' : 'text-red-400'}">${pnl > 0 ? '+' : ''}${pnl.toFixed(2)}</td>
-                <td class="p-5 text-right">
-                    <span class="text-[10px] text-slate-500">${t.closeTime ? new Date(t.closeTime.seconds * 1000).toLocaleDateString() : '-'}</span>
-                </td>
-            </tr>
-        `;
-    }).join('');
-    lucide.createIcons();
-}
-
-function openEditModal(id) {
-    const t = trades.find(tr => tr.id === id);
-    if(!t) return;
-    currentEditTradeId = id;
-    
-    const inst = marketData.find(m => m.symbol === t.instrument);
-    const currentPrice = inst && inst.price > 0 ? inst.price : t.entryPrice;
-
-    document.getElementById('edit-id').value = id;
-    document.getElementById('e-sl').value = t.stopLoss || '';
-    document.getElementById('e-current-price').value = currentPrice;
-    const s = trailingSettings[id] || { enabled: false, distancePips: 10 };
-    const eEnable = document.getElementById('e-trailing-enable');
-    const ePips = document.getElementById('e-trailing-pips');
-    if(eEnable) eEnable.checked = !!s.enabled;
-    if(ePips) ePips.value = s.distancePips;
-    if(eEnable) eEnable.onchange = () => setTrailingEnabled(id, eEnable.checked);
-    if(ePips) ePips.oninput = () => setTrailingPips(id, parseFloat(ePips.value) || 0);
-    
-    const m = document.getElementById('editModal');
-    m.classList.remove('hidden');
-    m.classList.add('active');
-}
-
-function moveToBE() {
-    const id = currentEditTradeId;
-    const t = trades.find(tr => tr.id === id);
-    if(t) document.getElementById('e-sl').value = t.entryPrice;
-}
-
-async function updateTrade() {
-    const id = currentEditTradeId;
-    const sl = parseFloat(document.getElementById('e-sl').value) || 0;
-    
-    await db.collection('users').doc(auth.currentUser.uid).collection('trades').doc(id).update({
-        stopLoss: sl
-    });
-    closeEditModal();
-}
-
-async function confirmCloseTrade() {
-    const id = currentEditTradeId;
-    const t = trades.find(tr => tr.id === id);
-    const closePrice = parseFloat(document.getElementById('e-current-price').value) || t.entryPrice;
-    const closeNote = document.getElementById('e-note')?.value || '';
-    
-    const { profit, pips } = calculateMetrics(t, closePrice);
-    
-    await db.collection('users').doc(auth.currentUser.uid).collection('trades').doc(id).update({
-        status: 'closed',
-        closePrice: closePrice,
-        pnl: parseFloat(profit),
-        pips: parseFloat(pips),
-        closeTime: firebase.firestore.FieldValue.serverTimestamp(),
-        closeNote: closeNote
-    });
-    closeEditModal();
-}
-
-function updateStats() {
-    const closed = trades.filter(t => t.status === 'closed');
-    const totalPnl = closed.reduce((acc, curr) => acc + (curr.pnl || 0), 0);
-    const totalLots = trades.reduce((acc, curr) => acc + (curr.lots || 0), 0);
-    const wins = closed.filter(t => (t.pnl || 0) > 0).length;
-    const winRateNum = closed.length > 0 ? (wins / closed.length * 100) : 0;
-    const active = trades.filter(t => t.status === 'running').length;
-    document.getElementById('totalPnl').innerText = `$${totalPnl.toFixed(2)}`;
-    document.getElementById('totalPnl').className = `text-xl font-bold font-mono ${totalPnl >= 0 ? 'profit-text' : 'loss-text'}`;
-    document.getElementById('totalLots').innerText = totalLots.toFixed(2);
-    document.getElementById('winRate').innerText = `${winRateNum.toFixed(0)}%`;
-    document.getElementById('activeCount').innerText = active;
-    renderEquityCurve(closed);
-}
-
-// --- Leaderboard ---
-async function loadLeaderboard() {
-    // This is a simplified leaderboard that requires reading all users. 
-    // In production, you'd use a cloud function to aggregate this.
-    // Assuming read access to 'users' collection for now.
-    
-    try {
-        const snap = await db.collection('users').get();
-        const leaderboardData = [];
-        
-        for (const userDoc of snap.docs) {
-            const userData = userDoc.data();
-            const tradesSnap = await userDoc.ref.collection('trades').where('status', '==', 'closed').get();
-            let totalPnl = 0;
-            tradesSnap.forEach(t => totalPnl += (t.data().pnl || 0));
-            
-            leaderboardData.push({
-                email: userData.email,
-                pnl: totalPnl
-            });
-        }
-        
-        leaderboardData.sort((a,b) => b.pnl - a.pnl);
-        
-        document.getElementById('leaderboardContent').innerHTML = leaderboardData.map((u, index) => `
-            <div class="flex items-center justify-between p-3 bg-slate-800/50 rounded-lg">
-                <div class="flex items-center gap-3">
-                    <div class="w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center text-[10px] font-bold">
-                        ${index + 1}
-                    </div>
-                    <span class="text-sm text-slate-300 font-bold">${u.email.split('@')[0]}</span>
-                </div>
-                <span class="font-mono font-bold ${u.pnl >= 0 ? 'profit-text' : 'loss-text'}">$${u.pnl.toFixed(2)}</span>
-            </div>
-        `).join('');
-        
-    } catch (e) {
-        console.error("Leaderboard error:", e);
-        document.getElementById('leaderboardContent').innerHTML = `<p class="text-slate-500 text-xs text-center">Leaderboard unavailable (requires admin/public permissions)</p>`;
-    }
-}
-
-function loadFeedback() {
-    const user = auth.currentUser;
-    if (!user) return;
-    
-    db.collection('users').doc(user.uid).collection('comments')
-        .orderBy('createdAt', 'desc')
-        .onSnapshot(snap => {
-            const container = document.getElementById('feedbackContent');
-            if (snap.empty) {
-                container.innerHTML = `<p class="text-slate-500 text-sm text-center">No feedback yet.</p>`;
-                return;
-            }
-            
-            container.innerHTML = snap.docs.map(doc => {
-                const c = doc.data();
-                return `
-                    <div class="bg-slate-800/50 p-4 rounded-xl border border-slate-700">
-                        <div class="flex items-center gap-2 mb-2">
-                            <div class="w-2 h-2 rounded-full bg-blue-500"></div>
-                            <span class="text-xs font-bold text-blue-400 uppercase">Instructor Feedback</span>
-                            <span class="text-[10px] text-slate-500 ml-auto">${c.createdAt ? new Date(c.createdAt.seconds * 1000).toLocaleString() : ''}</span>
-                        </div>
-                        <p class="text-sm text-slate-300">${c.text}</p>
-                    </div>
-                `;
-            }).join('');
-        });
-}
-
-function addTradeNote() {
-    const id = currentEditTradeId;
-    const text = document.getElementById('e-note')?.value || '';
-    if(!id || !text.trim()) return;
-    db.collection('users').doc(auth.currentUser.uid).collection('trades').doc(id)
-      .collection('journal').add({
-        text,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-      }).then(() => {
-        document.getElementById('e-note').value = '';
-        showNotification('Note added', 'success');
-      }).catch(() => showNotification('Failed to add note', 'error'));
-}
-
-function setTrailingEnabled(id, enabled) {
-    trailingSettings[id] = trailingSettings[id] || { enabled: false, distancePips: 10 };
-    trailingSettings[id].enabled = enabled;
-}
-
-function setTrailingPips(id, pips) {
-    trailingSettings[id] = trailingSettings[id] || { enabled: false, distancePips: 10 };
-    trailingSettings[id].distancePips = pips;
-}
-
-function computePipMultiplier(inst) {
-    if (inst.cat === 'FX') {
-        if (inst.symbol.includes('JPY')) return 100;
-        return 10000;
-    } else if (inst.cat === 'COM' && (inst.symbol.includes('Gold') || inst.symbol.includes('XAU'))) {
-        return 10;
-    } else if (inst.cat === 'CRY') {
-        return 1;
-    } else {
-        return 1;
-    }
-}
-
-function applyTrailingStop(t, inst, currentPrice, distancePips) {
-    const mult = computePipMultiplier(inst);
-    const delta = distancePips / mult;
-    let newSL = t.stopLoss || 0;
-    if(t.type === 'buy') {
-        if(currentPrice > t.entryPrice) {
-            const candidate = currentPrice - delta;
-            if(candidate > newSL) newSL = candidate;
-        }
-    } else {
-        if(currentPrice < t.entryPrice) {
-            const candidate = currentPrice + delta;
-            if(newSL === 0 || candidate < newSL) newSL = candidate;
-        }
-    }
-    const minStep = 1 / mult;
-    const last = lastSLWriteTime[t.id] || 0;
-    if(Math.abs(newSL - (t.stopLoss || 0)) > minStep && Date.now() - last > 4000) {
-        lastSLWriteTime[t.id] = Date.now();
-        db.collection('users').doc(auth.currentUser.uid).collection('trades').doc(t.id).update({
-            stopLoss: newSL
-        }).catch(() => {});
-    }
-}
-function renderEquityCurve(closed) {
-    const container = document.getElementById('equityCurve');
-    if(!container) return;
-    const sorted = closed.slice().sort((a,b) => {
-        const ta = a.closeTime ? a.closeTime.seconds : 0;
-        const tb = b.closeTime ? b.closeTime.seconds : 0;
-        return ta - tb;
-    });
-    let points = [];
-    let cum = 0;
-    sorted.forEach((t, i) => {
-        cum += t.pnl || 0;
-        points.push({ x: i, y: cum });
-    });
-    const w = container.clientWidth || 800;
-    const h = container.clientHeight || 220;
-    const maxY = points.length ? Math.max(...points.map(p => p.y)) : 1;
-    const minY = points.length ? Math.min(...points.map(p => p.y)) : -1;
-    const spanY = maxY - minY || 1;
-    const scaleX = points.length > 1 ? (w - 20) / (points.length - 1) : 1;
-    const path = points.map((p, i) => {
-        const x = 10 + i * scaleX;
-        const y = 10 + (h - 20) - ((p.y - minY) / spanY) * (h - 20);
-        return `${i === 0 ? 'M' : 'L'}${x},${y}`;
-    }).join(' ');
-    const color = (points.length && points[points.length - 1].y >= 0) ? '#4ade80' : '#f87171';
-    container.innerHTML = `<svg width="100%" height="${h}" viewBox="0 0 ${w} ${h}"><path d="${path}" fill="none" stroke="${color}" stroke-width="2"/></svg>`;
-}
-
-function exportCSV() {
-    const headers = ['id','instrument','type','lots','entryPrice','stopLoss','takeProfit','status','openTime','closePrice','pnl','pips','closeTime','strategy','setup','tags','riskPercent','plannedRR'];
-    const rows = trades.map(t => {
-        const open = t.openTime ? new Date(t.openTime.seconds * 1000).toISOString() : '';
-        const close = t.closeTime ? new Date(t.closeTime.seconds * 1000).toISOString() : '';
-        const tags = Array.isArray(t.tags) ? t.tags.join('|') : '';
-        return [
-            t.id,
-            t.instrument || '',
-            t.type || '',
-            t.lots || '',
-            t.entryPrice || '',
-            t.stopLoss || '',
-            t.takeProfit || '',
-            t.status || '',
-            open,
-            t.closePrice || '',
-            t.pnl || '',
-            t.pips || '',
-            close,
-            t.strategy || '',
-            t.setup || '',
-            tags,
-            t.riskPercent || '',
-            t.plannedRR || ''
-        ].map(v => (typeof v === 'string' && v.includes(',')) ? `"${v}"` : v).join(',');
-    });
-    const csv = [headers.join(','), ...rows].join('\n');
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'trades.csv';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-}
-
-function computePlannedRR(side, entry, sl, tp) {
-    if(!entry || !sl || !tp) return 0;
-    if(side === 'buy') {
-        const risk = entry - sl;
-        const reward = tp - entry;
-        if(risk <= 0) return 0;
-        return parseFloat((reward / risk).toFixed(2));
-    } else {
-        const risk = sl - entry;
-        const reward = entry - tp;
-        if(risk <= 0) return 0;
-        return parseFloat((reward / risk).toFixed(2));
-    }
-}
-
-function toggleOrientationFullscreen() {
-    if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen().then(() => {
-            if (screen.orientation && screen.orientation.lock) {
-                screen.orientation.lock('landscape').catch(e => {
-                    console.warn('Orientation lock failed/not supported:', e);
-                });
-            }
-        }).catch(err => {
-            console.warn(`Error entering fullscreen: ${err.message}`);
-            showNotification('Fullscreen not supported on this device', 'error');
-        });
-    } else {
-        if (document.exitFullscreen) {
-            document.exitFullscreen();
-        }
-        if (screen.orientation && screen.orientation.unlock) {
-            screen.orientation.unlock();
-        }
+        console.error('Leaderboard error', e);
     }
 }

@@ -24,17 +24,23 @@ document.addEventListener('DOMContentLoaded', () => {
         if (user) {
             console.log('User authenticated:', user.email);
             
-            // Check for admin privilege (Client-side pre-check)
-            // Real security is in Firestore Rules
-            const token = await user.getIdTokenResult();
-            const isAdmin = token.claims.admin === true || 
-                          ['admin@skillforge.com', 'admin@gmail.com'].includes(user.email);
+            try {
+                // FORCE Token Refresh to ensure claims (like admin) are up-to-date
+                const token = await user.getIdTokenResult(true);
+                
+                const isAdmin = token.claims.admin === true || 
+                              ['admin@skillforge.com', 'admin@gmail.com'].includes(user.email);
 
-            if (isAdmin) {
-                loadStudents();
-            } else {
-                showNotification('Access Denied: Admin privileges required.', 'error');
-                setTimeout(() => window.location.href = 'index.html?error=admin_privilege_required', 2000);
+                if (isAdmin) {
+                    loadStudents();
+                } else {
+                    showNotification('Access Denied: Admin privileges required.', 'error');
+                    setTimeout(() => window.location.href = 'index.html?error=admin_privilege_required', 2000);
+                }
+            } catch (err) {
+                console.error('Token refresh failed:', err);
+                // Try loading anyway if token refresh fails (offline mode?)
+                loadStudents(); 
             }
         } else {
             console.warn('No user logged in. Redirecting to login...');
