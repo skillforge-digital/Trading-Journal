@@ -168,3 +168,54 @@ document.getElementById('commentForm').onsubmit = async (e) => {
 function refreshTrades() {
     if (selectedStudentId) loadStudentTrades(selectedStudentId);
 }
+
+async function publishLeaderboard() {
+    try {
+        showNotification('Calculating leaderboard...', 'info');
+        const usersSnap = await db.collection('users').get();
+        const leaderboard = [];
+
+        for (const doc of usersSnap.docs) {
+            const userData = doc.data();
+            const tradesSnap = await db.collection('users').doc(doc.id).collection('trades')
+                .where('status', '==', 'closed')
+                .get();
+
+            let totalPnL = 0;
+            let wins = 0;
+            const totalTrades = tradesSnap.size;
+
+            tradesSnap.forEach(t => {
+                const data = t.data();
+                const pnl = data.pnl || 0;
+                totalPnL += pnl;
+                if(pnl > 0) wins++;
+            });
+
+            if (totalTrades > 0) {
+                leaderboard.push({
+                    uid: doc.id,
+                    email: userData.email,
+                    pnl: totalPnL,
+                    winRate: (wins / totalTrades) * 100,
+                    trades: totalTrades
+                });
+            }
+        }
+
+        // Sort by PnL
+        leaderboard.sort((a, b) => b.pnl - a.pnl);
+
+        // Save to public collection
+        await db.collection('public').doc('leaderboard').set({
+            entries: leaderboard,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        showNotification('Leaderboard published successfully!', 'success');
+        
+    } catch (error) {
+        console.error('Error publishing leaderboard:', error);
+        showNotification('Failed to publish leaderboard: ' + error.message, 'error');
+    }
+}

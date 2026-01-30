@@ -113,9 +113,46 @@ function setupUIListeners() {
     if(btnToggleChart) btnToggleChart.addEventListener('click', toggleChart);
     if(btnCloseChart) btnCloseChart.addEventListener('click', toggleChart);
 
-    const authForm = document.getElementById('authForm');
-    const adminForm = document.getElementById('adminForm');
+    // --- Password Toggle ---
+    const btnTogglePassword = document.getElementById('btn-toggle-password');
+    const passwordInput = document.getElementById('password');
+    if (btnTogglePassword && passwordInput) {
+        btnTogglePassword.addEventListener('click', () => {
+            const isPassword = passwordInput.getAttribute('type') === 'password';
+            passwordInput.setAttribute('type', isPassword ? 'text' : 'password');
+            btnTogglePassword.classList.toggle('text-blue-500'); // Highlight when visible
+        });
+    }
 
+    // --- Forgot Password ---
+    const btnForgotPassword = document.getElementById('btn-forgot-password');
+    const btnCancelReset = document.getElementById('btn-cancel-reset');
+    const resetForm = document.getElementById('resetForm');
+    const authForm = document.getElementById('authForm');
+    const authTitle = document.getElementById('auth-title');
+
+    if (btnForgotPassword) {
+        btnForgotPassword.addEventListener('click', () => {
+            if(authForm) authForm.classList.add('hidden');
+            if(resetForm) resetForm.classList.remove('hidden');
+            if(authTitle) authTitle.textContent = 'Reset Password';
+        });
+    }
+
+    if (btnCancelReset) {
+        btnCancelReset.addEventListener('click', () => {
+            if(resetForm) resetForm.classList.add('hidden');
+            if(authForm) authForm.classList.remove('hidden');
+            if(authTitle) authTitle.textContent = 'Student Login';
+        });
+    }
+
+    if (resetForm) {
+        resetForm.onsubmit = handlePasswordReset;
+    }
+
+    // Auth Forms
+    const adminForm = document.getElementById('adminForm');
     if(authForm) authForm.onsubmit = handleStudentAuth;
     if(adminForm) adminForm.onsubmit = handleAdminAuth;
 
@@ -145,6 +182,11 @@ function setupAuthListeners() {
                 console.log('User Logged In:', user.email);
                 document.getElementById('authContainer').classList.add('hidden');
                 document.getElementById('appContent').classList.remove('hidden');
+                
+                // Restore last page/tab
+                const lastTab = localStorage.getItem('skillforge_last_tab') || 'active';
+                switchTab(lastTab);
+
                 loadUserTrades(user.uid);
                 loadLeaderboard();
                 if(typeof loadFeedback === 'function') loadFeedback();
@@ -217,6 +259,10 @@ function initDerivConnection() {
                 processActiveSymbols(data.active_symbols);
             } else if (data.msg_type === 'tick') {
                 updatePrice(data.tick);
+            } else if (data.msg_type === 'candles') {
+                handleChartHistory(data.candles);
+            } else if (data.msg_type === 'ohlc') {
+                handleChartUpdate(data.ohlc);
             } else if (data.error) {
                 console.warn('Deriv API Error:', data.error.message);
                 // Don't disconnect on API errors, just log (unless critical)
@@ -444,6 +490,44 @@ function resetAuthView() {
     document.getElementById('auth-forms').classList.add('hidden');
 }
 
+async function handlePasswordReset(e) {
+    e.preventDefault();
+    const email = document.getElementById('resetEmail').value;
+    const btn = e.target.querySelector('button[type="submit"]');
+    const originalText = btn.innerHTML;
+    
+    if(!email) {
+        showNotification('Please enter your email address', 'error');
+        return;
+    }
+
+    try {
+        btn.innerHTML = 'Sending...';
+        btn.disabled = true;
+        
+        await auth.sendPasswordResetEmail(email);
+        
+        showNotification('Password reset email sent! Check your inbox.', 'success');
+        
+        // Return to login after short delay
+        setTimeout(() => {
+            document.getElementById('resetForm').classList.add('hidden');
+            document.getElementById('authForm').classList.remove('hidden');
+            const t = document.getElementById('auth-title');
+            if(t) t.textContent = 'Student Login';
+        }, 2000);
+        
+    } catch (error) {
+        console.error('Reset Error:', error);
+        let msg = error.message;
+        if(error.code === 'auth/user-not-found') msg = 'No account found with this email.';
+        showNotification(msg, 'error');
+    } finally {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+    }
+}
+
 async function handleStudentAuth(e) {
     e.preventDefault();
     const email = document.getElementById('email').value;
@@ -487,6 +571,7 @@ async function toggleChart() {
 }
 
 function switchTab(tab) {
+    localStorage.setItem('skillforge_last_tab', tab);
     currentTab = tab;
     // Reset classes
     ['active', 'history', 'leaderboard', 'feedback'].forEach(t => {
@@ -614,6 +699,29 @@ async function showChartForSymbol(symbol) {
 
 function updateChartOnTick(tick) {
     // Deprecated for chart, handled by ohlc
+}
+
+function handleChartHistory(candles) {
+    if(!lwSeries) return;
+    const data = candles.map(c => ({
+        time: c.epoch,
+        open: parseFloat(c.open),
+        high: parseFloat(c.high),
+        low: parseFloat(c.low),
+        close: parseFloat(c.close)
+    }));
+    lwSeries.setData(data);
+}
+
+function handleChartUpdate(ohlc) {
+    if(!lwSeries) return;
+    lwSeries.update({
+        time: parseInt(ohlc.open_time),
+        open: parseFloat(ohlc.open),
+        high: parseFloat(ohlc.high),
+        low: parseFloat(ohlc.low),
+        close: parseFloat(ohlc.close)
+    });
 }
 // --- Trade Logic ---
 
