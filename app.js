@@ -113,6 +113,32 @@ function setupUIListeners() {
     if(btnToggleChart) btnToggleChart.addEventListener('click', toggleChart);
     if(btnCloseChart) btnCloseChart.addEventListener('click', toggleChart);
 
+    // --- Password Toggle ---
+    const btnTogglePassword = document.getElementById('btn-toggle-password');
+    const passwordInput = document.getElementById('password');
+    if (btnTogglePassword && passwordInput) {
+        btnTogglePassword.addEventListener('click', () => {
+            const isPassword = passwordInput.getAttribute('type') === 'password';
+            passwordInput.setAttribute('type', isPassword ? 'text' : 'password');
+            // Toggle eye icon
+            const icon = btnTogglePassword.querySelector('i');
+            if (icon) {
+                icon.setAttribute('data-lucide', isPassword ? 'eye-off' : 'eye');
+                lucide.createIcons();
+            }
+            btnTogglePassword.classList.toggle('text-blue-500'); // Highlight when visible
+        });
+    }
+
+    // --- Forgot Password ---
+    const btnForgotPassword = document.getElementById('btn-forgot-password');
+    const btnCancelReset = document.getElementById('btn-cancel-reset');
+    const resetForm = document.getElementById('resetForm');
+
+    if (btnForgotPassword) btnForgotPassword.addEventListener('click', () => showAuthForm('reset'));
+    if (btnCancelReset) btnCancelReset.addEventListener('click', () => showAuthForm('login'));
+    if (resetForm) resetForm.onsubmit = handlePasswordReset;
+
     const authForm = document.getElementById('authForm');
     const adminForm = document.getElementById('adminForm');
 
@@ -425,6 +451,7 @@ function showAuthForm(type) {
     
     document.getElementById('authForm').classList.add('hidden');
     document.getElementById('adminForm').classList.add('hidden');
+    document.getElementById('resetForm').classList.add('hidden');
     document.getElementById('auth-title').innerText = '';
 
     if (type === 'login' || type === 'register') {
@@ -433,6 +460,9 @@ function showAuthForm(type) {
         document.getElementById('auth-title').innerText = isRegister ? 'Student Registration' : 'Student Login';
         document.getElementById('btn-auth-action').innerText = isRegister ? 'Create Account' : 'Access Journal';
         document.getElementById('authForm').dataset.mode = type;
+    } else if (type === 'reset') {
+        document.getElementById('resetForm').classList.remove('hidden');
+        document.getElementById('auth-title').innerText = 'Reset Password';
     } else {
         document.getElementById('adminForm').classList.remove('hidden');
         document.getElementById('auth-title').innerText = 'Mentor Access';
@@ -463,14 +493,100 @@ async function handleStudentAuth(e) {
     }
 }
 
-function handleAdminAuth(e) {
+async function handleAdminAuth(e) {
     e.preventDefault();
     const code = document.getElementById('adminPasscode').value;
-    if (code === '#skillmindset#') {
+    const btn = e.target.querySelector('button');
+    const originalText = btn.innerText;
+    
+    // UI Feedback
+    btn.innerText = 'Verifying...';
+    btn.disabled = true;
+
+    try {
+        // We use the passcode as the password for the admin account
+        // This links the "passcode" concept to Firebase Auth
+        await auth.signInWithEmailAndPassword('admin@skillforge.com', code);
+        
+        // Success
         window.location.href = 'admin.html';
-    } else {
-        showNotification('Access Denied: Invalid Mentor Passcode', 'error');
+    } catch (error) {
+        if (error.code === 'auth/user-not-found') {
+            // Auto-create admin if missing (first run)
+            try {
+                await auth.createUserWithEmailAndPassword('admin@skillforge.com', code);
+                window.location.href = 'admin.html';
+            } catch (createErr) {
+                showNotification('Setup Error: ' + createErr.message, 'error');
+            }
+        } else if (error.code === 'auth/wrong-password') {
+            showNotification('Access Denied: Invalid Passcode', 'error');
+        } else {
+            showNotification('Error: ' + error.message, 'error');
+        }
+    } finally {
+        btn.innerText = originalText;
+        btn.disabled = false;
     }
+}
+
+async function handlePasswordReset(e) {
+    e.preventDefault();
+    const email = document.getElementById('resetEmail').value;
+    
+    if (!email) {
+        showNotification('Please enter your email address.', 'error');
+        return;
+    }
+
+    try {
+        await auth.sendPasswordResetEmail(email);
+        showNotification('Password reset link sent! Check your email.', 'success');
+        setTimeout(() => showAuthForm('login'), 3000);
+    } catch (error) {
+        console.error('Password Reset Error:', error);
+        showNotification(error.message, 'error');
+    }
+}
+
+// --- Export CSV ---
+function exportCSV() {
+    if (!trades || trades.length === 0) {
+        showNotification('No trades to export.', 'info');
+        return;
+    }
+
+    const headers = ['ID', 'Instrument', 'Type', 'Lots', 'Entry', 'Exit', 'SL', 'TP', 'PnL', 'Status', 'Strategy', 'Setup', 'Date'];
+    const rows = trades.map(t => [
+        t.id,
+        t.instrument,
+        t.type,
+        t.lots,
+        t.entryPrice,
+        t.closePrice || '',
+        t.stopLoss,
+        t.takeProfit,
+        (t.pnl || 0).toFixed(2),
+        t.status,
+        `"${t.strategy || ''}"`,
+        `"${t.setup || ''}"`,
+        t.openTime ? new Date(t.openTime.seconds * 1000).toISOString().split('T')[0] : ''
+    ]);
+
+    const csvContent = [
+        headers.join(','),
+        ...rows.map(row => row.join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `skillforge_journal_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 }
 
 

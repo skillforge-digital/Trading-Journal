@@ -17,7 +17,31 @@ let selectedStudentId = null;
 
 document.addEventListener('DOMContentLoaded', () => {
     lucide.createIcons();
-    loadStudents();
+    
+    // Auth Listener
+    if (auth) {
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                // Strict check to match Firestore Rules
+                const isAdmin = ['admin@skillforge.com', 'admin@gmail.com'].includes(user.email);
+
+                if (isAdmin) {
+                    loadStudents();
+                } else {
+                    showNotification('Access Denied: Admin privileges required.', 'error');
+                    document.body.innerHTML = `<div class="p-10 text-center text-white">
+                        <h1 class="text-2xl font-bold text-red-500 mb-4">Access Denied</h1>
+                        <p class="mb-4">User: ${user.email}</p>
+                        <p class="text-slate-400 text-sm">Redirecting...</p>
+                    </div>`;
+                    setTimeout(() => window.location.href = 'index.html?error=admin_privilege_required', 3000);
+                }
+            } else {
+                 // Not logged in
+                 window.location.href = 'index.html?error=admin_login_required';
+            }
+        });
+    }
 });
 
 // --- Notifications ---
@@ -167,4 +191,62 @@ document.getElementById('commentForm').onsubmit = async (e) => {
 
 function refreshTrades() {
     if (selectedStudentId) loadStudentTrades(selectedStudentId);
+}
+
+async function publishLeaderboard() {
+    if (!confirm('Are you sure you want to publish the current leaderboard?')) return;
+    
+    try {
+        const usersSnap = await db.collection('users').get();
+        const leaderboardData = [];
+        
+        for (const doc of usersSnap.docs) {
+            const uid = doc.id;
+            const userData = doc.data();
+            
+            // Calculate metrics from trades
+            const tradesSnap = await db.collection('users').doc(uid).collection('trades').get();
+            let pnl = 0;
+            let wins = 0;
+            let total = 0;
+            
+            tradesSnap.forEach(tDoc => {
+                const t = tDoc.data();
+                if (t.status === 'closed') {
+                    pnl += (t.pnl || 0);
+                    if ((t.pnl || 0) > 0) wins++;
+                    total++;
+                }
+            });
+            
+            if (total > 0) {
+                leaderboardData.push({
+                    uid: uid,
+                    email: userData.email,
+                    name: userData.email.split('@')[0],
+                    pnl: pnl,
+                    winRate: (wins / total) * 100,
+                    totalTrades: total
+                });
+            }
+        }
+        
+        // Sort by PnL
+        leaderboardData.sort((a, b) => b.pnl - a.pnl);
+        
+        // Save to public leaderboard collection
+        const batch = db.batch();
+        const lbRef = db.collection('leaderboard').doc('current');
+        batch.set(lbRef, { 
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+            entries: leaderboardData.slice(0, 50) // Top 50
+        });
+        
+        await batch.commit();
+        showNotification('Leaderboard published successfully!', 'success');
+        
+    } catch (error) {
+        console.error('Error publishing leaderboard:', error);
+        showNotification('Failed to publish: ' + error.message, 'error');
+    }
 }

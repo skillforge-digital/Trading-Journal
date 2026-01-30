@@ -29,7 +29,7 @@
   <script src="https://www.gstatic.com/firebasejs/11.1.0/firebase-auth-compat.js" defer></script>
   <script src="https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore-compat.js" defer></script>
 
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="styles.css?v=4" />
 </head>
 
 <body class="pb-10 text-white bg-transparent">
@@ -50,12 +50,7 @@
        role="dialog" aria-modal="true" aria-labelledby="authTitle">
     <div class="glass w-full max-w-lg rounded-3xl overflow-hidden shadow-2xl flex flex-col relative border border-slate-700 max-h-[90vh] overflow-y-auto">
       <div class="p-8 pb-0 text-center">
-        <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl mb-5 shadow-2xl shadow-blue-900/50 ring-1 ring-white/10">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" aria-hidden="true" class="text-white w-10 h-10">
-            <path d="M3 3v18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="m19 9-5 5-4-4-3 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </div>
+        <img src="https://i.postimg.cc/fRYD4HSw/Whats-App-Image-2026-01-16-at-1-20-06-PM.jpg" alt="Skillforge Logo" class="w-24 h-24 rounded-2xl mb-5 shadow-2xl shadow-blue-900/50 ring-1 ring-white/10 object-cover">
         <h1 id="authTitle" class="text-2xl md:text-3xl font-black tracking-tight mb-1">SKILLFORGE <span class="text-blue-500">DIGITAL</span> &amp; CO. LTD</h1>
         <p class="text-blue-400 text-xs font-bold uppercase tracking-[0.2em]">Official Company</p>
       </div>
@@ -108,10 +103,35 @@
           </div>
           <div>
             <label for="password" class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Password</label>
-            <input type="password" id="password" name="password" required aria-required="true" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-white focus:border-blue-500 outline-none transition-colors">
+            <div class="relative">
+                <input type="password" id="password" name="password" required aria-required="true" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 pr-10 text-white focus:border-blue-500 outline-none transition-colors">
+                <button type="button" id="btn-toggle-password" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white transition-colors">
+                    <i data-lucide="eye" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <div class="text-right mt-1">
+                <button type="button" id="btn-forgot-password" class="text-[10px] font-bold text-blue-500 hover:text-blue-400 uppercase tracking-wide">Forgot Password?</button>
+            </div>
           </div>
           <button type="submit" id="btn-auth-action" class="w-full btn-primary py-3 rounded-xl font-bold text-sm uppercase tracking-wider shadow-lg shadow-blue-900/20 mt-2">
             Proceed
+          </button>
+        </form>
+
+        <!-- Reset Password Form -->
+        <form id="resetForm" class="space-y-4 hidden" novalidate>
+          <div class="p-4 bg-blue-900/20 border border-blue-900/50 rounded-xl mb-4">
+            <p class="text-xs text-blue-200">Enter your email address and we'll send you a link to reset your password.</p>
+          </div>
+          <div>
+            <label for="resetEmail" class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Email Address</label>
+            <input type="email" id="resetEmail" name="resetEmail" required class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-white focus:border-blue-500 outline-none transition-colors">
+          </div>
+          <button type="submit" class="w-full btn-primary py-3 rounded-xl font-bold text-sm uppercase tracking-wider shadow-lg shadow-blue-900/20 mt-2">
+            Send Reset Link
+          </button>
+          <button type="button" id="btn-cancel-reset" class="w-full py-3 text-slate-400 hover:text-white font-bold text-xs uppercase tracking-wider">
+            Cancel
           </button>
         </form>
 
@@ -424,7 +444,7 @@
   </div>
 
   <!-- Application JS (deferred). All DOM-dependent initialization should be in app.js -->
-  <script src="app.js" defer></script>
+  <script src="app.js?v=4" defer></script>
   <!-- Boot monitor: if app.js fails to load (e.g., wrong folder), show a visible banner -->
   <script>
     (function () {
