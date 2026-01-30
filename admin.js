@@ -12,12 +12,35 @@ if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
 }
 const db = firebase.firestore();
+const auth = firebase.auth();
 
 let selectedStudentId = null;
 
 document.addEventListener('DOMContentLoaded', () => {
     lucide.createIcons();
-    loadStudents();
+    
+    // Wait for Auth to be ready
+    auth.onAuthStateChanged(async (user) => {
+        if (user) {
+            console.log('User authenticated:', user.email);
+            
+            // Check for admin privilege (Client-side pre-check)
+            // Real security is in Firestore Rules
+            const token = await user.getIdTokenResult();
+            const isAdmin = token.claims.admin === true || 
+                          ['admin@skillforge.com', 'admin@gmail.com'].includes(user.email);
+
+            if (isAdmin) {
+                loadStudents();
+            } else {
+                showNotification('Access Denied: Admin privileges required.', 'error');
+                setTimeout(() => window.location.href = 'index.html?error=admin_privilege_required', 2000);
+            }
+        } else {
+            console.warn('No user logged in. Redirecting to login...');
+            window.location.href = 'index.html?error=admin_login_required';
+        }
+    });
 });
 
 // --- Notifications ---

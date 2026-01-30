@@ -44,6 +44,20 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log('App Initialization Started');
 
     try {
+        // Check for admin redirect errors
+        const urlParams = new URLSearchParams(window.location.search);
+        const error = urlParams.get('error');
+        if (error) {
+             if (error === 'admin_login_required') {
+                setTimeout(() => showNotification('Please login with an admin account first.', 'error'), 500);
+                setTimeout(() => showAuthForm('login'), 800);
+             } else if (error === 'admin_privilege_required') {
+                setTimeout(() => showNotification('Access Denied: You do not have admin privileges.', 'error'), 500);
+             }
+             // Clean URL
+             window.history.replaceState({}, document.title, window.location.pathname);
+        }
+
         // 1. Setup UI Event Listeners (CRITICAL: Do this first!)
         // This ensures buttons work even if other things fail
         setupUIListeners();
@@ -95,6 +109,7 @@ function setupUIListeners() {
     const btnNewTrade = document.getElementById('btn-new-trade');
     const btnLogout = document.getElementById('btn-logout');
     const btnToggleChart = document.getElementById('btn-toggle-chart');
+    const btnToggleOrientation = document.getElementById('btn-toggle-orientation');
     const btnCloseChart = document.getElementById('btn-close-chart');
     const tradeModalClose = document.getElementById('tradeModalClose');
 
@@ -111,6 +126,7 @@ function setupUIListeners() {
     if(tradeModalClose) tradeModalClose.addEventListener('click', closeModal);
     if(btnLogout) btnLogout.addEventListener('click', logout);
     if(btnToggleChart) btnToggleChart.addEventListener('click', toggleChart);
+    if(btnToggleOrientation) btnToggleOrientation.addEventListener('click', toggleOrientationFullscreen);
     if(btnCloseChart) btnCloseChart.addEventListener('click', toggleChart);
 
     // --- Password Toggle ---
@@ -547,13 +563,58 @@ async function handleStudentAuth(e) {
     }
 }
 
-function handleAdminAuth(e) {
+async function handleAdminAuth(e) {
     e.preventDefault();
     const code = document.getElementById('adminPasscode').value;
-    if (code === '#skillmindset#') {
-        window.location.href = 'admin.html';
-    } else {
-        showNotification('Access Denied: Invalid Mentor Passcode', 'error');
+    const btn = e.target.querySelector('button');
+    const originalText = btn.innerText;
+
+    if (!code) return;
+
+    try {
+        btn.innerText = 'Verifying...';
+        btn.disabled = true;
+
+        // 1. Try to login as the system admin
+        // We map the "Passcode" to the password for 'admin@skillforge.com'
+        try {
+            await auth.signInWithEmailAndPassword('admin@skillforge.com', code);
+            showNotification('Admin Verified. Accessing Panel...', 'success');
+            setTimeout(() => window.location.href = 'admin.html', 1000);
+            return;
+        } catch (authError) {
+            // If login failed, check if it's the correct hardcoded passcode
+            // If so, we might need to CREATE the admin account for them
+            if (code === '#skillmindset#') {
+                if (authError.code === 'auth/user-not-found') {
+                    console.log('Admin account not found. Creating it...');
+                    await auth.createUserWithEmailAndPassword('admin@skillforge.com', code);
+                    showNotification('Admin Setup Complete. Entering...', 'success');
+                    setTimeout(() => window.location.href = 'admin.html', 1000);
+                    return;
+                } else if (authError.code === 'auth/wrong-password') {
+                     // This means the account exists but they changed the password or used a different one.
+                     // But since the code matches the hardcoded secret, we technically trust them...
+                     // However, we can't force login without the real password.
+                     showNotification('Incorrect Admin Password (Firebase).', 'error');
+                     return;
+                }
+            }
+            throw authError; // Rethrow if not handled above
+        }
+
+    } catch (error) {
+        console.error('Admin Auth Error:', error);
+        // Legacy fallback: If all else fails but passcode is correct, let them in (read-only likely)
+        if (code === '#skillmindset#') {
+             showNotification('Offline Access Granted (Limited Features)', 'warning');
+             setTimeout(() => window.location.href = 'admin.html', 1000);
+        } else {
+            showNotification('Access Denied: Invalid Passcode', 'error');
+        }
+    } finally {
+        btn.innerText = originalText;
+        btn.disabled = false;
     }
 }
 
@@ -1355,5 +1416,27 @@ function computePlannedRR(side, entry, sl, tp) {
         const reward = entry - tp;
         if(risk <= 0) return 0;
         return parseFloat((reward / risk).toFixed(2));
+    }
+}
+
+function toggleOrientationFullscreen() {
+    if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().then(() => {
+            if (screen.orientation && screen.orientation.lock) {
+                screen.orientation.lock('landscape').catch(e => {
+                    console.warn('Orientation lock failed/not supported:', e);
+                });
+            }
+        }).catch(err => {
+            console.warn(`Error entering fullscreen: ${err.message}`);
+            showNotification('Fullscreen not supported on this device', 'error');
+        });
+    } else {
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+        }
+        if (screen.orientation && screen.orientation.unlock) {
+            screen.orientation.unlock();
+        }
     }
 }

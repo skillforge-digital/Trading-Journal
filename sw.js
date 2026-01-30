@@ -1,6 +1,11 @@
 const CACHE_NAME = 'skillforge-v1';
 const ASSETS = [
+  './',
   './index.html',
+  './admin.html',
+  './styles.css',
+  './app.js',
+  './admin.js',
   './manifest.json',
   'https://cdn.tailwindcss.com',
   'https://unpkg.com/lucide@latest',
