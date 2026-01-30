@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
         auth.onAuthStateChanged(user => {
             if (user) {
                 // Strict check to match Firestore Rules
-                const isAdmin = ['admin@skillforge.com', 'admin@gmail.com'].includes(user.email);
+                const isAdmin = ['admin_v2@skillforge.com', 'admin@skillforge.com', 'admin@gmail.com'].includes(user.email);
 
                 if (isAdmin) {
                     loadStudents();

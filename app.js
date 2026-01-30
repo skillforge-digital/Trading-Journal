@@ -506,7 +506,7 @@ async function handleAdminAuth(e) {
     try {
         // We use the passcode as the password for the admin account
         // This links the "passcode" concept to Firebase Auth
-        await auth.signInWithEmailAndPassword('admin@skillforge.com', code);
+        await auth.signInWithEmailAndPassword('admin_v2@skillforge.com', code);
         
         // Success
         window.location.href = 'admin.html';
@@ -514,13 +514,13 @@ async function handleAdminAuth(e) {
         if (error.code === 'auth/user-not-found') {
             // Auto-create admin if missing (first run)
             try {
-                await auth.createUserWithEmailAndPassword('admin@skillforge.com', code);
+                await auth.createUserWithEmailAndPassword('admin_v2@skillforge.com', code);
                 window.location.href = 'admin.html';
             } catch (createErr) {
                 showNotification('Setup Error: ' + createErr.message, 'error');
             }
         } else if (error.code === 'auth/wrong-password') {
-            showNotification('Invalid Passcode. If lost, reset password for admin@skillforge.com', 'error');
+            showNotification('Invalid Passcode. If lost, reset password for admin_v2@skillforge.com', 'error');
         } else {
             showNotification('Error: ' + error.message, 'error');
         }
