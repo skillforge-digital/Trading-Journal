@@ -931,9 +931,9 @@ function renderActiveTrades() {
         return `
             <div class="glass p-5 rounded-2xl border border-slate-800 relative group hover:border-slate-600 transition-all ${isProfit ? 'shadow-green-900/10' : 'shadow-red-900/10'} shadow-xl">
                 <div class="flex justify-between items-start mb-4">
-                    <div>
-                        <div class="flex items-center gap-2 mb-1">
-                            <span class="text-xs font-black text-white bg-slate-800 px-2 py-0.5 rounded uppercase tracking-wider">${t.instrument}</span>
+                    <div class="flex-1 mr-2">
+                        <div class="flex flex-wrap items-center gap-2 mb-1">
+                            <span class="text-xs font-black text-white bg-slate-800 px-2 py-0.5 rounded uppercase tracking-wider break-words text-left">${t.instrument}</span>
                             <span class="text-[10px] font-bold ${t.type === 'buy' ? 'text-green-500' : 'text-red-500'} bg-slate-950 px-2 py-0.5 rounded uppercase">${t.type}</span>
                         </div>
                         <span class="text-[10px] text-slate-500 font-mono">#${t.id.slice(0,6)}</span>
@@ -987,16 +987,16 @@ async function loadLeaderboard() {
             }
             container.innerHTML = entries.slice(0, 10).map((u, i) => `
                 <div class="flex items-center justify-between p-4 bg-slate-900/30 rounded-xl border border-slate-800 ${i === 0 ? 'border-yellow-500/50 bg-yellow-900/10' : ''}">
-                    <div class="flex items-center gap-4">
-                        <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs ${i === 0 ? 'bg-yellow-500 text-black' : 'bg-slate-800 text-slate-400'}">
+                    <div class="flex items-center gap-4 min-w-0">
+                        <div class="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center font-bold text-xs ${i === 0 ? 'bg-yellow-500 text-black' : 'bg-slate-800 text-slate-400'}">
                             ${i + 1}
                         </div>
-                        <div>
-                            <p class="text-sm font-bold text-white">${(u.name || u.email || '').toString().split('@')[0]}</p>
+                        <div class="min-w-0">
+                            <p class="text-sm font-bold text-white break-words">${(u.name || u.email || '').toString().split('@')[0]}</p>
                             <p class="text-[10px] text-slate-500">${(u.winRate || 0).toFixed(1)}% Win Rate</p>
                         </div>
                     </div>
-                    <div class="text-right">
+                    <div class="text-right flex-shrink-0 ml-2">
                         <p class="font-mono font-bold ${u.pnl >= 0 ? 'text-green-400' : 'text-red-400'}">${u.pnl >= 0 ? '+' : ''}${(u.pnl || 0).toFixed(2)}</p>
                     </div>
                 </div>

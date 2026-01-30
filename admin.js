@@ -100,9 +100,9 @@ async function loadStudents() {
                     <div class="w-10 h-10 rounded-full ${bgClass} flex items-center justify-center text-xs font-bold text-white shadow-lg shrink-0">
                         ${email.substring(0, 2).toUpperCase()}
                     </div>
-                    <div class="overflow-hidden">
-                        <p class="text-xs font-bold text-slate-300 truncate group-hover:text-white transition-colors">${email}</p>
-                        <p class="text-[10px] text-slate-500 truncate font-mono">ID: ${doc.id.slice(0,6)}</p>
+                    <div class="overflow-hidden w-full">
+                        <p class="text-xs font-bold text-slate-300 break-words group-hover:text-white transition-colors leading-tight">${email}</p>
+                        <p class="text-[10px] text-slate-500 font-mono mt-0.5">ID: ${doc.id.slice(0,6)}</p>
                     </div>
                     <i data-lucide="chevron-right" class="w-4 h-4 text-slate-600 group-hover:text-slate-400 ml-auto opacity-0 group-hover:opacity-100 transition-all"></i>
                 </div>
