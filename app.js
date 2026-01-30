@@ -480,6 +480,46 @@ function createNotificationContainer() {
     return div;
 }
 
+// --- Export CSV ---
+function exportCSV() {
+    if (!trades || trades.length === 0) {
+        showNotification('No trades to export.', 'info');
+        return;
+    }
+
+    const headers = ['ID', 'Instrument', 'Type', 'Lots', 'Entry', 'Exit', 'SL', 'TP', 'PnL', 'Status', 'Strategy', 'Setup', 'Date'];
+    const rows = trades.map(t => [
+        t.id,
+        t.instrument,
+        t.type,
+        t.lots,
+        t.entryPrice,
+        t.closePrice || '',
+        t.stopLoss,
+        t.takeProfit,
+        (t.pnl || 0).toFixed(2),
+        t.status,
+        `"${t.strategy || ''}"`, // Quote strings to handle commas
+        `"${t.setup || ''}"`,
+        t.openTime ? new Date(t.openTime.seconds * 1000).toISOString().split('T')[0] : ''
+    ]);
+
+    const csvContent = [
+        headers.join(','),
+        ...rows.map(row => row.join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `skillforge_journal_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
 // --- Auth Logic ---
 function showAuthForm(type) {
     document.getElementById('landing-options').classList.add('hidden');
