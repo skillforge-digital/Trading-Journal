@@ -520,7 +520,7 @@ async function handleAdminAuth(e) {
                 showNotification('Setup Error: ' + createErr.message, 'error');
             }
         } else if (error.code === 'auth/wrong-password') {
-            showNotification('Access Denied: Invalid Passcode', 'error');
+            showNotification('Invalid Passcode. If lost, reset password for admin@skillforge.com', 'error');
         } else {
             showNotification('Error: ' + error.message, 'error');
         }

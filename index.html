@@ -446,6 +446,15 @@
   <!-- Boot monitor: if app.js fails to load (e.g., wrong folder), show a visible banner -->
   <script>
     (function () {
+      // Force unregister old service workers to clear aggressive caching
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(function(registrations) {
+          for(let registration of registrations) {
+            registration.update(); // Attempt to update first
+          }
+        });
+      }
+
       // After parsing, wait briefly; app.js sets window.appInitialized = true on success
       setTimeout(function () {
         if (!window.appInitialized) {
@@ -460,11 +469,11 @@
           banner.style.color = 'white';
           banner.style.font = 'bold 12px/1.4 system-ui, -apple-system, Segoe UI, Roboto, Inter';
           banner.style.textAlign = 'center';
-          banner.textContent = 'App failed to initialize: local scripts not found. Open the main index.html from: c:\\Users\\HP\\Documents\\trae_projects\\skillforg registry\\';
+          banner.textContent = 'App failed to initialize. Please refresh the page. If the issue persists, ensure app.js is in the same folder.';
           document.body.appendChild(banner);
-          console.error('App boot failed — app.js likely missing for this file location. Open the project index.html instead.');
+          console.error('App boot failed — app.js likely missing or failed to run.');
         }
-      }, 600);
+      }, 3000); // Increased timeout to 3s to allow for slower loads
     })();
   </script>
 

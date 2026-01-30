@@ -16,9 +16,14 @@ const ASSETS = [
 ];
 
 self.addEventListener('install', (event) => {
+  self.skipWaiting(); // Force new SW to activate immediately
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))
   );
+});
+
+self.addEventListener('activate', (event) => {
+  event.waitUntil(clients.claim()); // Take control of all pages immediately
 });
 
 self.addEventListener('fetch', (event) => {
