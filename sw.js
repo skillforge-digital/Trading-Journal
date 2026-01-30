@@ -1,4 +1,4 @@
-const CACHE_NAME = 'skillforge-v4';
+const CACHE_NAME = 'skillforge-cache-v1';
 const ASSETS = [
   './',
   './index.html',
